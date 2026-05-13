@@ -3,67 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Admin Dashboard | Rare Grade Tech</title>
+    <title>LMS Admin | Rare Grade Tech</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        // TODO: Replace with your project's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // --- REAL-TIME DATA FETCHING ---
-        
-        // 1. Fetch Stats
-        const statsRef = ref(db, 'stats');
-        onValue(statsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                document.getElementById('total-students').innerText = data.activeStudents.toLocaleString();
-                document.getElementById('total-revenue').innerText = formatCurrency(data.totalRevenue);
-                document.getElementById('completion-rate').innerText = data.completionRate + "%";
-            }
-        });
-
-        // 2. Fetch Recent Enrollments
-        const enrollRef = ref(db, 'enrollments');
-        onValue(enrollRef, (snapshot) => {
-            const tableBody = document.getElementById('enrollment-table-body');
-            tableBody.innerHTML = ''; // Clear mockup
-            snapshot.forEach((childSnapshot) => {
-                const item = childSnapshot.val();
-                const row = `
-                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="px-6 py-4 font-medium text-gray-700">${item.studentName}</td>
-                        <td class="px-6 py-4 text-gray-600">${item.courseName}</td>
-                        <td class="px-6 py-4 text-gray-500">${new Date(item.timestamp).toLocaleDateString()}</td>
-                        <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">${item.status}</span></td>
-                    </tr>`;
-                tableBody.insertAdjacentHTML('afterbegin', row);
-            });
-        });
-
-        window.db = db; // Expose for functions
-    </script>
-    
-    <!-- Cloudinary Widget -->
-    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hidden-section { display: none; }
+        .modal-active { display: flex; }
+    </style>
 </head>
 <body class="bg-gray-50 flex">
 
@@ -73,14 +21,16 @@
             <h1 class="text-2xl font-bold tracking-tight text-indigo-400">Rare Grade LMS</h1>
         </div>
         <nav class="flex-1 px-4 space-y-2 mt-4">
-            <a href="#" class="flex items-center space-x-3 bg-indigo-600 p-3 rounded-lg text-white"><span>🏠</span> <span>Dashboard</span></a>
-            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 transition"><span>📚</span> <span>Courses</span></a>
-            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 transition"><span>👥</span> <span>Students</span></a>
-            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 transition"><span>💰</span> <span>Revenue</span></a>
+            <button onclick="nav('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 bg-indigo-600 p-3 rounded-lg text-white transition">
+                <span>🏠</span> <span>Dashboard</span>
+            </button>
+            <button onclick="nav('courses')" id="nav-courses" class="w-full flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 hover:text-white transition">
+                <span>📚</span> <span>Courses</span>
+            </button>
         </nav>
         <div class="p-6 border-t border-slate-800">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">K</div>
+                <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-xs">K</div>
                 <div>
                     <p class="text-sm font-medium">Katlego</p>
                     <p class="text-xs text-gray-500">Super Admin</p>
@@ -91,100 +41,201 @@
 
     <!-- Main Content -->
     <main class="flex-1 min-h-screen p-8">
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">Live Platform Monitor</h2>
-                <p class="text-gray-500">Syncing real-time data from Firebase.</p>
-            </div>
-            <button onclick="openUploadWidget()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
-                + Upload New Course
-            </button>
-        </header>
+        
+        <!-- DASHBOARD SECTION -->
+        <section id="section-dashboard">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
+                    <p class="text-gray-500">Real-time performance metrics (ZAR).</p>
+                </div>
+            </header>
 
-        <!-- KPI Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-sm font-medium uppercase">Active Students</p>
-                <h3 id="total-students" class="text-3xl font-bold mt-2">...</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <p class="text-gray-500 text-sm font-medium uppercase">Active Students</p>
+                    <h3 id="stat-students" class="text-3xl font-bold mt-2">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <p class="text-gray-500 text-sm font-medium uppercase">Revenue (ZAR)</p>
+                    <h3 id="stat-revenue" class="text-3xl font-bold mt-2 text-indigo-600">R 0.00</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <p class="text-gray-500 text-sm font-medium uppercase">Total Courses</p>
+                    <h3 id="stat-courses" class="text-3xl font-bold mt-2">0</h3>
+                </div>
             </div>
+            
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-sm font-medium uppercase">Total Revenue (ZAR)</p>
-                <h3 id="total-revenue" class="text-3xl font-bold mt-2 text-indigo-600">...</h3>
+                <h4 class="font-bold mb-4">Enrollment Growth</h4>
+                <canvas id="growthChart" height="100"></canvas>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-sm font-medium uppercase">Avg Completion</p>
-                <h3 id="completion-rate" class="text-3xl font-bold mt-2">...</h3>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-sm font-medium uppercase">Server Status</p>
-                <h3 class="text-3xl font-bold mt-2 text-green-500">Online</h3>
-            </div>
-        </div>
+        </section>
 
-        <!-- Table -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h4 class="font-bold text-gray-800">Real-time Enrollments</h4>
+        <!-- COURSES SECTION -->
+        <section id="section-courses" class="hidden-section">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Course Management</h2>
+                    <p class="text-gray-500">Manage and upload your learning content.</p>
+                </div>
+                <button onclick="toggleModal(true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg">
+                    + Add New Course
+                </button>
+            </header>
+
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Courses injected here -->
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-gray-400 text-xs uppercase font-medium">
-                        <tr>
-                            <th class="px-6 py-4">Student</th>
-                            <th class="px-6 py-4">Course</th>
-                            <th class="px-6 py-4">Date</th>
-                            <th class="px-6 py-4">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="enrollment-table-body">
-                        <!-- Data injected here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        </section>
     </main>
 
-    <script>
-        // Currency Formatter for Rands
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-ZA', {
-                style: 'currency',
-                currency: 'ZAR',
-            }).format(amount);
-        }
+    <!-- CUSTOM MODAL FORM -->
+    <div id="course-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-xl text-gray-800">Create New Course</h3>
+                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <form id="add-course-form" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Course Title</label>
+                    <input type="text" id="course-title" required class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Price (ZAR)</label>
+                    <input type="number" id="course-price" placeholder="499" required class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Thumbnail</label>
+                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                </div>
+                <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition disabled:bg-gray-400">
+                    Upload & Save Course
+                </button>
+            </form>
+        </div>
+    </div>
 
-        // Cloudinary Upload Logic
-        function openUploadWidget() {
-            cloudinary.openUploadWidget({
-                cloudName: "YOUR_CLOUD_NAME", 
-                uploadPreset: "YOUR_PRESET", // Ensure this is "Unsigned" in Cloudinary settings
-                sources: ['local', 'url', 'camera'],
-                showAdvancedOptions: false,
-                cropping: true,
-                multiple: false,
-                defaultSource: "local"
-            }, (error, result) => {
-                if (!error && result && result.event === "success") { 
-                    console.log('Done! Here is the image info: ', result.info);
-                    saveCourseToFirebase(result.info.secure_url, result.info.original_filename);
-                }
-            });
-        }
+    <!-- Firebase & Logic Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Save Course Data to Firebase after Cloudinary Upload
-        function saveCourseToFirebase(url, fileName) {
-            const coursesRef = window.db ? import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js").then(m => {
-                const newCourseRef = m.push(m.ref(window.db, 'courses'));
-                m.set(newCourseRef, {
-                    title: fileName,
-                    thumbnail: url,
-                    price: 499, // Default R499
-                    currency: "ZAR",
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- CLOUDINARY CONFIG ---
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/upload";
+        const UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET";
+
+        // --- STATE & NAVIGATION ---
+        window.nav = (target) => {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
+            document.getElementById(`section-${target}`).classList.remove('hidden-section');
+            
+            // UI Update
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('bg-indigo-600', 'text-white'));
+            document.getElementById(`nav-${target}`).classList.add('bg-indigo-600', 'text-white');
+        };
+
+        window.toggleModal = (show) => {
+            const m = document.getElementById('course-modal');
+            m.classList.toggle('hidden', !show);
+            m.classList.toggle('modal-active', show);
+        };
+
+        // --- FETCH REAL DATA ---
+        onValue(ref(db, 'courses'), (snapshot) => {
+            const grid = document.getElementById('courses-grid');
+            const data = snapshot.val();
+            grid.innerHTML = '';
+            let count = 0;
+
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const c = data[key];
+                    count++;
+                    grid.innerHTML += `
+                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm group">
+                            <div class="h-40 bg-gray-200 overflow-hidden">
+                                <img src="${c.thumbnail}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            </div>
+                            <div class="p-5">
+                                <h5 class="font-bold text-gray-800 mb-1">${c.title}</h5>
+                                <p class="text-indigo-600 font-bold">${formatCurrency(c.price)}</p>
+                            </div>
+                        </div>`;
+                });
+            }
+            document.getElementById('stat-courses').innerText = count;
+        });
+
+        // --- HANDLE FORM SUBMISSION ---
+        document.getElementById('add-course-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const file = document.getElementById('course-file').files[0];
+            
+            btn.disabled = true;
+            btn.innerText = "Uploading to Cloudinary...";
+
+            try {
+                // 1. Upload to Cloudinary (Unsigned)
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLOAD_PRESET);
+
+                const response = await fetch(CLOUDINARY_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const cloudData = await response.json();
+
+                // 2. Save to Firebase
+                const newCourseRef = push(ref(db, 'courses'));
+                await set(newCourseRef, {
+                    title: document.getElementById('course-title').value,
+                    price: parseFloat(document.getElementById('course-price').value),
+                    thumbnail: cloudData.secure_url,
                     createdAt: Date.now()
                 });
-                alert('Course thumbnail saved to Firebase!');
-            }) : null;
+
+                alert("Course added successfully!");
+                toggleModal(false);
+                document.getElementById('add-course-form').reset();
+            } catch (err) {
+                console.error(err);
+                alert("Error adding course.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Upload & Save Course";
+            }
+        };
+
+        function formatCurrency(v) {
+            return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(v);
         }
+    </script>
+
+    <script>
+        // Static Chart init
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{ data: [10, 25, 45, 80, 120], borderColor: '#4f46e5', tension: 0.4 }]
+            },
+            options: { plugins: { legend: { display: false } } }
+        });
     </script>
 </body>
 </html>
