@@ -19,13 +19,16 @@
             100% { transform: rotate(360deg); } 
         }
         
+        .sidebar {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
         .nav-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .nav-btn.active {
             background-color: #4f46e5;
             color: white;
-            box-shadow: 0 10px 15px -3px rgb(79 70 229 / 0.2);
         }
         
         .card-hover {
@@ -57,71 +60,74 @@
     </style>
 </head>
 <body class="bg-zinc-50 flex min-h-screen">
-    <!-- Top Bar -->
-    <div class="md:hidden fixed top-0 left-0 right-0 bg-white border-b z-50 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-x-3">
-            <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl font-bold">RG</div>
-            <span class="font-bold text-xl text-gray-900">Rare Grade</span>
+
+    <!-- MOBILE WARNING -->
+    <div id="mobile-warning" class="hidden md:hidden fixed inset-0 bg-slate-950 z-[999] flex items-center justify-center p-6">
+        <div class="text-center max-w-xs">
+            <div class="mx-auto w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mb-6">
+                <span class="text-5xl">💻</span>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-3">Desktop Only</h2>
+            <p class="text-slate-400">This admin dashboard is optimized for desktop use. Please open on a computer or laptop.</p>
         </div>
-        <button onclick="toggleMobileSidebar()" class="text-2xl text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
     </div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-72 bg-slate-950 h-screen sticky top-0 text-white flex flex-col shadow-2xl md:translate-x-0 -translate-x-full transition-transform duration-300 z-50">
+    <aside id="sidebar" 
+           class="sidebar group w-20 hover:w-72 bg-slate-950 h-screen fixed md:sticky top-0 text-white flex flex-col shadow-2xl z-50 overflow-hidden">
+        
         <div class="p-6 border-b border-slate-800 flex items-center gap-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-inner">RG</div>
-            <div>
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">RG</div>
+            <div class="opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
                 <div class="text-2xl font-bold tracking-tight">Rare Grade</div>
                 <div class="text-xs text-slate-400 -mt-1">LMS Admin</div>
             </div>
         </div>
         
-        <nav class="flex-1 px-4 py-8 space-y-1">
+        <nav class="flex-1 px-3 py-8 space-y-2">
             <button onclick="nav('dashboard')" id="nav-dashboard" 
-                    class="nav-btn active w-full flex items-center gap-x-3 px-5 py-4 rounded-2xl text-left">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    class="nav-btn active w-full flex items-center gap-x-4 px-5 py-4 rounded-2xl text-left">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1v-5m10-10l2 2m-2-2v10a1 1 0 01-1 1v-5m-6 0a1 1 0 001-1v5" />
                 </svg>
-                <span class="font-medium">Dashboard</span>
+                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Dashboard</span>
             </button>
+            
             <button onclick="nav('courses')" id="nav-courses" 
-                    class="nav-btn w-full flex items-center gap-x-3 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    class="nav-btn w-full flex items-center gap-x-4 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18 9.246 18 10.832 18.477 12 19.253zm0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18 14.754 18 13.168 18.477 12 19.253z" />
                 </svg>
-                <span class="font-medium">Courses</span>
+                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Courses</span>
             </button>
+            
             <button onclick="nav('learners')" id="nav-learners" 
-                    class="nav-btn w-full flex items-center gap-x-3 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    class="nav-btn w-full flex items-center gap-x-4 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 01-5.356-1.857M17 20H7m5-2v-2c0-.656-.126-1.284-.356-1.852M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.284.356-1.852m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span class="font-medium">Learners</span>
+                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Learners</span>
             </button>
         </nav>
         
         <div class="p-6 border-t border-slate-800">
             <div class="flex items-center gap-x-3">
-                <div class="w-9 h-9 bg-slate-700 rounded-full flex items-center justify-center text-lg">👨‍💼</div>
-                <div class="flex-1">
+                <div class="w-9 h-9 bg-slate-700 rounded-full flex items-center justify-center text-lg flex-shrink-0">👨‍💼</div>
+                <div class="opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
                     <p class="font-medium text-sm">Admin User</p>
-                    <p class="text-xs text-slate-500">Johannesburg, ZA</p>
+                    <p class="text-xs text-slate-500">Pretoria, ZA</p>
                 </div>
             </div>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 min-h-screen md:ml-0">
-        <header class="bg-white border-b px-8 py-6 flex items-center justify-between sticky top-0 z-40">
+    <main class="flex-1 min-h-screen md:ml-20">
+        <header class="bg-white border-b px-6 md:px-8 py-6 flex items-center justify-between sticky top-0 z-40">
             <h1 id="page-title" class="text-3xl font-semibold text-gray-900">Dashboard</h1>
             
             <div class="flex items-center gap-x-6">
-                <div class="relative">
+                <div class="relative hidden md:block">
                     <input type="text" id="global-search" placeholder="Search anything..." 
                            class="w-80 bg-zinc-100 border border-transparent focus:border-indigo-300 pl-11 py-3 rounded-3xl text-sm focus:outline-none transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 absolute left-4 top-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,7 +135,7 @@
                     </svg>
                 </div>
                 
-                <button onclick="toggleNotifications()" class="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-zinc-100 rounded-2xl transition">
+                <button class="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-zinc-100 rounded-2xl transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-9-5.197V8.5m.002 3.5L12 17l-1.998-4.5" />
                     </svg>
@@ -139,16 +145,15 @@
             </div>
         </header>
 
-        <div class="p-8">
-            <!-- DASHBOARD SECTION -->
+        <div class="p-6 md:p-8">
+            <!-- DASHBOARD -->
             <section id="section-dashboard">
-                <!-- Main Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                     <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Total Learners</p>
-                                <h3 id="stat-learners" class="stat-number text-5xl font-bold text-gray-900 mt-3">248</h3>
+                                <h3 id="stat-learners" class="stat-number text-5xl font-bold text-gray-900 mt-3">0</h3>
                             </div>
                             <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -156,17 +161,13 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="mt-6 flex items-center gap-x-2 text-emerald-600 text-sm font-medium">
-                            <span class="text-green-500">↑18</span>
-                            <span>this month</span>
-                        </div>
                     </div>
                     
                     <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Active Courses</p>
-                                <h3 id="stat-courses" class="stat-number text-5xl font-bold text-indigo-600 mt-3">14</h3>
+                                <h3 id="stat-courses" class="stat-number text-5xl font-bold text-indigo-600 mt-3">0</h3>
                             </div>
                             <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -174,17 +175,13 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="mt-6 flex items-center gap-x-2 text-emerald-600 text-sm font-medium">
-                            <span class="text-green-500">↑2</span>
-                            <span>this week</span>
-                        </div>
                     </div>
                     
                     <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Total Revenue</p>
-                                <h3 id="stat-revenue" class="stat-number text-5xl font-bold text-gray-900 mt-3">R 87,420</h3>
+                                <h3 id="stat-revenue" class="stat-number text-5xl font-bold text-gray-900 mt-3">R 0</h3>
                             </div>
                             <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -192,17 +189,13 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="mt-6 flex items-center gap-x-2 text-emerald-600 text-sm font-medium">
-                            <span class="text-green-500">↑12%</span>
-                            <span>from last month</span>
-                        </div>
                     </div>
                     
                     <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Avg. Completion</p>
-                                <h3 class="stat-number text-5xl font-bold text-gray-900 mt-3">83%</h3>
+                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Completion Rate</p>
+                                <h3 id="stat-completion" class="stat-number text-5xl font-bold text-gray-900 mt-3">83%</h3>
                             </div>
                             <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -210,81 +203,24 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="mt-6 flex items-center gap-x-2 text-emerald-600 text-sm font-medium">
-                            <span class="text-green-500">↑5%</span>
-                            <span>this month</span>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Additional Metrics -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Recent Enrollments -->
-                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100 lg:col-span-2">
-                        <h3 class="font-semibold text-lg mb-6 flex items-center gap-x-2">
-                            <span>Recent Enrollments</span>
-                        </h3>
-                        <div id="recent-enrollments" class="space-y-5 text-sm">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                    
-                    <!-- Quick Stats -->
-                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
-                        <h3 class="font-semibold text-lg mb-6">Quick Overview</h3>
-                        <div class="space-y-8">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-x-4">
-                                    <div class="w-10 h-10 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M5 19.29V18a3 3 0 013-3h8a3 3 0 013 3v1.29M12 12a4 4 0 100-8 4 4 0 000 8z" /></svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Active Learners</p>
-                                        <p id="active-learners" class="text-3xl font-bold text-gray-900">214</p>
-                                    </div>
-                                </div>
-                                <span class="text-emerald-500 text-sm font-medium">86%</span>
-                            </div>
-                            
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-x-4">
-                                    <div class="w-10 h-10 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 01-2-2H7a2 2 0 01-2 2v16m14 0h-4m-6 0H5" /></svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Pending Approvals</p>
-                                        <p class="text-3xl font-bold text-gray-900">7</p>
-                                    </div>
-                                </div>
-                                <span class="text-amber-500 text-sm font-medium">Requires action</span>
-                            </div>
-                            
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-x-4">
-                                    <div class="w-10 h-10 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2" /></svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Courses Completed</p>
-                                        <p class="text-3xl font-bold text-gray-900">1,284</p>
-                                    </div>
-                                </div>
-                                <span class="text-emerald-500 text-sm font-medium">This year</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
+                    <h3 class="font-semibold text-lg mb-6">Recent Enrollments</h3>
+                    <div id="recent-enrollments" class="space-y-6"></div>
                 </div>
             </section>
 
-            <!-- LEARNERS & COURSES SECTIONS (same as before) -->
+            <!-- LEARNERS SECTION -->
             <section id="section-learners" class="hidden-section">
                 <div class="flex justify-between items-center mb-8">
                     <div>
                         <h2 class="text-3xl font-semibold text-gray-900">Learner Registry</h2>
-                        <p class="text-gray-500 mt-1">Manage and monitor all enrolled students</p>
+                        <p class="text-gray-500 mt-1">Real-time Firebase Sync</p>
                     </div>
                     <button onclick="openLearnerForm()" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg shadow-indigo-200 transition">
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg transition">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -314,11 +250,12 @@
                 </div>
             </section>
 
+            <!-- COURSES SECTION -->
             <section id="section-courses" class="hidden-section">
                 <div class="flex justify-between items-center mb-8">
                     <h2 class="text-3xl font-semibold text-gray-900">Course Catalog</h2>
                     <button onclick="toggleModal('course', true)" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg shadow-indigo-200 transition">
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg transition">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -330,10 +267,10 @@
         </div>
     </main>
 
-    <!-- Modals and Loader remain the same as previous version -->
-    <!-- (For brevity, the full modal section from previous response is kept identical) -->
+    <!-- MODALS -->
     <div id="modal-container" class="fixed inset-0 bg-black/60 backdrop-blur-xl hidden items-center justify-center z-[100]">
-        <!-- Learner Detail Modal -->
+        
+        <!-- Learner Detail -->
         <div id="modal-learner-detail" class="modal bg-white w-full max-w-lg rounded-3xl shadow-2xl hidden overflow-hidden">
             <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-white">
                 <div class="flex justify-between">
@@ -357,7 +294,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-100 p-6 flex gap-3">
-                <button onclick="openLearnerForm(true)" class="flex-1 py-4 bg-white border border-gray-300 hover:bg-gray-50 rounded-3xl font-semibold">Edit Profile</button>
+                <button onclick="openLearnerForm(true)" class="flex-1 py-4 bg-white border border-gray-300 hover:bg-gray-50 rounded-3xl font-semibold">Edit</button>
                 <button id="btn-suspend" class="flex-1 py-4 bg-white border border-amber-300 text-amber-700 hover:bg-amber-50 rounded-3xl font-semibold">Suspend</button>
                 <button id="btn-delete" class="flex-1 py-4 bg-white border border-red-300 text-red-600 hover:bg-red-50 rounded-3xl font-semibold">Delete</button>
             </div>
@@ -405,7 +342,7 @@
             </form>
         </div>
 
-        <!-- Course Modal -->
+        <!-- Course Form -->
         <div id="modal-course" class="modal bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
             <div class="p-8 border-b">
                 <h3 class="font-bold text-2xl">Create New Course</h3>
@@ -425,7 +362,7 @@
                 </div>
                 <div class="flex gap-4 pt-4">
                     <button type="button" onclick="toggleModal('course', false)" class="flex-1 py-5 border border-gray-300 rounded-3xl font-semibold">Cancel</button>
-                    <button type="submit" class="flex-1 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-semibold">Upload &amp; Publish</button>
+                    <button type="submit" class="flex-1 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-semibold">Upload & Publish</button>
                 </div>
             </form>
         </div>
@@ -462,6 +399,12 @@
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
         const UPLOAD_PRESET = "banter_box";
         
+        function checkDevice() {
+            if (window.innerWidth < 768) {
+                document.getElementById('mobile-warning').classList.remove('hidden');
+            }
+        }
+        
         window.nav = (target) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(`section-${target}`).classList.remove('hidden-section');
@@ -477,7 +420,6 @@
             const container = document.getElementById('modal-container');
             container.classList.toggle('hidden', !show);
             container.classList.toggle('flex', show);
-            
             document.querySelectorAll('#modal-container > div').forEach(d => d.classList.add('hidden'));
             if (show) document.getElementById(`modal-${type}`).classList.remove('hidden');
         };
@@ -489,7 +431,7 @@
             l.classList.toggle('flex', show);
         };
         
-        // Fetch Learners
+        // Real-time Learners
         onValue(ref(db, 'learners'), (snapshot) => {
             const table = document.getElementById('learner-table-body');
             const data = snapshot.val() || {};
@@ -509,10 +451,12 @@
                     </td>
                 </tr>`;
             });
+            
             document.getElementById('stat-learners').textContent = Object.keys(data).length;
+            renderRecentEnrollments(data);
         });
         
-        // Fetch Courses
+        // Real-time Courses
         onValue(ref(db, 'courses'), (snapshot) => {
             const grid = document.getElementById('courses-grid');
             const select = document.getElementById('learner-course-select');
@@ -532,48 +476,51 @@
                 </div>`;
                 select.innerHTML += `<option value="${c.title}">${c.title}</option>`;
             });
+            
             document.getElementById('stat-courses').textContent = Object.keys(data).length;
         });
         
-        // Sample Recent Enrollments
-        function loadRecentEnrollments() {
+        function renderRecentEnrollments(data) {
             const container = document.getElementById('recent-enrollments');
-            container.innerHTML = `
-                <div class="flex items-center justify-between">
+            container.innerHTML = '';
+            
+            const sorted = Object.entries(data)
+                .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
+                .slice(0, 5);
+            
+            if (sorted.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-center py-8">No recent enrollments yet.</p>`;
+                return;
+            }
+            
+            sorted.forEach(([key, learner]) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3 -mx-3 rounded-2xl hover:bg-zinc-50 cursor-pointer";
+                div.innerHTML = `
                     <div class="flex items-center gap-x-4">
-                        <div class="w-9 h-9 bg-zinc-100 rounded-2xl"></div>
+                        <div class="w-10 h-10 bg-zinc-100 rounded-2xl flex items-center justify-center text-2xl">👤</div>
                         <div>
-                            <p class="font-medium">Thabo Nkosi</p>
-                            <p class="text-xs text-gray-500">Enrolled in Digital Marketing • 2h ago</p>
+                            <p class="font-medium">${learner.name}</p>
+                            <p class="text-xs text-gray-500">${learner.assignedCourse || 'General'}</p>
                         </div>
                     </div>
-                    <span class="text-emerald-600 text-sm font-medium">+R 650</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-x-4">
-                        <div class="w-9 h-9 bg-zinc-100 rounded-2xl"></div>
-                        <div>
-                            <p class="font-medium">Lerato Mokoena</p>
-                            <p class="text-xs text-gray-500">Enrolled in Python for Data Science • Yesterday</p>
-                        </div>
-                    </div>
-                    <span class="text-emerald-600 text-sm font-medium">+R 1,200</span>
-                </div>
-            `;
+                    <span class="text-emerald-600 text-sm font-medium">Just now</span>
+                `;
+                container.appendChild(div);
+            });
         }
         
-        // All other functions (viewLearnerProfile, openLearnerForm, etc.) remain the same as previous version
         window.viewLearnerProfile = (key) => {
             const l = window.learnersMap[key];
             if (!l) return;
             window.currentActionKey = key;
             
             document.getElementById('detail-name').innerText = l.name;
-            document.getElementById('detail-id').innerText = l.id;
+            document.getElementById('detail-id').innerText = l.id || '—';
             document.getElementById('detail-email').innerText = l.email;
             document.getElementById('detail-course').innerText = l.assignedCourse || 'None';
-            document.getElementById('detail-dob').innerText = l.dob;
-            document.getElementById('detail-gender').innerText = l.gender;
+            document.getElementById('detail-dob').innerText = l.dob || '—';
+            document.getElementById('detail-gender').innerText = l.gender || '—';
             
             const badge = document.getElementById('detail-status-badge');
             badge.innerText = l.status || 'ACTIVE';
@@ -588,6 +535,7 @@
         window.openLearnerForm = (editMode = false) => {
             document.getElementById('learner-form').reset();
             document.getElementById('learner-edit-key').value = '';
+            
             if (editMode && window.currentActionKey) {
                 const l = window.learnersMap[window.currentActionKey];
                 document.getElementById('learner-form-title').innerText = "Edit Learner";
@@ -614,7 +562,7 @@
         };
         
         document.getElementById('btn-suspend').onclick = async () => {
-            loader(true, "Updating...");
+            loader(true, "Updating status...");
             const current = window.learnersMap[window.currentActionKey].status;
             const newStatus = current === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
             await update(ref(db, `learners/${window.currentActionKey}`), { status: newStatus });
@@ -624,7 +572,7 @@
         
         document.getElementById('learner-form').onsubmit = async (e) => {
             e.preventDefault();
-            loader(true, "Saving...");
+            loader(true, "Saving Learner...");
             const editKey = document.getElementById('learner-edit-key').value;
             const data = {
                 name: document.getElementById('learner-name').value,
@@ -647,21 +595,29 @@
         
         document.getElementById('add-course-form').onsubmit = async (e) => {
             e.preventDefault();
-            loader(true, "Uploading...");
             const file = document.getElementById('course-file').files[0];
+            if (!file) return alert("Please select an image");
+            
+            loader(true, "Uploading image...");
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', UPLOAD_PRESET);
-            const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-            const cloud = await res.json();
-            await set(push(ref(db, 'courses')), {
-                title: document.getElementById('course-title').value,
-                price: document.getElementById('course-price').value,
-                thumbnail: cloud.secure_url,
-                createdAt: Date.now()
-            });
-            toggleModal('course', false);
-            document.getElementById('add-course-form').reset();
+            
+            try {
+                const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                const cloud = await res.json();
+                
+                await set(push(ref(db, 'courses')), {
+                    title: document.getElementById('course-title').value,
+                    price: document.getElementById('course-price').value,
+                    thumbnail: cloud.secure_url,
+                    createdAt: Date.now()
+                });
+                toggleModal('course', false);
+                document.getElementById('add-course-form').reset();
+            } catch (err) {
+                alert("Upload failed");
+            }
             loader(false);
         };
         
@@ -672,14 +628,12 @@
             });
         };
         
-        window.toggleMobileSidebar = () => {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        window.onload = () => {
+            checkDevice();
+            nav('dashboard');
         };
         
-        window.onload = () => {
-            nav('dashboard');
-            loadRecentEnrollments();
-        };
+        window.addEventListener('resize', checkDevice);
     </script>
 </body>
 </html>
