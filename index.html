@@ -3,1461 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rare LMS - Admin Dashboard</title>
+    <title>LMS Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        base: '#F8FAFC',
-                        surface: '#FFFFFF',
-                        elevated: '#F1F5F9',
-                        border: '#E2E8F0',
-                        'text-primary': '#0F172A',
-                        'text-secondary': '#475569',
-                        'text-muted': '#94A3B8',
-                        accent: '#2563EB',
-                        'accent-soft': '#DBEAFE',
-                        'accent-hover': '#1D4ED8',
-                        success: '#16A34A',
-                        'success-soft': '#DCFCE7',
-                        warning: '#D97706',
-                        'warning-soft': '#FEF3C7',
-                        danger: '#DC2626',
-                        'danger-soft': '#FEE2E2',
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        [x-cloak] { display: none !important; }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
-
-        /* Smooth transitions */
-        .transition-all-300 { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        /* Table row hover */
-        .table-row-hover:hover { background-color: #F8FAFC; }
-
-        /* Sidebar item active indicator */
-        .nav-item-active {
-            background: linear-gradient(90deg, #DBEAFE 0%, rgba(219, 234, 254, 0) 100%);
-            border-left: 3px solid #2563EB;
-        }
-
-        /* Card shadow */
-        .shadow-card {
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-        }
-        .shadow-card-hover {
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
-        }
-
-        /* Animation for modal */
-        .modal-enter { animation: modalIn 0.2s ease-out; }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Slide over animation */
-        .slide-enter { animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-
-        /* Toast animation */
-        .toast-enter { animation: toastIn 0.3s ease-out; }
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Chart container */
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-base text-text-primary font-sans antialiased" x-data="adminApp()" x-init="init()">
+<body class="bg-gray-50 flex">
 
-    <!-- Mobile Overlay -->
-    <div x-show="sidebarOpen" 
-         x-transition.opacity.duration.300ms
-         @click="sidebarOpen = false"
-         class="fixed inset-0 bg-black/30 z-40 lg:hidden"
-         x-cloak></div>
-
-    <div class="flex h-screen overflow-hidden">
-
-        <!-- Sidebar -->
-        <aside :class="sidebarCollapsed && !sidebarOpen ? 'w-20' : 'w-64'"
-               class="bg-surface border-r border-border flex-shrink-0 flex flex-col justify-between transition-all-300 fixed lg:relative z-50 h-full"
-               x-show="!sidebarOpen || window.innerWidth >= 1024"
-               x-transition:enter="transition ease-out duration-300"
-               x-transition:enter-start="-translate-x-full"
-               x-transition:enter-end="translate-x-0"
-               x-transition:leave="transition ease-in duration-300"
-               x-transition:leave-start="translate-x-0"
-               x-transition:leave-end="-translate-x-full"
-               x-cloak>
-
-            <!-- Logo Area -->
-            <div class="p-6 border-b border-border">
-                <div class="flex items-center" :class="sidebarCollapsed && !sidebarOpen ? 'justify-center' : 'space-x-3'">
-                    <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent/20">
-                        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
-                    </div>
-                    <h1 x-show="!sidebarCollapsed || sidebarOpen" 
-                        x-transition.opacity.duration.300ms
-                        class="text-xl font-bold tracking-tight text-text-primary">Rare LMS</h1>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-                <template x-for="item in navItems" :key="item.id">
-                    <button @click="currentPage = item.id; sidebarOpen = false"
-                            :class="currentPage === item.id ? 'nav-item-active text-accent bg-accent-soft/50' : 'text-text-secondary hover:bg-elevated hover:text-text-primary'"
-                            class="w-full flex items-center px-3 py-3 rounded-lg transition-all-300 group relative"
-                            :title="sidebarCollapsed && !sidebarOpen ? item.label : ''">
-                        <i :data-lucide="item.icon" class="w-5 h-5 flex-shrink-0" :class="currentPage === item.id ? 'text-accent' : ''"></i>
-                        <span x-show="!sidebarCollapsed || sidebarOpen" 
-                              x-transition.opacity.duration.300ms
-                              class="ml-3 font-medium text-sm" 
-                              x-text="item.label"></span>
-
-                        <!-- Tooltip for collapsed state -->
-                        <div x-show="sidebarCollapsed && !sidebarOpen && currentPage !== item.id"
-                             class="absolute left-full ml-2 px-2 py-1 bg-text-primary text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none"
-                             x-text="item.label"></div>
-                    </button>
-                </template>
-            </div>
-
-            <!-- Bottom Actions -->
-            <div class="p-4 border-t border-border space-y-2">
-                <button @click="sidebarCollapsed = !sidebarCollapsed"
-                        class="hidden lg:flex w-full items-center justify-center p-2 rounded-lg text-text-muted hover:bg-elevated hover:text-text-secondary transition-all-300"
-                        :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
-                    <i :data-lucide="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" class="w-5 h-5"></i>
-                </button>
-                <button @click="showToast('Logged out successfully', 'success')"
-                        class="w-full flex items-center px-3 py-3 rounded-lg text-text-secondary hover:bg-danger-soft hover:text-danger transition-all-300 group"
-                        :class="sidebarCollapsed && !sidebarOpen ? 'justify-center' : ''">
-                    <i data-lucide="log-out" class="w-5 h-5 flex-shrink-0"></i>
-                    <span x-show="!sidebarCollapsed || sidebarOpen" 
-                          x-transition.opacity.duration.300ms
-                          class="ml-3 font-medium text-sm">Sign Out</span>
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 bg-base overflow-hidden">
-
-            <!-- Top Header -->
-            <header class="h-16 bg-surface/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
-                <div class="flex items-center space-x-4">
-                    <button @click="sidebarOpen = true" 
-                            class="lg:hidden p-2 rounded-lg hover:bg-elevated text-text-secondary">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
-                    </button>
-
-                    <!-- Breadcrumb -->
-                    <nav class="hidden md:flex items-center text-sm text-text-muted">
-                        <span class="hover:text-text-secondary cursor-pointer">Admin</span>
-                        <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
-                        <span class="font-medium text-text-primary" x-text="navItems.find(n => n.id === currentPage)?.label"></span>
-                    </nav>
-                </div>
-
-                <div class="flex items-center space-x-3 lg:space-x-6">
-                    <!-- Search -->
-                    <div class="hidden md:flex items-center bg-elevated rounded-lg px-3 py-2 border border-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-all-300 w-64">
-                        <i data-lucide="search" class="w-4 h-4 text-text-muted"></i>
-                        <input type="text" 
-                               placeholder="Search anything..." 
-                               class="bg-transparent border-none outline-none ml-2 text-sm w-full placeholder:text-text-muted text-text-primary"
-                               x-model="globalSearch">
-                    </div>
-
-                    <!-- Notifications -->
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" 
-                                class="relative p-2 rounded-lg hover:bg-elevated text-text-secondary transition-all-300">
-                            <i data-lucide="bell" class="w-5 h-5"></i>
-                            <span class="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
-                        </button>
-
-                        <!-- Dropdown -->
-                        <div x-show="open" 
-                             @click.away="open = false"
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-100"
-                             x-transition:leave-start="opacity-100 scale-100"
-                             x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-80 bg-surface rounded-xl border border-border shadow-card-hover z-50 overflow-hidden"
-                             x-cloak>
-                            <div class="p-4 border-b border-border flex justify-between items-center">
-                                <h3 class="font-semibold text-sm">Notifications</h3>
-                                <button class="text-xs text-accent hover:underline">Mark all read</button>
-                            </div>
-                            <div class="max-h-96 overflow-y-auto">
-                                <template x-for="notif in notifications" :key="notif.id">
-                                    <div class="p-4 hover:bg-elevated transition-colors cursor-pointer border-b border-border last:border-0">
-                                        <div class="flex items-start space-x-3">
-                                            <div :class="notif.type === 'success' ? 'bg-success-soft text-success' : notif.type === 'warning' ? 'bg-warning-soft text-warning' : 'bg-accent-soft text-accent'"
-                                                 class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                <i :data-lucide="notif.icon" class="w-4 h-4"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-text-primary" x-text="notif.title"></p>
-                                                <p class="text-xs text-text-muted mt-1" x-text="notif.message"></p>
-                                                <p class="text-xs text-text-muted mt-1" x-text="notif.time"></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- User Profile -->
-                    <div class="flex items-center space-x-3 pl-3 border-l border-border">
-                        <div class="text-right hidden lg:block">
-                            <p class="text-sm font-semibold text-text-primary">Katlego M.</p>
-                            <p class="text-xs text-text-muted">Administrator</p>
-                        </div>
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-accent to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                            K
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-4 lg:p-8">
-                <div class="max-w-7xl mx-auto">
-
-                    <!-- DASHBOARD PAGE -->
-                    <div x-show="currentPage === 'dashboard'" x-transition.opacity.duration.300ms>
-                        <!-- Welcome Banner -->
-                        <div class="bg-gradient-to-r from-accent to-purple-600 rounded-2xl p-6 lg:p-8 mb-8 text-white relative overflow-hidden shadow-lg">
-                            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4"></div>
-                            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4"></div>
-                            <div class="relative z-10">
-                                <h1 class="text-2xl lg:text-3xl font-bold mb-2">Welcome back, Katlego!</h1>
-                                <p class="text-blue-100 max-w-xl">Your institution has 47 new enrollments this week. Review pending course approvals and check analytics.</p>
-                                <div class="mt-6 flex flex-wrap gap-3">
-                                    <button @click="currentPage = 'courses'; showToast('Navigated to Courses', 'success')" class="px-4 py-2 bg-white text-accent rounded-lg font-semibold text-sm hover:bg-blue-50 transition shadow-md">
-                                        Review Courses
-                                    </button>
-                                    <button @click="currentPage = 'analytics'" class="px-4 py-2 bg-white/20 text-white rounded-lg font-semibold text-sm hover:bg-white/30 transition backdrop-blur-sm">
-                                        View Reports
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Stats Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-                            <template x-for="stat in stats" :key="stat.id">
-                                <div class="bg-surface rounded-xl border border-border p-5 shadow-card hover:shadow-card-hover transition-all-300 group">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <div :class="stat.bgColor" class="w-10 h-10 rounded-lg flex items-center justify-center">
-                                            <i :data-lucide="stat.icon" :class="stat.iconColor" class="w-5 h-5"></i>
-                                        </div>
-                                        <span :class="stat.trend > 0 ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'" 
-                                              class="text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                                            <i :data-lucide="stat.trend > 0 ? 'trending-up' : 'trending-down'" class="w-3 h-3 mr-1"></i>
-                                            <span x-text="Math.abs(stat.trend) + '%'"></span>
-                                        </span>
-                                    </div>
-                                    <p class="text-2xl font-bold text-text-primary" x-text="stat.value"></p>
-                                    <p class="text-sm text-text-muted mt-1" x-text="stat.label"></p>
-                                </div>
-                            </template>
-                        </div>
-
-                        <!-- Charts Row -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                            <!-- Enrollment Chart -->
-                            <div class="lg:col-span-2 bg-surface rounded-xl border border-border p-6 shadow-card">
-                                <div class="flex justify-between items-center mb-6">
-                                    <div>
-                                        <h3 class="font-bold text-text-primary">Enrollment Trends</h3>
-                                        <p class="text-sm text-text-muted mt-1">New student sign-ups over the last 30 days</p>
-                                    </div>
-                                    <select class="bg-elevated border border-border rounded-lg px-3 py-1.5 text-sm text-text-secondary outline-none focus:border-accent">
-                                        <option>Last 30 days</option>
-                                        <option>Last 7 days</option>
-                                        <option>Last 90 days</option>
-                                    </select>
-                                </div>
-                                <div class="chart-container">
-                                    <canvas id="enrollmentChart"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- Course Completion -->
-                            <div class="bg-surface rounded-xl border border-border p-6 shadow-card">
-                                <h3 class="font-bold text-text-primary mb-1">Completion Rate</h3>
-                                <p class="text-sm text-text-muted mb-6">Average across all active courses</p>
-                                <div class="chart-container" style="height: 200px;">
-                                    <canvas id="completionChart"></canvas>
-                                </div>
-                                <div class="mt-4 space-y-3">
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-accent mr-2"></span>Completed</span>
-                                        <span class="font-semibold">68%</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-elevated border border-border mr-2"></span>In Progress</span>
-                                        <span class="font-semibold">32%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Activity & Quick Actions -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <!-- Recent Enrollments -->
-                            <div class="lg:col-span-2 bg-surface rounded-xl border border-border shadow-card overflow-hidden">
-                                <div class="p-6 border-b border-border flex justify-between items-center">
-                                    <h3 class="font-bold text-text-primary">Recent Enrollments</h3>
-                                    <button @click="currentPage = 'users'" class="text-sm text-accent hover:underline font-medium">View All</button>
-                                </div>
-                                <div class="divide-y divide-border">
-                                    <template x-for="user in recentUsers" :key="user.id">
-                                        <div class="p-4 flex items-center justify-between hover:bg-elevated/50 transition-colors">
-                                            <div class="flex items-center space-x-3">
-                                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white font-bold text-sm">
-                                                    <span x-text="user.name.split(' ').map(n => n[0]).join('')"></span>
-                                                </div>
-                                                <div>
-                                                    <p class="font-medium text-text-primary text-sm" x-text="user.name"></p>
-                                                    <p class="text-xs text-text-muted" x-text="user.email"></p>
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="text-sm font-medium text-text-primary" x-text="user.course"></p>
-                                                <p class="text-xs text-text-muted" x-text="user.time"></p>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-
-                            <!-- Quick Actions -->
-                            <div class="bg-surface rounded-xl border border-border p-6 shadow-card">
-                                <h3 class="font-bold text-text-primary mb-4">Quick Actions</h3>
-                                <div class="space-y-3">
-                                    <button @click="openModal('createCourse')" class="w-full flex items-center p-3 rounded-lg border border-border hover:border-accent hover:bg-accent-soft/30 transition-all-300 group">
-                                        <div class="w-10 h-10 rounded-lg bg-accent-soft flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-colors">
-                                            <i data-lucide="plus" class="w-5 h-5 text-accent group-hover:text-white"></i>
-                                        </div>
-                                        <div class="ml-3 text-left">
-                                            <p class="font-medium text-sm text-text-primary">Create Course</p>
-                                            <p class="text-xs text-text-muted">Add a new learning module</p>
-                                        </div>
-                                    </button>
-
-                                    <button @click="openModal('inviteUser')" class="w-full flex items-center p-3 rounded-lg border border-border hover:border-accent hover:bg-accent-soft/30 transition-all-300 group">
-                                        <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                                            <i data-lucide="user-plus" class="w-5 h-5 text-purple-600 group-hover:text-white"></i>
-                                        </div>
-                                        <div class="ml-3 text-left">
-                                            <p class="font-medium text-sm text-text-primary">Invite User</p>
-                                            <p class="text-xs text-text-muted">Send enrollment invitation</p>
-                                        </div>
-                                    </button>
-
-                                    <button @click="showToast('Report exported to CSV', 'success')" class="w-full flex items-center p-3 rounded-lg border border-border hover:border-accent hover:bg-accent-soft/30 transition-all-300 group">
-                                        <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center group-hover:bg-success group-hover:text-white transition-colors">
-                                            <i data-lucide="download" class="w-5 h-5 text-success group-hover:text-white"></i>
-                                        </div>
-                                        <div class="ml-3 text-left">
-                                            <p class="font-medium text-sm text-text-primary">Export Report</p>
-                                            <p class="text-xs text-text-muted">Download analytics CSV</p>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- COURSES PAGE -->
-                    <div x-show="currentPage === 'courses'" x-transition.opacity.duration.300ms x-cloak>
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                            <div>
-                                <h1 class="text-2xl font-bold text-text-primary">Course Management</h1>
-                                <p class="text-text-muted mt-1">Manage your learning content and track performance</p>
-                            </div>
-                            <button @click="openModal('createCourse')" class="px-4 py-2.5 bg-accent text-white rounded-lg font-medium text-sm hover:bg-accent-hover transition shadow-lg shadow-accent/20 flex items-center">
-                                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                                New Course
-                            </button>
-                        </div>
-
-                        <!-- Filters & Search -->
-                        <div class="bg-surface rounded-xl border border-border p-4 mb-6 shadow-card">
-                            <div class="flex flex-col lg:flex-row gap-4">
-                                <div class="flex-1 relative">
-                                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"></i>
-                                    <input type="text" 
-                                           x-model="courseSearch"
-                                           placeholder="Search courses by title, instructor, or category..."
-                                           class="w-full pl-10 pr-4 py-2.5 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all">
-                                </div>
-                                <div class="flex gap-3">
-                                    <select x-model="courseFilter" class="px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm text-text-secondary outline-none focus:border-accent">
-                                        <option value="all">All Status</option>
-                                        <option value="published">Published</option>
-                                        <option value="draft">Draft</option>
-                                        <option value="archived">Archived</option>
-                                    </select>
-                                    <select x-model="courseSort" class="px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm text-text-secondary outline-none focus:border-accent">
-                                        <option value="newest">Newest First</option>
-                                        <option value="oldest">Oldest First</option>
-                                        <option value="students">Most Students</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bulk Actions Bar -->
-                        <div x-show="selectedCourses.length > 0" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 -translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 translate-y-0"
-                             x-transition:leave-end="opacity-0 -translate-y-2"
-                             class="bg-accent-soft border border-accent/20 rounded-xl p-3 mb-4 flex items-center justify-between"
-                             x-cloak>
-                            <div class="flex items-center space-x-3">
-                                <span class="text-sm font-medium text-accent"><span x-text="selectedCourses.length"></span> selected</span>
-                                <div class="h-4 w-px bg-accent/30"></div>
-                                <button @click="bulkAction('publish')" class="text-sm text-accent hover:text-accent-hover font-medium">Publish</button>
-                                <button @click="bulkAction('archive')" class="text-sm text-accent hover:text-accent-hover font-medium">Archive</button>
-                                <button @click="bulkAction('delete')" class="text-sm text-danger hover:text-red-700 font-medium">Delete</button>
-                            </div>
-                            <button @click="selectedCourses = []" class="text-sm text-text-muted hover:text-text-secondary">
-                                <i data-lucide="x" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-
-                        <!-- Courses Table -->
-                        <div class="bg-surface rounded-xl border border-border shadow-card overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead>
-                                        <tr class="bg-elevated/50 border-b border-border">
-                                            <th class="px-6 py-4 text-left">
-                                                <input type="checkbox" 
-                                                       :checked="selectedCourses.length === filteredCourses.length && filteredCourses.length > 0"
-                                                       @change="toggleSelectAll()"
-                                                       class="custom-checkbox">
-                                            </th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Course</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Instructor</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Students</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Completion</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Last Updated</th>
-                                            <th class="px-6 py-4 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-border">
-                                        <template x-for="course in filteredCourses" :key="course.id">
-                                            <tr class="table-row-hover transition-colors group">
-                                                <td class="px-6 py-4">
-                                                    <input type="checkbox" 
-                                                           :value="course.id"
-                                                           x-model="selectedCourses"
-                                                           class="custom-checkbox">
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <div class="flex items-center space-x-3">
-                                                        <div class="w-12 h-12 rounded-lg bg-elevated border border-border flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                                            <img x-show="course.thumbnail" :src="course.thumbnail" class="w-full h-full object-cover">
-                                                            <i x-show="!course.thumbnail" data-lucide="image" class="w-5 h-5 text-text-muted"></i>
-                                                        </div>
-                                                        <div>
-                                                            <p class="font-medium text-text-primary text-sm" x-text="course.title"></p>
-                                                            <p class="text-xs text-text-muted mt-0.5" x-text="course.category"></p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <div class="flex items-center space-x-2">
-                                                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-xs font-bold">
-                                                            <span x-text="course.instructor.split(' ').map(n => n[0]).join('')"></span>
-                                                        </div>
-                                                        <span class="text-sm text-text-secondary" x-text="course.instructor"></span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <span :class="course.status === 'published' ? 'bg-success-soft text-success' : course.status === 'draft' ? 'bg-warning-soft text-warning' : 'bg-elevated text-text-muted border border-border'"
-                                                          class="px-2.5 py-1 rounded-full text-xs font-semibold capitalize"
-                                                          x-text="course.status"></span>
-                                                </td>
-                                                <td class="px-6 py-4 text-sm text-text-secondary" x-text="course.students.toLocaleString()"></td>
-                                                <td class="px-6 py-4">
-                                                    <div class="flex items-center space-x-2">
-                                                        <div class="w-20 h-1.5 bg-elevated rounded-full overflow-hidden">
-                                                            <div :style="'width: ' + course.completion + '%'" 
-                                                                 :class="course.completion > 70 ? 'bg-success' : course.completion > 40 ? 'bg-warning' : 'bg-danger'"
-                                                                 class="h-full rounded-full transition-all"></div>
-                                                        </div>
-                                                        <span class="text-xs font-medium text-text-secondary" x-text="course.completion + '%'"></span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 text-sm text-text-muted" x-text="course.updated"></td>
-                                                <td class="px-6 py-4 text-right">
-                                                    <div class="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <button @click="editCourse(course)" class="p-1.5 rounded-lg hover:bg-elevated text-text-muted hover:text-accent transition" title="Edit">
-                                                            <i data-lucide="pencil" class="w-4 h-4"></i>
-                                                        </button>
-                                                        <button class="p-1.5 rounded-lg hover:bg-elevated text-text-muted hover:text-accent transition" title="Analytics">
-                                                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-                                                        </button>
-                                                        <button @click="duplicateCourse(course)" class="p-1.5 rounded-lg hover:bg-elevated text-text-muted hover:text-accent transition" title="Duplicate">
-                                                            <i data-lucide="copy" class="w-4 h-4"></i>
-                                                        </button>
-                                                        <button @click="confirmDelete(course)" class="p-1.5 rounded-lg hover:bg-danger-soft text-text-muted hover:text-danger transition" title="Delete">
-                                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Empty State -->
-                            <div x-show="filteredCourses.length === 0" class="p-12 text-center" x-cloak>
-                                <div class="w-16 h-16 bg-elevated rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i data-lucide="search-x" class="w-8 h-8 text-text-muted"></i>
-                                </div>
-                                <h3 class="font-semibold text-text-primary mb-1">No courses found</h3>
-                                <p class="text-sm text-text-muted mb-4">Try adjusting your search or filters</p>
-                                <button @click="courseSearch = ''; courseFilter = 'all'" class="text-sm text-accent hover:underline font-medium">Clear filters</button>
-                            </div>
-
-                            <!-- Pagination -->
-                            <div class="px-6 py-4 border-t border-border flex items-center justify-between">
-                                <p class="text-sm text-text-muted">Showing <span class="font-medium text-text-primary">1-8</span> of <span class="font-medium text-text-primary">24</span> courses</p>
-                                <div class="flex items-center space-x-2">
-                                    <button class="px-3 py-1.5 rounded-lg border border-border text-sm text-text-muted hover:bg-elevated transition disabled:opacity-50" disabled>
-                                        Previous
-                                    </button>
-                                    <button class="px-3 py-1.5 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition">
-                                        1
-                                    </button>
-                                    <button class="px-3 py-1.5 rounded-lg border border-border text-sm text-text-secondary hover:bg-elevated transition">
-                                        2
-                                    </button>
-                                    <button class="px-3 py-1.5 rounded-lg border border-border text-sm text-text-secondary hover:bg-elevated transition">
-                                        3
-                                    </button>
-                                    <button class="px-3 py-1.5 rounded-lg border border-border text-sm text-text-muted hover:bg-elevated transition">
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- USERS PAGE -->
-                    <div x-show="currentPage === 'users'" x-transition.opacity.duration.300ms x-cloak>
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                            <div>
-                                <h1 class="text-2xl font-bold text-text-primary">User Management</h1>
-                                <p class="text-text-muted mt-1">Manage learners, instructors, and administrators</p>
-                            </div>
-                            <button @click="openModal('inviteUser')" class="px-4 py-2.5 bg-accent text-white rounded-lg font-medium text-sm hover:bg-accent-hover transition shadow-lg shadow-accent/20 flex items-center">
-                                <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
-                                Invite User
-                            </button>
-                        </div>
-
-                        <!-- User Stats -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                            <div class="bg-surface rounded-xl border border-border p-5 shadow-card">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm text-text-muted">Total Users</p>
-                                        <p class="text-2xl font-bold text-text-primary mt-1">3,482</p>
-                                    </div>
-                                    <div class="w-10 h-10 rounded-lg bg-accent-soft flex items-center justify-center">
-                                        <i data-lucide="users" class="w-5 h-5 text-accent"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-surface rounded-xl border border-border p-5 shadow-card">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm text-text-muted">Active This Week</p>
-                                        <p class="text-2xl font-bold text-text-primary mt-1">1,245</p>
-                                    </div>
-                                    <div class="w-10 h-10 rounded-lg bg-success-soft flex items-center justify-center">
-                                        <i data-lucide="activity" class="w-5 h-5 text-success"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-surface rounded-xl border border-border p-5 shadow-card">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm text-text-muted">Pending Invites</p>
-                                        <p class="text-2xl font-bold text-text-primary mt-1">18</p>
-                                    </div>
-                                    <div class="w-10 h-10 rounded-lg bg-warning-soft flex items-center justify-center">
-                                        <i data-lucide="mail" class="w-5 h-5 text-warning"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Users Table -->
-                        <div class="bg-surface rounded-xl border border-border shadow-card overflow-hidden">
-                            <div class="p-4 border-b border-border flex flex-col sm:flex-row gap-4">
-                                <div class="flex-1 relative">
-                                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"></i>
-                                    <input type="text" placeholder="Search users..." class="w-full pl-10 pr-4 py-2 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent">
-                                </div>
-                                <div class="flex gap-2">
-                                    <button class="px-3 py-2 bg-elevated border border-border rounded-lg text-sm text-text-secondary hover:bg-slate-200 transition flex items-center">
-                                        <i data-lucide="filter" class="w-4 h-4 mr-2"></i> Filter
-                                    </button>
-                                    <button class="px-3 py-2 bg-elevated border border-border rounded-lg text-sm text-text-secondary hover:bg-slate-200 transition flex items-center">
-                                        <i data-lucide="download" class="w-4 h-4 mr-2"></i> Export
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead>
-                                        <tr class="bg-elevated/50 border-b border-border">
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase">User</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase">Role</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase">Status</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase">Enrolled</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase">Last Active</th>
-                                            <th class="px-6 py-4 text-right text-xs font-semibold text-text-muted uppercase">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-border">
-                                        <template x-for="user in usersList" :key="user.id">
-                                            <tr class="table-row-hover transition-colors">
-                                                <td class="px-6 py-4">
-                                                    <div class="flex items-center space-x-3">
-                                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white font-bold text-sm">
-                                                            <span x-text="user.name.split(' ').map(n => n[0]).join('')"></span>
-                                                        </div>
-                                                        <div>
-                                                            <p class="font-medium text-text-primary text-sm" x-text="user.name"></p>
-                                                            <p class="text-xs text-text-muted" x-text="user.email"></p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <span :class="user.role === 'admin' ? 'bg-purple-100 text-purple-700' : user.role === 'instructor' ? 'bg-blue-100 text-blue-700' : 'bg-elevated text-text-secondary border border-border'"
-                                                          class="px-2.5 py-1 rounded-full text-xs font-semibold capitalize"
-                                                          x-text="user.role"></span>
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <span class="flex items-center text-sm text-text-secondary">
-                                                        <span class="w-2 h-2 rounded-full mr-2" :class="user.active ? 'bg-success' : 'bg-text-muted'"></span>
-                                                        <span x-text="user.active ? 'Active' : 'Inactive'"></span>
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 text-sm text-text-secondary" x-text="user.enrolled + ' courses'"></td>
-                                                <td class="px-6 py-4 text-sm text-text-muted" x-text="user.lastActive"></td>
-                                                <td class="px-6 py-4 text-right">
-                                                    <button class="text-sm text-accent hover:underline font-medium">View Profile</button>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ANALYTICS PAGE -->
-                    <div x-show="currentPage === 'analytics'" x-transition.opacity.duration.300ms x-cloak>
-                        <div class="mb-6">
-                            <h1 class="text-2xl font-bold text-text-primary">Analytics & Reports</h1>
-                            <p class="text-text-muted mt-1">Deep insights into learning performance and engagement</p>
-                        </div>
-
-                        <!-- Date Range & Export -->
-                        <div class="bg-surface rounded-xl border border-border p-4 mb-6 shadow-card flex flex-col sm:flex-row justify-between items-center gap-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex items-center bg-elevated rounded-lg border border-border px-3 py-2">
-                                    <i data-lucide="calendar" class="w-4 h-4 text-text-muted mr-2"></i>
-                                    <input type="date" class="bg-transparent text-sm outline-none text-text-secondary">
-                                    <span class="mx-2 text-text-muted">-</span>
-                                    <input type="date" class="bg-transparent text-sm outline-none text-text-secondary">
-                                </div>
-                                <select class="px-3 py-2 bg-elevated border border-border rounded-lg text-sm text-text-secondary outline-none">
-                                    <option>All Courses</option>
-                                    <option>Full-Stack Development</option>
-                                    <option>Data Science</option>
-                                </select>
-                            </div>
-                            <button @click="showToast('Report exported successfully', 'success')" class="px-4 py-2 bg-elevated border border-border rounded-lg text-sm font-medium text-text-secondary hover:bg-slate-200 transition flex items-center">
-                                <i data-lucide="download" class="w-4 h-4 mr-2"></i> Export Report
-                            </button>
-                        </div>
-
-                        <!-- Analytics Grid -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                            <div class="bg-surface rounded-xl border border-border p-6 shadow-card">
-                                <h3 class="font-bold text-text-primary mb-1">Daily Active Users</h3>
-                                <p class="text-sm text-text-muted mb-4">Unique learners accessing content per day</p>
-                                <div class="chart-container">
-                                    <canvas id="dauChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="bg-surface rounded-xl border border-border p-6 shadow-card">
-                                <h3 class="font-bold text-text-primary mb-1">Course Performance</h3>
-                                <p class="text-sm text-text-muted mb-4">Average completion rate by course category</p>
-                                <div class="chart-container">
-                                    <canvas id="performanceChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-surface rounded-xl border border-border p-6 shadow-card mb-6">
-                            <h3 class="font-bold text-text-primary mb-1">Engagement Heatmap</h3>
-                            <p class="text-sm text-text-muted mb-4">Active hours throughout the week</p>
-                            <div class="grid grid-cols-8 gap-1">
-                                <div class="text-xs text-text-muted text-center py-2"></div>
-                                <template x-for="day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']">
-                                    <div class="text-xs text-text-muted text-center py-2 font-medium" x-text="day"></div>
-                                </template>
-                                <template x-for="hour in ['8AM', '12PM', '4PM', '8PM']">
-                                    <div class="contents">
-                                        <div class="text-xs text-text-muted flex items-center" x-text="hour"></div>
-                                        <template x-for="i in 7">
-                                            <div :class="['rounded-md h-8', ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300', 'bg-blue-400', 'bg-blue-500', 'bg-blue-600'][Math.floor(Math.random() * 7)]]"
-                                                 class="transition hover:scale-110 cursor-pointer"
-                                                 :title="hour + ' - ' + Math.floor(Math.random() * 100) + ' active users'"></div>
-                                        </template>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SETTINGS PAGE -->
-                    <div x-show="currentPage === 'settings'" x-transition.opacity.duration.300ms x-cloak>
-                        <div class="mb-6">
-                            <h1 class="text-2xl font-bold text-text-primary">Institution Settings</h1>
-                            <p class="text-text-muted mt-1">Configure your LMS branding, integrations, and policies</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <!-- Settings Navigation -->
-                            <div class="lg:col-span-1">
-                                <div class="bg-surface rounded-xl border border-border shadow-card overflow-hidden sticky top-24">
-                                    <div class="p-4 border-b border-border">
-                                        <h3 class="font-semibold text-text-primary">Settings</h3>
-                                    </div>
-                                    <div class="p-2">
-                                        <template x-for="section in settingsSections" :key="section.id">
-                                            <button @click="activeSettingsTab = section.id"
-                                                    :class="activeSettingsTab === section.id ? 'bg-accent-soft text-accent border-l-3 border-accent' : 'text-text-secondary hover:bg-elevated'"
-                                                    class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all-300 flex items-center">
-                                                <i :data-lucide="section.icon" class="w-4 h-4 mr-3"></i>
-                                                <span x-text="section.label"></span>
-                                            </button>
-                                        </template>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Settings Content -->
-                            <div class="lg:col-span-2 space-y-6">
-                                <!-- General Settings -->
-                                <div x-show="activeSettingsTab === 'general'" x-transition.opacity.duration.200ms>
-                                    <div class="bg-surface rounded-xl border border-border shadow-card p-6">
-                                        <h3 class="font-bold text-text-primary mb-4">General Information</h3>
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-text-secondary mb-1">Institution Name</label>
-                                                <input type="text" value="Rare LMS Academy" class="w-full px-3 py-2 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-text-secondary mb-1">Contact Email</label>
-                                                <input type="email" value="admin@rarelms.edu" class="w-full px-3 py-2 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-text-secondary mb-1">Website URL</label>
-                                                <input type="url" value="https://rarelms.edu" class="w-full px-3 py-2 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition">
-                                            </div>
-                                            <div class="pt-4 border-t border-border">
-                                                <label class="block text-sm font-medium text-text-secondary mb-2">Institution Logo</label>
-                                                <div class="flex items-center space-x-4">
-                                                    <div class="w-16 h-16 bg-elevated rounded-lg border border-border flex items-center justify-center">
-                                                        <i data-lucide="image" class="w-6 h-6 text-text-muted"></i>
-                                                    </div>
-                                                    <div>
-                                                        <button class="px-3 py-1.5 bg-elevated border border-border rounded-lg text-sm text-text-secondary hover:bg-slate-200 transition">Upload New</button>
-                                                        <p class="text-xs text-text-muted mt-1">Recommended: 512x512px, PNG or SVG</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Branding -->
-                                <div x-show="activeSettingsTab === 'branding'" x-transition.opacity.duration.200ms x-cloak>
-                                    <div class="bg-surface rounded-xl border border-border shadow-card p-6">
-                                        <h3 class="font-bold text-text-primary mb-4">Appearance</h3>
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-text-secondary mb-2">Primary Color</label>
-                                                <div class="flex items-center space-x-3">
-                                                    <input type="color" value="#2563EB" class="w-10 h-10 rounded-lg cursor-pointer border-0 p-0">
-                                                    <span class="text-sm text-text-secondary font-mono">#2563EB</span>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-text-secondary mb-2">Theme</label>
-                                                <div class="flex space-x-3">
-                                                    <button class="flex-1 p-3 rounded-lg border-2 border-accent bg-accent-soft text-center">
-                                                        <div class="w-full h-8 bg-white rounded border border-slate-200 mb-2"></div>
-                                                        <span class="text-sm font-medium text-accent">Light</span>
-                                                    </button>
-                                                    <button class="flex-1 p-3 rounded-lg border-2 border-border bg-elevated text-center opacity-50 cursor-not-allowed">
-                                                        <div class="w-full h-8 bg-slate-800 rounded mb-2"></div>
-                                                        <span class="text-sm font-medium text-text-muted">Dark</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Integrations -->
-                                <div x-show="activeSettingsTab === 'integrations'" x-transition.opacity.duration.200ms x-cloak>
-                                    <div class="bg-surface rounded-xl border border-border shadow-card p-6">
-                                        <h3 class="font-bold text-text-primary mb-4">API & Integrations</h3>
-                                        <div class="space-y-4">
-                                            <div class="flex items-center justify-between p-4 border border-border rounded-lg">
-                                                <div class="flex items-center space-x-3">
-                                                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                                                        <i data-lucide="cloud" class="w-5 h-5 text-orange-600"></i>
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-medium text-text-primary text-sm">Cloudinary</p>
-                                                        <p class="text-xs text-text-muted">Media storage & delivery</p>
-                                                    </div>
-                                                </div>
-                                                <span class="px-2.5 py-1 bg-success-soft text-success rounded-full text-xs font-semibold">Connected</span>
-                                            </div>
-                                            <div class="flex items-center justify-between p-4 border border-border rounded-lg">
-                                                <div class="flex items-center space-x-3">
-                                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                        <i data-lucide="database" class="w-5 h-5 text-blue-600"></i>
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-medium text-text-primary text-sm">Firebase</p>
-                                                        <p class="text-xs text-text-muted">Authentication & database</p>
-                                                    </div>
-                                                </div>
-                                                <span class="px-2.5 py-1 bg-success-soft text-success rounded-full text-xs font-semibold">Connected</span>
-                                            </div>
-                                            <div class="flex items-center justify-between p-4 border border-border rounded-lg">
-                                                <div class="flex items-center space-x-3">
-                                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                                        <i data-lucide="mail" class="w-5 h-5 text-purple-600"></i>
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-medium text-text-primary text-sm">SendGrid</p>
-                                                        <p class="text-xs text-text-muted">Email notifications</p>
-                                                    </div>
-                                                </div>
-                                                <button class="px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:bg-accent-hover transition">Connect</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Compliance -->
-                                <div x-show="activeSettingsTab === 'compliance'" x-transition.opacity.duration.200ms x-cloak>
-                                    <div class="bg-surface rounded-xl border border-border shadow-card p-6">
-                                        <h3 class="font-bold text-text-primary mb-4">Compliance & Privacy</h3>
-                                        <div class="space-y-4">
-                                            <div class="flex items-start space-x-3">
-                                                <input type="checkbox" checked class="custom-checkbox mt-0.5">
-                                                <div>
-                                                    <p class="font-medium text-text-primary text-sm">GDPR Data Retention</p>
-                                                    <p class="text-xs text-text-muted">Automatically purge inactive user data after 2 years</p>
-                                                </div>
-                                            </div>
-                                            <div class="flex items-start space-x-3">
-                                                <input type="checkbox" checked class="custom-checkbox mt-0.5">
-                                                <div>
-                                                    <p class="font-medium text-text-primary text-sm">Audit Logging</p>
-                                                    <p class="text-xs text-text-muted">Track all admin actions for compliance review</p>
-                                                </div>
-                                            </div>
-                                            <div class="flex items-start space-x-3">
-                                                <input type="checkbox" class="custom-checkbox mt-0.5">
-                                                <div>
-                                                    <p class="font-medium text-text-primary text-sm">Require Explicit Consent</p>
-                                                    <p class="text-xs text-text-muted">Show cookie consent banner to all new visitors</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Save Button -->
-                                <div class="flex justify-end">
-                                    <button @click="showToast('Settings saved successfully', 'success')" class="px-6 py-2.5 bg-accent text-white rounded-lg font-medium text-sm hover:bg-accent-hover transition shadow-lg shadow-accent/20">
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 h-screen sticky top-0 text-white hidden md:flex flex-col">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold tracking-tight text-indigo-400">LMS Admin</h1>
         </div>
-    </div>
-
-    <!-- MODALS -->
-
-    <!-- Create Course Modal -->
-    <div x-show="modals.createCourse" 
-         x-transition.opacity.duration.300ms
-         class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         x-cloak>
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal('createCourse')"></div>
-        <div class="bg-surface rounded-2xl border border-border shadow-2xl w-full max-w-2xl relative z-10 modal-enter overflow-hidden max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-border flex justify-between items-center sticky top-0 bg-surface z-10">
-                <h2 class="text-xl font-bold text-text-primary">Create New Course</h2>
-                <button @click="closeModal('createCourse')" class="p-2 rounded-lg hover:bg-elevated text-text-muted transition">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div class="p-6 space-y-5">
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <a href="#" class="flex items-center space-x-3 bg-indigo-600 p-3 rounded-lg text-white">
+                <span>🏠</span> <span>Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 hover:text-white transition">
+                <span>📚</span> <span>Courses</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 hover:text-white transition">
+                <span>👥</span> <span>Students</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 hover:text-white transition">
+                <span>💰</span> <span>Revenue</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 hover:text-white transition">
+                <span>⚙️</span> <span>Settings</span>
+            </a>
+        </nav>
+        <div class="p-6 border-t border-slate-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-indigo-500"></div>
                 <div>
-                    <label class="block text-sm font-medium text-text-secondary mb-1">Course Title <span class="text-danger">*</span></label>
-                    <input type="text" x-model="newCourse.title" placeholder="e.g., Advanced React Patterns" class="w-full px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition">
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-text-secondary mb-1">Category</label>
-                        <select x-model="newCourse.category" class="w-full px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent">
-                            <option>Web Development</option>
-                            <option>Data Science</option>
-                            <option>Design</option>
-                            <option>Business</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-text-secondary mb-1">Instructor</label>
-                        <select x-model="newCourse.instructor" class="w-full px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent">
-                            <option>Dr. Sarah Chen</option>
-                            <option>James Wilson</option>
-                            <option>Maria Garcia</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-text-secondary mb-1">Description</label>
-                    <textarea x-model="newCourse.description" rows="3" placeholder="Brief overview of what students will learn..." class="w-full px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition resize-none"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-text-secondary mb-1">Thumbnail</label>
-                    <div class="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-accent hover:bg-accent-soft/20 transition-all-300 cursor-pointer">
-                        <i data-lucide="upload-cloud" class="w-10 h-10 text-text-muted mx-auto mb-2"></i>
-                        <p class="text-sm text-text-secondary font-medium">Click to upload or drag and drop</p>
-                        <p class="text-xs text-text-muted mt-1">SVG, PNG, JPG up to 5MB</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="publish" class="custom-checkbox">
-                    <label for="publish" class="text-sm text-text-secondary">Publish immediately</label>
-                </div>
-            </div>
-            <div class="p-6 border-t border-border bg-elevated/30 flex justify-end space-x-3 sticky bottom-0">
-                <button @click="closeModal('createCourse')" class="px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-text-secondary hover:bg-elevated transition">Cancel</button>
-                <button @click="createCourse()" class="px-4 py-2.5 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover transition shadow-lg shadow-accent/20">Create Course</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Invite User Modal -->
-    <div x-show="modals.inviteUser" 
-         x-transition.opacity.duration.300ms
-         class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         x-cloak>
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal('inviteUser')"></div>
-        <div class="bg-surface rounded-2xl border border-border shadow-2xl w-full max-w-md relative z-10 modal-enter">
-            <div class="p-6 border-b border-border flex justify-between items-center">
-                <h2 class="text-xl font-bold text-text-primary">Invite User</h2>
-                <button @click="closeModal('inviteUser')" class="p-2 rounded-lg hover:bg-elevated text-text-muted transition">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-text-secondary mb-1">Email Address <span class="text-danger">*</span></label>
-                    <input type="email" placeholder="user@example.com" class="w-full px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-text-secondary mb-1">Role</label>
-                    <div class="grid grid-cols-3 gap-3">
-                        <button class="p-3 border-2 border-accent bg-accent-soft rounded-lg text-center">
-                            <i data-lucide="user" class="w-5 h-5 text-accent mx-auto mb-1"></i>
-                            <span class="text-xs font-medium text-accent">Learner</span>
-                        </button>
-                        <button class="p-3 border-2 border-border rounded-lg text-center hover:border-accent/50 transition">
-                            <i data-lucide="chalkboard-user" class="w-5 h-5 text-text-muted mx-auto mb-1"></i>
-                            <span class="text-xs font-medium text-text-muted">Instructor</span>
-                        </button>
-                        <button class="p-3 border-2 border-border rounded-lg text-center hover:border-accent/50 transition">
-                            <i data-lucide="shield" class="w-5 h-5 text-text-muted mx-auto mb-1"></i>
-                            <span class="text-xs font-medium text-text-muted">Admin</span>
-                        </button>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-text-secondary mb-1">Message (Optional)</label>
-                    <textarea rows="2" placeholder="Personal invitation message..." class="w-full px-3 py-2.5 bg-elevated border border-border rounded-lg text-sm outline-none focus:border-accent resize-none"></textarea>
-                </div>
-            </div>
-            <div class="p-6 border-t border-border bg-elevated/30 flex justify-end space-x-3">
-                <button @click="closeModal('inviteUser')" class="px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-text-secondary hover:bg-elevated transition">Cancel</button>
-                <button @click="closeModal('inviteUser'); showToast('Invitation sent successfully', 'success')" class="px-4 py-2.5 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover transition shadow-lg shadow-accent/20">Send Invite</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div x-show="modals.deleteConfirm" 
-         x-transition.opacity.duration.300ms
-         class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         x-cloak>
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal('deleteConfirm')"></div>
-        <div class="bg-surface rounded-2xl border border-border shadow-2xl w-full max-w-sm relative z-10 modal-enter">
-            <div class="p-6 text-center">
-                <div class="w-14 h-14 bg-danger-soft rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="alert-triangle" class="w-7 h-7 text-danger"></i>
-                </div>
-                <h2 class="text-lg font-bold text-text-primary mb-2">Delete Course?</h2>
-                <p class="text-sm text-text-muted mb-6">Are you sure you want to delete "<span x-text="courseToDelete?.title"></span>"? This action cannot be undone.</p>
-                <div class="flex space-x-3">
-                    <button @click="closeModal('deleteConfirm')" class="flex-1 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-text-secondary hover:bg-elevated transition">Cancel</button>
-                    <button @click="deleteCourse()" class="flex-1 px-4 py-2.5 bg-danger text-white rounded-lg text-sm font-medium hover:bg-red-700 transition shadow-lg shadow-red-500/20">Delete</button>
+                    <p class="text-sm font-medium">Katlego</p>
+                    <p class="text-xs text-gray-500">Super Admin</p>
                 </div>
             </div>
         </div>
-    </div>
+    </aside>
 
-    <!-- Toast Notifications -->
-    <div class="fixed top-20 right-4 z-50 space-y-3 w-80">
-        <template x-for="toast in toasts" :key="toast.id">
-            <div x-show="toast.visible"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-x-full"
-                 x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-x-0"
-                 x-transition:leave-end="opacity-0 translate-x-full"
-                 :class="toast.type === 'success' ? 'bg-surface border-l-4 border-success shadow-lg' : toast.type === 'error' ? 'bg-surface border-l-4 border-danger shadow-lg' : 'bg-surface border-l-4 border-accent shadow-lg'"
-                 class="rounded-lg p-4 flex items-start space-x-3 toast-enter"
-                 x-cloak>
-                <div :class="toast.type === 'success' ? 'text-success' : toast.type === 'error' ? 'text-danger' : 'text-accent'">
-                    <i :data-lucide="toast.type === 'success' ? 'check-circle' : toast.type === 'error' ? 'x-circle' : 'info'" class="w-5 h-5"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-text-primary" x-text="toast.message"></p>
-                </div>
-                <button @click="removeToast(toast.id)" class="text-text-muted hover:text-text-secondary">
-                    <i data-lucide="x" class="w-4 h-4"></i>
+    <!-- Main Content -->
+    <main class="flex-1 min-h-screen p-4 md:p-8">
+        
+        <!-- Top Navbar -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
+                <p class="text-gray-500">Welcome back to your dashboard monitoring.</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="bg-white border p-2 rounded-lg hover:bg-gray-50">🔔</button>
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                    + Create Course
                 </button>
             </div>
-        </template>
-    </div>
+        </header>
+
+        <!-- KPI Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-500 text-sm font-medium uppercase">Active Students</p>
+                <div class="flex justify-between items-end mt-2">
+                    <h3 class="text-3xl font-bold">12,482</h3>
+                    <span class="text-green-500 text-sm font-semibold">↑ 12%</span>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-500 text-sm font-medium uppercase">Total Revenue</p>
+                <div class="flex justify-between items-end mt-2">
+                    <h3 class="text-3xl font-bold">$42.8k</h3>
+                    <span class="text-green-500 text-sm font-semibold">↑ 8%</span>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-500 text-sm font-medium uppercase">Course Completion</p>
+                <div class="flex justify-between items-end mt-2">
+                    <h3 class="text-3xl font-bold">64%</h3>
+                    <span class="text-red-500 text-sm font-semibold">↓ 2%</span>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-500 text-sm font-medium uppercase">Avg. Rating</p>
+                <div class="flex justify-between items-end mt-2">
+                    <h3 class="text-3xl font-bold">4.8</h3>
+                    <span class="text-green-500 text-sm font-semibold">↑ 0.3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h4 class="font-bold text-gray-800 mb-4">Enrollment Trends</h4>
+                <canvas id="enrollmentChart" height="100"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h4 class="font-bold text-gray-800 mb-4">Quick Links</h4>
+                <div class="space-y-3">
+                    <a href="#" class="block p-4 border rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition group">
+                        <p class="font-semibold group-hover:text-indigo-600">Review Submissions</p>
+                        <p class="text-xs text-gray-400">12 pending assignments</p>
+                    </a>
+                    <a href="#" class="block p-4 border rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition group">
+                        <p class="font-semibold group-hover:text-indigo-600">Platform Reports</p>
+                        <p class="text-xs text-gray-400">Generate monthly audit</p>
+                    </a>
+                    <a href="#" class="block p-4 border rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition group">
+                        <p class="font-semibold group-hover:text-indigo-600">Student Support</p>
+                        <p class="text-xs text-gray-400">5 active tickets</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h4 class="font-bold text-gray-800">Recent Enrollments</h4>
+                <button class="text-indigo-600 text-sm font-semibold hover:underline">View All</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-400 text-xs uppercase font-medium">
+                        <tr>
+                            <th class="px-6 py-4">Student</th>
+                            <th class="px-6 py-4">Course</th>
+                            <th class="px-6 py-4">Date</th>
+                            <th class="px-6 py-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">AJ</div>
+                                <span class="font-medium text-gray-700">Alice Johnson</span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">Fullstack Web Dev</td>
+                            <td class="px-6 py-4 text-gray-500">May 12, 2026</td>
+                            <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">Completed</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">RS</div>
+                                <span class="font-medium text-gray-700">Robert Smith</span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">Intro to UI/UX</td>
+                            <td class="px-6 py-4 text-gray-500">May 11, 2026</td>
+                            <td class="px-6 py-4"><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">Active</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs font-bold">DK</div>
+                                <span class="font-medium text-gray-700">Dudu Khumalo</span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">Data Science 101</td>
+                            <td class="px-6 py-4 text-gray-500">May 10, 2026</td>
+                            <td class="px-6 py-4"><span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">Pending</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // Initialize Lucide Icons after Alpine renders
-        document.addEventListener('alpine:init', () => {
-            lucide.createIcons();
-        });
-
-        // Re-initialize icons when DOM updates
-        const observer = new MutationObserver(() => {
-            lucide.createIcons();
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-
-        function adminApp() {
-            return {
-                // UI State
-                sidebarOpen: false,
-                sidebarCollapsed: false,
-                currentPage: 'dashboard',
-                globalSearch: '',
-                activeSettingsTab: 'general',
-
-                // Notifications
-                notifications: [
-                    { id: 1, type: 'success', icon: 'check-circle', title: 'Course Published', message: 'Full-Stack Dev is now live', time: '2 min ago' },
-                    { id: 2, type: 'warning', icon: 'alert-circle', title: 'Low Completion', message: 'Database Config has 23% drop-off', time: '1 hour ago' },
-                    { id: 3, type: 'info', icon: 'user-plus', title: 'New Enrollment', message: '12 students joined this week', time: '3 hours ago' },
-                ],
-
-                // Navigation
-                navItems: [
-                    { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
-                    { id: 'courses', label: 'Courses', icon: 'book-open' },
-                    { id: 'users', label: 'Users', icon: 'users' },
-                    { id: 'analytics', label: 'Analytics', icon: 'bar-chart-3' },
-                    { id: 'settings', label: 'Settings', icon: 'settings' },
-                ],
-
-                // Dashboard Stats
-                stats: [
-                    { id: 1, label: 'Total Learners', value: '2,845', trend: 12, icon: 'users', bgColor: 'bg-accent-soft', iconColor: 'text-accent' },
-                    { id: 2, label: 'Active Courses', value: '48', trend: 8, icon: 'book-open', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
-                    { id: 3, label: 'Completion Rate', value: '68.4%', trend: -2, icon: 'trending-up', bgColor: 'bg-success-soft', iconColor: 'text-success' },
-                    { id: 4, label: 'Avg. Session', value: '42m', trend: 15, icon: 'clock', bgColor: 'bg-orange-100', iconColor: 'text-orange-600' },
-                ],
-
-                // Recent Users
-                recentUsers: [
-                    { id: 1, name: 'Alice Johnson', email: 'alice@email.com', course: 'Full-Stack Dev', time: '2 min ago' },
-                    { id: 2, name: 'Bob Smith', email: 'bob@email.com', course: 'Data Science', time: '15 min ago' },
-                    { id: 3, name: 'Carol White', email: 'carol@email.com', course: 'UI/UX Design', time: '1 hour ago' },
-                    { id: 4, name: 'David Brown', email: 'david@email.com', course: 'Full-Stack Dev', time: '3 hours ago' },
-                    { id: 5, name: 'Eva Green', email: 'eva@email.com', course: 'Business Analysis', time: '5 hours ago' },
-                ],
-
-                // Courses Data
-                courses: [
-                    { id: 1, title: 'Full-Stack Development', category: 'Web Development', instructor: 'Dr. Sarah Chen', status: 'published', students: 1245, completion: 78, updated: '2 days ago', thumbnail: '' },
-                    { id: 2, title: 'Data Science Fundamentals', category: 'Data Science', instructor: 'James Wilson', status: 'published', students: 892, completion: 65, updated: '1 week ago', thumbnail: '' },
-                    { id: 3, title: 'UI/UX Design Masterclass', category: 'Design', instructor: 'Maria Garcia', status: 'published', students: 634, completion: 82, updated: '3 days ago', thumbnail: '' },
-                    { id: 4, title: 'Cloud Architecture', category: 'Web Development', instructor: 'Dr. Sarah Chen', status: 'draft', students: 0, completion: 0, updated: 'Just now', thumbnail: '' },
-                    { id: 5, title: 'Business Analysis', category: 'Business', instructor: 'Robert Lee', status: 'published', students: 421, completion: 45, updated: '5 days ago', thumbnail: '' },
-                    { id: 6, title: 'Mobile App Development', category: 'Web Development', instructor: 'James Wilson', status: 'draft', students: 0, completion: 0, updated: '2 days ago', thumbnail: '' },
-                    { id: 7, title: 'Machine Learning A-Z', category: 'Data Science', instructor: 'Dr. Sarah Chen', status: 'archived', students: 210, completion: 91, updated: '1 month ago', thumbnail: '' },
-                    { id: 8, title: 'Digital Marketing', category: 'Business', instructor: 'Maria Garcia', status: 'published', students: 567, completion: 54, updated: '1 week ago', thumbnail: '' },
-                ],
-                courseSearch: '',
-                courseFilter: 'all',
-                courseSort: 'newest',
-                selectedCourses: [],
-
-                // Users Data
-                usersList: [
-                    { id: 1, name: 'Alice Johnson', email: 'alice@email.com', role: 'learner', active: true, enrolled: 3, lastActive: '2 min ago' },
-                    { id: 2, name: 'Bob Smith', email: 'bob@email.com', role: 'learner', active: true, enrolled: 2, lastActive: '15 min ago' },
-                    { id: 3, name: 'Dr. Sarah Chen', email: 'sarah@rarelms.edu', role: 'instructor', active: true, enrolled: 0, lastActive: 'Just now' },
-                    { id: 4, name: 'James Wilson', email: 'james@rarelms.edu', role: 'instructor', active: true, enrolled: 0, lastActive: '1 hour ago' },
-                    { id: 5, name: 'Katlego M.', email: 'katlego@rarelms.edu', role: 'admin', active: true, enrolled: 0, lastActive: 'Just now' },
-                    { id: 6, name: 'Carol White', email: 'carol@email.com', role: 'learner', active: false, enrolled: 1, lastActive: '3 days ago' },
-                ],
-
-                // Settings
-                settingsSections: [
-                    { id: 'general', label: 'General', icon: 'building-2' },
-                    { id: 'branding', label: 'Branding', icon: 'palette' },
-                    { id: 'integrations', label: 'Integrations', icon: 'plug' },
-                    { id: 'compliance', label: 'Compliance', icon: 'shield-check' },
-                ],
-
-                // Modals
-                modals: {
-                    createCourse: false,
-                    inviteUser: false,
-                    deleteConfirm: false,
-                },
-                newCourse: { title: '', category: 'Web Development', instructor: 'Dr. Sarah Chen', description: '' },
-                courseToDelete: null,
-
-                // Toasts
-                toasts: [],
-
-                // Computed
-                get filteredCourses() {
-                    let result = this.courses;
-
-                    if (this.courseSearch) {
-                        const search = this.courseSearch.toLowerCase();
-                        result = result.filter(c => 
-                            c.title.toLowerCase().includes(search) ||
-                            c.instructor.toLowerCase().includes(search) ||
-                            c.category.toLowerCase().includes(search)
-                        );
-                    }
-
-                    if (this.courseFilter !== 'all') {
-                        result = result.filter(c => c.status === this.courseFilter);
-                    }
-
-                    // Simple sort
-                    if (this.courseSort === 'newest') {
-                        result = [...result].sort((a, b) => new Date(b.updated) - new Date(a.updated));
-                    } else if (this.courseSort === 'oldest') {
-                        result = [...result].sort((a, b) => new Date(a.updated) - new Date(b.updated));
-                    } else if (this.courseSort === 'students') {
-                        result = [...result].sort((a, b) => b.students - a.students);
-                    }
-
-                    return result;
-                },
-
-                // Methods
-                init() {
-                    this.$watch('currentPage', () => {
-                        this.$nextTick(() => {
-                            if (this.currentPage === 'dashboard') this.initDashboardCharts();
-                            if (this.currentPage === 'analytics') this.initAnalyticsCharts();
-                        });
-                    });
-
-                    this.$nextTick(() => {
-                        this.initDashboardCharts();
-                    });
-                },
-
-                initDashboardCharts() {
-                    setTimeout(() => {
-                        const enrollCtx = document.getElementById('enrollmentChart');
-                        if (enrollCtx) {
-                            if (enrollCtx.chart) enrollCtx.chart.destroy();
-                            enrollCtx.chart = new Chart(enrollCtx, {
-                                type: 'line',
-                                data: {
-                                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                                    datasets: [{
-                                        label: 'Enrollments',
-                                        data: [120, 190, 150, 240],
-                                        borderColor: '#2563EB',
-                                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                                        fill: true,
-                                        tension: 0.4,
-                                        pointRadius: 4,
-                                        pointBackgroundColor: '#2563EB',
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: { legend: { display: false } },
-                                    scales: {
-                                        y: { beginAtZero: true, grid: { color: '#E2E8F0' } },
-                                        x: { grid: { display: false } }
-                                    }
-                                }
-                            });
-                        }
-
-                        const compCtx = document.getElementById('completionChart');
-                        if (compCtx) {
-                            if (compCtx.chart) compCtx.chart.destroy();
-                            compCtx.chart = new Chart(compCtx, {
-                                type: 'doughnut',
-                                data: {
-                                    labels: ['Completed', 'In Progress'],
-                                    datasets: [{
-                                        data: [68, 32],
-                                        backgroundColor: ['#2563EB', '#F1F5F9'],
-                                        borderWidth: 0,
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    cutout: '75%',
-                                    plugins: { legend: { display: false } }
-                                }
-                            });
-                        }
-                    }, 150);
-                },
-
-                initAnalyticsCharts() {
-                    setTimeout(() => {
-                        const dauCtx = document.getElementById('dauChart');
-                        if (dauCtx) {
-                            if (dauCtx.chart) dauCtx.chart.destroy();
-                            dauCtx.chart = new Chart(dauCtx, {
-                                type: 'bar',
-                                data: {
-                                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                                    datasets: [{
-                                        label: 'Active Users',
-                                        data: [450, 520, 480, 610, 590, 320, 280],
-                                        backgroundColor: '#2563EB',
-                                        borderRadius: 6,
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: { legend: { display: false } },
-                                    scales: {
-                                        y: { beginAtZero: true, grid: { color: '#E2E8F0' } },
-                                        x: { grid: { display: false } }
-                                    }
-                                }
-                            });
-                        }
-
-                        const perfCtx = document.getElementById('performanceChart');
-                        if (perfCtx) {
-                            if (perfCtx.chart) perfCtx.chart.destroy();
-                            perfCtx.chart = new Chart(perfCtx, {
-                                type: 'bar',
-                                data: {
-                                    labels: ['Web Dev', 'Data Sci', 'Design', 'Business'],
-                                    datasets: [{
-                                        label: 'Avg Completion %',
-                                        data: [78, 65, 82, 54],
-                                        backgroundColor: ['#2563EB', '#7C3AED', '#16A34A', '#D97706'],
-                                        borderRadius: 6,
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    indexAxis: 'y',
-                                    plugins: { legend: { display: false } },
-                                    scales: {
-                                        x: { beginAtZero: true, max: 100, grid: { color: '#E2E8F0' } },
-                                        y: { grid: { display: false } }
-                                    }
-                                }
-                            });
-                        }
-                    }, 150);
-                },
-
-                openModal(name) {
-                    this.modals[name] = true;
-                    document.body.style.overflow = 'hidden';
-                },
-
-                closeModal(name) {
-                    this.modals[name] = false;
-                    document.body.style.overflow = '';
-                },
-
-                toggleSelectAll() {
-                    if (this.selectedCourses.length === this.filteredCourses.length) {
-                        this.selectedCourses = [];
-                    } else {
-                        this.selectedCourses = this.filteredCourses.map(c => c.id);
-                    }
-                },
-
-                bulkAction(action) {
-                    this.showToast(`${this.selectedCourses.length} courses ${action}ed successfully`, 'success');
-                    this.selectedCourses = [];
-                },
-
-                createCourse() {
-                    if (!this.newCourse.title.trim()) {
-                        this.showToast('Please enter a course title', 'error');
-                        return;
-                    }
-                    this.courses.unshift({
-                        id: Date.now(),
-                        title: this.newCourse.title,
-                        category: this.newCourse.category,
-                        instructor: this.newCourse.instructor,
-                        status: 'draft',
-                        students: 0,
-                        completion: 0,
-                        updated: 'Just now',
-                        thumbnail: ''
-                    });
-                    this.newCourse = { title: '', category: 'Web Development', instructor: 'Dr. Sarah Chen', description: '' };
-                    this.closeModal('createCourse');
-                    this.showToast('Course created successfully', 'success');
-                },
-
-                editCourse(course) {
-                    this.newCourse = { ...course };
-                    this.openModal('createCourse');
-                },
-
-                duplicateCourse(course) {
-                    const newCourseData = { 
-                        ...course, 
-                        id: Date.now(), 
-                        title: course.title + ' (Copy)', 
-                        students: 0, 
-                        completion: 0, 
-                        status: 'draft', 
-                        updated: 'Just now' 
-                    };
-                    this.courses.unshift(newCourseData);
-                    this.showToast('Course duplicated successfully', 'success');
-                },
-
-                confirmDelete(course) {
-                    this.courseToDelete = course;
-                    this.openModal('deleteConfirm');
-                },
-
-                deleteCourse() {
-                    if (this.courseToDelete) {
-                        this.courses = this.courses.filter(c => c.id !== this.courseToDelete.id);
-                        this.courseToDelete = null;
-                        this.closeModal('deleteConfirm');
-                        this.showToast('Course deleted successfully', 'success');
-                    }
-                },
-
-                showToast(message, type = 'success') {
-                    const id = Date.now();
-                    this.toasts.push({ id, message, type, visible: true });
-                    setTimeout(() => {
-                        const toastIndex = this.toasts.findIndex(t => t.id === id);
-                        if (toastIndex !== -1) {
-                            this.toasts[toastIndex].visible = false;
-                            setTimeout(() => {
-                                this.toasts = this.toasts.filter(t => t.id !== id);
-                            }, 300);
-                        }
-                    }, 3000);
-                },
-
-                removeToast(id) {
-                    this.toasts = this.toasts.filter(t => t.id !== id);
+        // Chart Configuration
+        const ctx = document.getElementById('enrollmentChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'New Students',
+                    data: [400, 600, 550, 900, 1100, 1400],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                    x: { grid: { display: false } }
                 }
             }
-        }
+        });
     </script>
 </body>
 </html>
