@@ -90,25 +90,7 @@
 
         /* Chart container */
         .chart-container { position: relative; height: 300px; width: 100%; }
-
-        /* Custom checkbox */
-        .custom-checkbox {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #CBD5E1;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .custom-checkbox:checked {
-            background-color: #2563EB;
-            border-color: #2563EB;
-            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
-        }
-        .custom-checkbox:hover { border-color: #2563EB; }
     </style>
-<base target="_blank">
 </head>
 <body class="bg-base text-text-primary font-sans antialiased" x-data="adminApp()" x-init="init()">
 
@@ -1241,6 +1223,15 @@
                         result = result.filter(c => c.status === this.courseFilter);
                     }
 
+                    // Simple sort
+                    if (this.courseSort === 'newest') {
+                        result = [...result].sort((a, b) => new Date(b.updated) - new Date(a.updated));
+                    } else if (this.courseSort === 'oldest') {
+                        result = [...result].sort((a, b) => new Date(a.updated) - new Date(b.updated));
+                    } else if (this.courseSort === 'students') {
+                        result = [...result].sort((a, b) => b.students - a.students);
+                    }
+
                     return result;
                 },
 
@@ -1261,7 +1252,8 @@
                 initDashboardCharts() {
                     setTimeout(() => {
                         const enrollCtx = document.getElementById('enrollmentChart');
-                        if (enrollCtx && !enrollCtx.chart) {
+                        if (enrollCtx) {
+                            if (enrollCtx.chart) enrollCtx.chart.destroy();
                             enrollCtx.chart = new Chart(enrollCtx, {
                                 type: 'line',
                                 data: {
@@ -1290,7 +1282,8 @@
                         }
 
                         const compCtx = document.getElementById('completionChart');
-                        if (compCtx && !compCtx.chart) {
+                        if (compCtx) {
+                            if (compCtx.chart) compCtx.chart.destroy();
                             compCtx.chart = new Chart(compCtx, {
                                 type: 'doughnut',
                                 data: {
@@ -1309,13 +1302,14 @@
                                 }
                             });
                         }
-                    }, 100);
+                    }, 150);
                 },
 
                 initAnalyticsCharts() {
                     setTimeout(() => {
                         const dauCtx = document.getElementById('dauChart');
-                        if (dauCtx && !dauCtx.chart) {
+                        if (dauCtx) {
+                            if (dauCtx.chart) dauCtx.chart.destroy();
                             dauCtx.chart = new Chart(dauCtx, {
                                 type: 'bar',
                                 data: {
@@ -1340,7 +1334,8 @@
                         }
 
                         const perfCtx = document.getElementById('performanceChart');
-                        if (perfCtx && !perfCtx.chart) {
+                        if (perfCtx) {
+                            if (perfCtx.chart) perfCtx.chart.destroy();
                             perfCtx.chart = new Chart(perfCtx, {
                                 type: 'bar',
                                 data: {
@@ -1364,7 +1359,7 @@
                                 }
                             });
                         }
-                    }, 100);
+                    }, 150);
                 },
 
                 openModal(name) {
@@ -1386,12 +1381,12 @@
                 },
 
                 bulkAction(action) {
-                    this.showToast(`${this.selectedCourses.length} courses ${action}ed`, 'success');
+                    this.showToast(`${this.selectedCourses.length} courses ${action}ed successfully`, 'success');
                     this.selectedCourses = [];
                 },
 
                 createCourse() {
-                    if (!this.newCourse.title) {
+                    if (!this.newCourse.title.trim()) {
                         this.showToast('Please enter a course title', 'error');
                         return;
                     }
@@ -1417,9 +1412,17 @@
                 },
 
                 duplicateCourse(course) {
-                    const newCourse = { ...course, id: Date.now(), title: course.title + ' (Copy)', students: 0, completion: 0, status: 'draft', updated: 'Just now' };
-                    this.courses.unshift(newCourse);
-                    this.showToast('Course duplicated', 'success');
+                    const newCourseData = { 
+                        ...course, 
+                        id: Date.now(), 
+                        title: course.title + ' (Copy)', 
+                        students: 0, 
+                        completion: 0, 
+                        status: 'draft', 
+                        updated: 'Just now' 
+                    };
+                    this.courses.unshift(newCourseData);
+                    this.showToast('Course duplicated successfully', 'success');
                 },
 
                 confirmDelete(course) {
@@ -1432,7 +1435,7 @@
                         this.courses = this.courses.filter(c => c.id !== this.courseToDelete.id);
                         this.courseToDelete = null;
                         this.closeModal('deleteConfirm');
-                        this.showToast('Course deleted', 'success');
+                        this.showToast('Course deleted successfully', 'success');
                     }
                 },
 
@@ -1440,9 +1443,13 @@
                     const id = Date.now();
                     this.toasts.push({ id, message, type, visible: true });
                     setTimeout(() => {
-                        const toast = this.toasts.find(t => t.id === id);
-                        if (toast) toast.visible = false;
-                        setTimeout(() => this.removeToast(id), 300);
+                        const toastIndex = this.toasts.findIndex(t => t.id === id);
+                        if (toastIndex !== -1) {
+                            this.toasts[toastIndex].visible = false;
+                            setTimeout(() => {
+                                this.toasts = this.toasts.filter(t => t.id !== id);
+                            }, 300);
+                        }
                     }, 3000);
                 },
 
