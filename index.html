@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Admin | Rare Grade Tech</title>
+    <title>Rare Grade LMS | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -28,14 +28,8 @@
                 <span>📚</span> <span>Courses</span>
             </button>
         </nav>
-        <div class="p-6 border-t border-slate-800">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-xs">K</div>
-                <div>
-                    <p class="text-sm font-medium">Katlego</p>
-                    <p class="text-xs text-gray-500">Super Admin</p>
-                </div>
-            </div>
+        <div class="p-6 border-t border-slate-800 text-xs text-gray-500">
+            Connected to Project: fire-b-a8878
         </div>
     </aside>
 
@@ -44,31 +38,29 @@
         
         <!-- DASHBOARD SECTION -->
         <section id="section-dashboard">
-            <header class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
-                    <p class="text-gray-500">Real-time performance metrics (ZAR).</p>
-                </div>
+            <header class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
+                <p class="text-gray-500">Live system performance in Rands (ZAR).</p>
             </header>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase">Active Students</p>
+                    <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Active Students</p>
                     <h3 id="stat-students" class="text-3xl font-bold mt-2">0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase">Revenue (ZAR)</p>
+                    <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Revenue</p>
                     <h3 id="stat-revenue" class="text-3xl font-bold mt-2 text-indigo-600">R 0.00</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase">Total Courses</p>
+                    <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Course Catalog</p>
                     <h3 id="stat-courses" class="text-3xl font-bold mt-2">0</h3>
                 </div>
             </div>
             
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h4 class="font-bold mb-4">Enrollment Growth</h4>
-                <canvas id="growthChart" height="100"></canvas>
+                <h4 class="font-bold mb-4 text-gray-700">Platform Growth</h4>
+                <canvas id="growthChart" height="80"></canvas>
             </div>
         </section>
 
@@ -77,71 +69,73 @@
             <header class="flex justify-between items-center mb-8">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800">Course Management</h2>
-                    <p class="text-gray-500">Manage and upload your learning content.</p>
+                    <p class="text-gray-500">Syncing directly with Cloudinary & Firebase.</p>
                 </div>
-                <button onclick="toggleModal(true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg">
-                    + Add New Course
+                <button onclick="toggleModal(true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                    + Create Course
                 </button>
             </header>
 
             <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Courses injected here -->
+                <!-- Real data from Firebase injected here -->
             </div>
         </section>
     </main>
 
-    <!-- CUSTOM MODAL FORM -->
-    <div id="course-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <!-- ADD COURSE MODAL -->
+    <div id="course-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-bold text-xl text-gray-800">Create New Course</h3>
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-lg text-gray-800">New Course Details</h3>
                 <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
-            <form id="add-course-form" class="p-6 space-y-4">
+            <form id="add-course-form" class="p-6 space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Course Title</label>
-                    <input type="text" id="course-title" required class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Course Name</label>
+                    <input type="text" id="course-title" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Price (ZAR)</label>
-                    <input type="number" id="course-price" placeholder="499" required class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Price (ZAR)</label>
+                    <input type="number" id="course-price" placeholder="0.00" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Thumbnail</label>
-                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thumbnail Image</label>
+                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
                 </div>
-                <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition disabled:bg-gray-400">
-                    Upload & Save Course
+                <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition disabled:bg-gray-300">
+                    Sync to Cloud & Save
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Firebase & Logic Scripts -->
+    <!-- Initialization Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Your specific Firebase Config
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
+            authDomain: "fire-b-a8878.firebaseapp.com",
+            databaseURL: "https://fire-b-a8878.firebaseio.com",
+            projectId: "fire-b-a8878",
+            storageBucket: "fire-b-a8878.firebasestorage.app",
+            messagingSenderId: "658673187627",
+            appId: "1:658673187627:web:db830dda676c5b4dafa36e"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- CLOUDINARY CONFIG ---
-        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/upload";
-        const UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET";
+        // --- CLOUDINARY CONFIG (Action Required: Replace These) ---
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/REPLACE_WITH_YOUR_CLOUD_NAME/upload";
+        const UPLOAD_PRESET = "REPLACE_WITH_YOUR_UNSIGNED_PRESET";
 
-        // --- STATE & NAVIGATION ---
+        // Navigation
         window.nav = (target) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(`section-${target}`).classList.remove('hidden-section');
-            
-            // UI Update
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('bg-indigo-600', 'text-white'));
             document.getElementById(`nav-${target}`).classList.add('bg-indigo-600', 'text-white');
         };
@@ -152,7 +146,7 @@
             m.classList.toggle('modal-active', show);
         };
 
-        // --- FETCH REAL DATA ---
+        // Fetch Live Courses
         onValue(ref(db, 'courses'), (snapshot) => {
             const grid = document.getElementById('courses-grid');
             const data = snapshot.val();
@@ -164,13 +158,12 @@
                     const c = data[key];
                     count++;
                     grid.innerHTML += `
-                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm group">
-                            <div class="h-40 bg-gray-200 overflow-hidden">
-                                <img src="${c.thumbnail}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                            </div>
+                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition">
+                            <img src="${c.thumbnail}" class="w-full h-44 object-cover">
                             <div class="p-5">
-                                <h5 class="font-bold text-gray-800 mb-1">${c.title}</h5>
-                                <p class="text-indigo-600 font-bold">${formatCurrency(c.price)}</p>
+                                <h5 class="font-bold text-gray-800 truncate">${c.title}</h5>
+                                <p class="text-indigo-600 font-bold mt-1">${formatCurrency(c.price)}</p>
+                                <p class="text-[10px] text-gray-400 mt-3 uppercase tracking-widest">Added ${new Date(c.createdAt).toLocaleDateString()}</p>
                             </div>
                         </div>`;
                 });
@@ -178,28 +171,25 @@
             document.getElementById('stat-courses').innerText = count;
         });
 
-        // --- HANDLE FORM SUBMISSION ---
+        // Form Logic
         document.getElementById('add-course-form').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const file = document.getElementById('course-file').files[0];
             
             btn.disabled = true;
-            btn.innerText = "Uploading to Cloudinary...";
+            btn.innerText = "Processing Assets...";
 
             try {
-                // 1. Upload to Cloudinary (Unsigned)
+                // Cloudinary Upload
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLOAD_PRESET);
 
-                const response = await fetch(CLOUDINARY_URL, {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
                 const cloudData = await response.json();
 
-                // 2. Save to Firebase
+                // Firebase Save
                 const newCourseRef = push(ref(db, 'courses'));
                 await set(newCourseRef, {
                     title: document.getElementById('course-title').value,
@@ -208,34 +198,19 @@
                     createdAt: Date.now()
                 });
 
-                alert("Course added successfully!");
                 toggleModal(false);
                 document.getElementById('add-course-form').reset();
             } catch (err) {
-                console.error(err);
-                alert("Error adding course.");
+                alert("Upload failed. Check Cloudinary settings.");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Upload & Save Course";
+                btn.innerText = "Sync to Cloud & Save";
             }
         };
 
         function formatCurrency(v) {
             return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(v);
         }
-    </script>
-
-    <script>
-        // Static Chart init
-        const ctx = document.getElementById('growthChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                datasets: [{ data: [10, 25, 45, 80, 120], borderColor: '#4f46e5', tension: 0.4 }]
-            },
-            options: { plugins: { legend: { display: false } } }
-        });
     </script>
 </body>
 </html>
