@@ -3,13 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rare Grade LMS | Admin</title>
+    <title>Rare Grade LMS | Admin Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .hidden-section { display: none; }
         
+        /* Smooth Sidebar Transition */
+        .sidebar-transition {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
         .loader {
             border-top-color: #6366f1;
             animation: spinner 0.7s linear infinite;
@@ -18,248 +30,178 @@
             0% { transform: rotate(0deg); } 
             100% { transform: rotate(360deg); } 
         }
-        
-        .sidebar {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .nav-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+
         .nav-btn.active {
-            background-color: #4f46e5;
+            background: #4f46e5;
             color: white;
-        }
-        
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-        
-        table tr {
-            transition: all 0.2s ease;
-        }
-        table tr:hover {
-            background-color: #f8fafc;
-        }
-        
-        .modal {
-            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes modalPop {
-            0% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        
-        .stat-number {
-            font-variant-numeric: tabular-nums;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
         }
     </style>
 </head>
-<body class="bg-zinc-50 flex min-h-screen">
+<body class="bg-[#f8fafc] flex min-h-screen text-slate-900">
 
-    <!-- MOBILE WARNING -->
-    <div id="mobile-warning" class="hidden md:hidden fixed inset-0 bg-slate-950 z-[999] flex items-center justify-center p-6">
-        <div class="text-center max-w-xs">
-            <div class="mx-auto w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mb-6">
-                <span class="text-5xl">💻</span>
+    <div id="mobile-warning" class="hidden fixed inset-0 bg-slate-950 z-[999] flex items-center justify-center p-8 text-center">
+        <div class="max-w-sm">
+            <div class="w-20 h-20 bg-indigo-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="monitor" class="w-10 h-10 text-indigo-400"></i>
             </div>
-            <h2 class="text-2xl font-bold text-white mb-3">Desktop Only</h2>
-            <p class="text-slate-400">This admin dashboard is optimized for desktop use. Please open on a computer or laptop.</p>
+            <h2 class="text-2xl font-bold text-white mb-4">Desktop Access Only</h2>
+            <p class="text-slate-400 leading-relaxed">The Rare Grade Admin Portal is optimized for high-density displays. Please switch to a computer to manage your learners.</p>
         </div>
     </div>
 
-    <!-- Sidebar -->
     <aside id="sidebar" 
-           class="sidebar group w-20 hover:w-72 bg-slate-950 h-screen fixed md:sticky top-0 text-white flex flex-col shadow-2xl z-50 overflow-hidden">
+           class="sidebar-transition group w-20 hover:w-72 bg-slate-950 h-screen fixed left-0 top-0 text-white flex flex-col z-50 overflow-hidden">
         
-        <div class="p-6 border-b border-slate-800 flex items-center gap-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">RG</div>
-            <div class="opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
-                <div class="text-2xl font-bold tracking-tight">Rare Grade</div>
-                <div class="text-xs text-slate-400 -mt-1">LMS Admin</div>
+        <div class="p-6 mb-4 flex items-center gap-x-4">
+            <div class="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <i data-lucide="layers" class="w-6 h-6"></i>
             </div>
+            <span class="font-bold text-xl tracking-tight opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Rare Grade</span>
         </div>
         
-        <nav class="flex-1 px-3 py-8 space-y-2">
-            <button onclick="nav('dashboard')" id="nav-dashboard" 
-                    class="nav-btn active w-full flex items-center gap-x-4 px-5 py-4 rounded-2xl text-left">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1v-5m10-10l2 2m-2-2v10a1 1 0 01-1 1v-5m-6 0a1 1 0 001-1v5" />
-                </svg>
+        <nav class="flex-1 px-3 space-y-2">
+            <button onclick="nav('dashboard')" id="nav-dashboard" class="nav-btn active w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl transition-all">
+                <i data-lucide="layout-dashboard" class="w-6 h-6 flex-shrink-0"></i>
                 <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Dashboard</span>
             </button>
             
-            <button onclick="nav('courses')" id="nav-courses" 
-                    class="nav-btn w-full flex items-center gap-x-4 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18 9.246 18 10.832 18.477 12 19.253zm0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18 14.754 18 13.168 18.477 12 19.253z" />
-                </svg>
+            <button onclick="nav('courses')" id="nav-courses" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
+                <i data-lucide="book-open" class="w-6 h-6 flex-shrink-0"></i>
                 <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Courses</span>
             </button>
             
-            <button onclick="nav('learners')" id="nav-learners" 
-                    class="nav-btn w-full flex items-center gap-x-4 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 01-5.356-1.857M17 20H7m5-2v-2c0-.656-.126-1.284-.356-1.852M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.284.356-1.852m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+            <button onclick="nav('learners')" id="nav-learners" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
+                <i data-lucide="users" class="w-6 h-6 flex-shrink-0"></i>
                 <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Learners</span>
             </button>
         </nav>
         
         <div class="p-6 border-t border-slate-800">
-            <div class="flex items-center gap-x-3">
-                <div class="w-9 h-9 bg-slate-700 rounded-full flex items-center justify-center text-lg flex-shrink-0">👨‍💼</div>
-                <div class="opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
-                    <p class="font-medium text-sm">Admin User</p>
-                    <p class="text-xs text-slate-500">Pretoria, ZA</p>
+            <div class="flex items-center gap-x-4">
+                <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
+                </div>
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    <p class="font-semibold text-sm">Katlego</p>
+                    <p class="text-xs text-slate-500">Administrator</p>
                 </div>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 min-h-screen md:ml-20">
-        <header class="bg-white border-b px-6 md:px-8 py-6 flex items-center justify-between sticky top-0 z-40">
-            <h1 id="page-title" class="text-3xl font-semibold text-gray-900">Dashboard</h1>
+    <main class="flex-1 ml-20 transition-all">
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-6 flex items-center justify-between sticky top-0 z-40">
+            <div>
+                <h1 id="page-title" class="text-2xl font-bold text-slate-900">Dashboard</h1>
+                <p class="text-sm text-slate-500">Welcome back, Katlego.</p>
+            </div>
             
-            <div class="flex items-center gap-x-6">
-                <div class="relative hidden md:block">
-                    <input type="text" id="global-search" placeholder="Search anything..." 
-                           class="w-80 bg-zinc-100 border border-transparent focus:border-indigo-300 pl-11 py-3 rounded-3xl text-sm focus:outline-none transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 absolute left-4 top-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 01-14 0 7 7 0 0114 0z" />
-                    </svg>
+            <div class="flex items-center gap-x-4">
+                <div class="text-right mr-4 hidden md:block">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Local Time</p>
+                    <p id="local-clock" class="text-sm font-medium text-slate-700">Pretoria, ZA</p>
                 </div>
-                
-                <button class="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-zinc-100 rounded-2xl transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-9-5.197V8.5m.002 3.5L12 17l-1.998-4.5" />
-                    </svg>
-                </button>
-                
-                <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center text-white font-bold cursor-pointer">AK</div>
+                <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </div>
             </div>
         </header>
 
-        <div class="p-6 md:p-8">
-            <!-- DASHBOARD -->
+        <div class="p-8">
             <section id="section-dashboard">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Total Learners</p>
-                                <h3 id="stat-learners" class="stat-number text-5xl font-bold text-gray-900 mt-3">0</h3>
-                            </div>
-                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 01-5.356-1.857M17 20H7m5-2v-2c0-.656-.126-1.284-.356-1.852M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.284.356-1.852m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="users" class="w-6 h-6"></i>
                             </div>
                         </div>
+                        <p class="text-slate-500 text-sm font-medium">Total Learners</p>
+                        <h3 id="stat-learners" class="text-4xl font-bold mt-1 tracking-tight">0</h3>
                     </div>
-                    
-                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Active Courses</p>
-                                <h3 id="stat-courses" class="stat-number text-5xl font-bold text-indigo-600 mt-3">0</h3>
-                            </div>
-                            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18 9.246 18 10.832 18.477 12 19.253zm0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18 14.754 18 13.168 18.477 12 19.253z" />
-                                </svg>
+
+                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="book" class="w-6 h-6"></i>
                             </div>
                         </div>
+                        <p class="text-slate-500 text-sm font-medium">Active Courses</p>
+                        <h3 id="stat-courses" class="text-4xl font-bold mt-1 tracking-tight text-indigo-600">0</h3>
                     </div>
-                    
-                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Total Revenue</p>
-                                <h3 id="stat-revenue" class="stat-number text-5xl font-bold text-gray-900 mt-3">R 0</h3>
-                            </div>
-                            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 4.01V8" />
-                                </svg>
+
+                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="wallet" class="w-6 h-6"></i>
                             </div>
                         </div>
+                        <p class="text-slate-500 text-sm font-medium">Projected Revenue</p>
+                        <h3 id="stat-revenue" class="text-4xl font-bold mt-1 tracking-tight">R 0</h3>
                     </div>
-                    
-                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Completion Rate</p>
-                                <h3 id="stat-completion" class="stat-number text-5xl font-bold text-gray-900 mt-3">83%</h3>
-                            </div>
-                            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-9 9-4-4-6 6" />
-                                </svg>
+
+                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="trending-up" class="w-6 h-6"></i>
                             </div>
                         </div>
+                        <p class="text-slate-500 text-sm font-medium">System Health</p>
+                        <h3 class="text-4xl font-bold mt-1 tracking-tight">Stable</h3>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
-                    <h3 class="font-semibold text-lg mb-6">Recent Enrollments</h3>
-                    <div id="recent-enrollments" class="space-y-6"></div>
+                <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                        <h3 class="font-bold text-lg">Recent Enrollment Stream</h3>
+                        <i data-lucide="refresh-cw" class="w-5 h-5 text-slate-300"></i>
+                    </div>
+                    <div id="recent-enrollments" class="divide-y divide-slate-50">
+                        </div>
                 </div>
             </section>
 
-            <!-- LEARNERS SECTION -->
             <section id="section-learners" class="hidden-section">
-                <div class="flex justify-between items-center mb-8">
+                <div class="flex justify-between items-end mb-8">
                     <div>
-                        <h2 class="text-3xl font-semibold text-gray-900">Learner Registry</h2>
-                        <p class="text-gray-500 mt-1">Real-time Firebase Sync</p>
+                        <h2 class="text-3xl font-bold">Learner Registry</h2>
+                        <p class="text-slate-500 mt-1">Direct Firebase Realtime Sync</p>
                     </div>
-                    <button onclick="openLearnerForm()" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        <span>Add New Learner</span>
+                    <button onclick="openLearnerForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-2xl font-bold flex items-center gap-x-2 shadow-lg shadow-indigo-200 transition-all">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>Register Learner</span>
                     </button>
                 </div>
                 
-                <div class="mb-6">
-                    <input type="text" id="learner-search" onkeyup="searchLearners()" 
-                           placeholder="Search by name, email or ID..." 
-                           class="w-full max-w-md bg-white border border-gray-200 focus:border-indigo-400 p-5 rounded-3xl outline-none text-sm">
-                </div>
-                
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-zinc-50">
-                            <tr class="text-xs uppercase font-medium text-gray-500">
-                                <th class="px-8 py-6 text-left">Student ID</th>
-                                <th class="px-8 py-6 text-left">Full Name</th>
-                                <th class="px-8 py-6 text-left">Email</th>
-                                <th class="px-8 py-6 text-left">Course</th>
-                                <th class="px-8 py-6 text-left">Status</th>
+                <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-50">
+                        <div class="relative max-w-md">
+                            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3.5 text-slate-400"></i>
+                            <input type="text" id="learner-search" onkeyup="searchLearners()" placeholder="Filter by name or email..." class="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-indigo-500 transition-all outline-none">
+                        </div>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50 text-[11px] uppercase tracking-widest font-bold text-slate-400">
+                            <tr>
+                                <th class="px-8 py-5">UID</th>
+                                <th class="px-8 py-5">Student</th>
+                                <th class="px-8 py-5">Enrollment</th>
+                                <th class="px-8 py-5">Status</th>
+                                <th class="px-8 py-5 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="learner-table-body" class="divide-y divide-gray-100 text-sm"></tbody>
+                        <tbody id="learner-table-body" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- COURSES SECTION -->
             <section id="section-courses" class="hidden-section">
                 <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-semibold text-gray-900">Course Catalog</h2>
-                    <button onclick="toggleModal('course', true)" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        <span>New Course</span>
+                    <h2 class="text-3xl font-bold">Course Catalog</h2>
+                    <button onclick="toggleModal('course', true)" class="bg-slate-900 text-white px-6 py-4 rounded-2xl font-bold flex items-center gap-x-2 transition-all">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                        <span>New Program</span>
                     </button>
                 </div>
                 <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
@@ -267,112 +209,85 @@
         </div>
     </main>
 
-    <!-- MODALS -->
-    <div id="modal-container" class="fixed inset-0 bg-black/60 backdrop-blur-xl hidden items-center justify-center z-[100]">
-        
-        <!-- Learner Detail -->
-        <div id="modal-learner-detail" class="modal bg-white w-full max-w-lg rounded-3xl shadow-2xl hidden overflow-hidden">
-            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-white">
-                <div class="flex justify-between">
+    <div id="modal-container" class="fixed inset-0 bg-slate-950/40 backdrop-blur-md hidden items-center justify-center z-[100] p-4">
+        <div id="modal-learner-detail" class="bg-white w-full max-w-xl rounded-[40px] shadow-2xl hidden overflow-hidden">
+            <div class="bg-indigo-600 p-10 text-white relative">
+                <button onclick="toggleModal('learner-detail', false)" class="absolute top-6 right-6 hover:rotate-90 transition-transform">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+                <div class="flex items-center gap-6">
+                    <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-bold" id="detail-initials"></div>
                     <div>
-                        <h3 id="detail-name" class="text-2xl font-bold"></h3>
-                        <p id="detail-id" class="font-mono text-indigo-300 mt-1"></p>
+                        <h3 id="detail-name" class="text-3xl font-bold"></h3>
+                        <p id="detail-id" class="opacity-70 font-mono mt-1 tracking-wider"></p>
                     </div>
-                    <button onclick="toggleModal('learner-detail', false)" class="text-4xl leading-none text-white/60 hover:text-white">&times;</button>
                 </div>
             </div>
-            <div class="p-8 space-y-8">
-                <div class="grid grid-cols-2 gap-6 text-sm">
-                    <div><p class="text-gray-400 text-xs font-medium">EMAIL</p><p id="detail-email" class="font-medium mt-1"></p></div>
-                    <div><p class="text-gray-400 text-xs font-medium">COURSE</p><p id="detail-course" class="font-medium mt-1"></p></div>
-                    <div><p class="text-gray-400 text-xs font-medium">DATE OF BIRTH</p><p id="detail-dob" class="font-medium mt-1"></p></div>
-                    <div><p class="text-gray-400 text-xs font-medium">GENDER</p><p id="detail-gender" class="font-medium mt-1"></p></div>
+            <div class="p-10 space-y-8">
+                <div class="grid grid-cols-2 gap-8">
+                    <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Email Address</p><p id="detail-email" class="font-semibold"></p></div>
+                    <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Assigned Course</p><p id="detail-course" class="font-semibold text-indigo-600"></p></div>
                 </div>
-                <div>
-                    <p class="text-gray-400 text-xs font-medium mb-2">STATUS</p>
-                    <span id="detail-status-badge" class="inline-block px-6 py-2 rounded-3xl text-sm font-semibold"></span>
+                <div class="flex gap-4">
+                    <button onclick="openLearnerForm(true)" class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold hover:bg-slate-200 transition-colors text-slate-700">Edit Profile</button>
+                    <button id="btn-suspend" class="flex-1 py-4 border-2 border-amber-100 text-amber-600 rounded-2xl font-bold hover:bg-amber-50 transition-colors">Suspend</button>
+                    <button id="btn-delete" class="px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl hover:bg-rose-100 transition-colors"><i data-lucide="trash-2"></i></button>
                 </div>
-            </div>
-            <div class="border-t border-gray-100 p-6 flex gap-3">
-                <button onclick="openLearnerForm(true)" class="flex-1 py-4 bg-white border border-gray-300 hover:bg-gray-50 rounded-3xl font-semibold">Edit</button>
-                <button id="btn-suspend" class="flex-1 py-4 bg-white border border-amber-300 text-amber-700 hover:bg-amber-50 rounded-3xl font-semibold">Suspend</button>
-                <button id="btn-delete" class="flex-1 py-4 bg-white border border-red-300 text-red-600 hover:bg-red-50 rounded-3xl font-semibold">Delete</button>
             </div>
         </div>
 
-        <!-- Learner Form -->
-        <div id="modal-learner" class="modal bg-white w-full max-w-lg rounded-3xl shadow-2xl hidden">
-            <div class="px-8 pt-8 pb-6 border-b">
-                <h3 id="learner-form-title" class="font-bold text-2xl">Add New Learner</h3>
-            </div>
-            <form id="learner-form" class="p-8 space-y-6">
+        <div id="modal-learner" class="bg-white w-full max-w-lg rounded-[40px] shadow-2xl hidden p-10">
+            <h3 id="learner-form-title" class="text-2xl font-bold mb-8">Register Student</h3>
+            <form id="learner-form" class="space-y-6">
                 <input type="hidden" id="learner-edit-key">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-2">FULL NAME</label>
-                    <input type="text" id="learner-name" required class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Full Name</label>
+                    <input type="text" id="learner-name" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-2">EMAIL</label>
-                        <input type="email" id="learner-email" required class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Email</label>
+                        <input type="email" id="learner-email" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-2">DATE OF BIRTH</label>
-                        <input type="date" id="learner-dob" required class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-2">GENDER</label>
-                        <select id="learner-gender" class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-2">ASSIGN COURSE</label>
-                        <select id="learner-course-select" class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none"></select>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Course</label>
+                        <select id="learner-course-select" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"></select>
                     </div>
                 </div>
-                <div class="pt-4 flex gap-4">
-                    <button type="button" onclick="toggleModal('learner', false)" class="flex-1 py-5 border border-gray-300 rounded-3xl font-semibold">Cancel</button>
-                    <button type="submit" class="flex-1 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-semibold">Save Learner</button>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="toggleModal('learner', false)" class="flex-1 py-4 text-slate-500 font-bold">Cancel</button>
+                    <button type="submit" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100">Save Learner</button>
                 </div>
             </form>
         </div>
 
-        <!-- Course Form -->
-        <div id="modal-course" class="modal bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
-            <div class="p-8 border-b">
-                <h3 class="font-bold text-2xl">Create New Course</h3>
-            </div>
-            <form id="add-course-form" class="p-8 space-y-8">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-2">COURSE TITLE</label>
-                    <input type="text" id="course-title" required class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
+        <div id="modal-course" class="bg-white w-full max-w-md rounded-[40px] shadow-2xl hidden p-10">
+            <h3 class="text-2xl font-bold mb-8">Create New Course</h3>
+            <form id="add-course-form" class="space-y-6">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Course Title</label>
+                    <input type="text" id="course-title" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-2">PRICE (ZAR)</label>
-                    <input type="number" id="course-price" required class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Price (ZAR)</label>
+                    <input type="number" id="course-price" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-2">THUMBNAIL IMAGE</label>
-                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm file:mr-4 file:py-3 file:px-6 file:rounded-3xl file:border-0 file:bg-indigo-50 file:text-indigo-700">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Thumbnail</label>
+                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:bg-indigo-50 file:text-indigo-700">
                 </div>
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="toggleModal('course', false)" class="flex-1 py-5 border border-gray-300 rounded-3xl font-semibold">Cancel</button>
-                    <button type="submit" class="flex-1 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-semibold">Upload & Publish</button>
+                    <button type="button" onclick="toggleModal('course', false)" class="flex-1 py-4 text-slate-500 font-bold">Discard</button>
+                    <button type="submit" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold">Publish</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Global Loader -->
-    <div id="global-loader" class="fixed inset-0 bg-slate-900/70 backdrop-blur-lg hidden items-center justify-center z-[200]">
-        <div class="bg-white rounded-3xl p-10 flex flex-col items-center shadow-2xl">
-            <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-6"></div>
-            <p id="loader-text" class="text-gray-700 font-semibold">Processing...</p>
+    <div id="global-loader" class="fixed inset-0 bg-white/80 backdrop-blur-xl hidden items-center justify-center z-[200]">
+        <div class="flex flex-col items-center">
+            <div class="loader rounded-full border-4 border-t-4 border-slate-100 h-12 w-12 mb-4"></div>
+            <p id="loader-text" class="text-slate-900 font-bold tracking-tight">Syncing Data...</p>
         </div>
     </div>
 
@@ -394,28 +309,35 @@
         const db = getDatabase(app);
         
         window.learnersMap = {};
+        window.coursesMap = {};
         window.currentActionKey = null;
         
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
         const UPLOAD_PRESET = "banter_box";
-        
-        function checkDevice() {
-            if (window.innerWidth < 768) {
+
+        const loader = (show, text = "Syncing Data...") => {
+            const l = document.getElementById('global-loader');
+            document.getElementById('loader-text').innerText = text;
+            l.classList.toggle('hidden', !show);
+            l.classList.toggle('flex', show);
+        };
+
+        const checkDevice = () => {
+            if (window.innerWidth < 1024) {
                 document.getElementById('mobile-warning').classList.remove('hidden');
+            } else {
+                document.getElementById('mobile-warning').classList.add('hidden');
             }
-        }
-        
+        };
+
         window.nav = (target) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(`section-${target}`).classList.remove('hidden-section');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active', 'text-white', 'bg-indigo-600'));
             document.getElementById(`nav-${target}`).classList.add('active');
-            
-            document.getElementById('page-title').textContent = 
-                target === 'dashboard' ? 'Dashboard' : target === 'learners' ? 'Learners' : 'Courses';
+            document.getElementById('page-title').textContent = target.charAt(0).toUpperCase() + target.slice(1);
         };
-        
+
         window.toggleModal = (type, show) => {
             const container = document.getElementById('modal-container');
             container.classList.toggle('hidden', !show);
@@ -423,182 +345,149 @@
             document.querySelectorAll('#modal-container > div').forEach(d => d.classList.add('hidden'));
             if (show) document.getElementById(`modal-${type}`).classList.remove('hidden');
         };
-        
-        const loader = (show, text = "Processing...") => {
-            const l = document.getElementById('global-loader');
-            document.getElementById('loader-text').innerText = text;
-            l.classList.toggle('hidden', !show);
-            l.classList.toggle('flex', show);
-        };
-        
-        // Real-time Learners
-        onValue(ref(db, 'learners'), (snapshot) => {
-            const table = document.getElementById('learner-table-body');
-            const data = snapshot.val() || {};
-            window.learnersMap = data;
-            
-            table.innerHTML = '';
-            Object.entries(data).forEach(([key, l]) => {
-                const statusClass = l.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
-                table.innerHTML += `
-                <tr onclick="viewLearnerProfile('${key}')" class="cursor-pointer hover:bg-zinc-50">
-                    <td class="px-8 py-6 font-mono text-indigo-600">${l.id || 'N/A'}</td>
-                    <td class="px-8 py-6 font-medium">${l.name}</td>
-                    <td class="px-8 py-6 text-gray-500">${l.email}</td>
-                    <td class="px-8 py-6">${l.assignedCourse || '—'}</td>
-                    <td class="px-8 py-6">
-                        <span class="${statusClass} text-xs font-bold px-5 py-2 rounded-3xl">${l.status || 'ACTIVE'}</span>
-                    </td>
-                </tr>`;
-            });
-            
-            document.getElementById('stat-learners').textContent = Object.keys(data).length;
-            renderRecentEnrollments(data);
-        });
-        
-        // Real-time Courses
+
+        // Real-time Dashboard Sync
         onValue(ref(db, 'courses'), (snapshot) => {
+            const data = snapshot.val() || {};
+            window.coursesMap = data;
             const grid = document.getElementById('courses-grid');
             const select = document.getElementById('learner-course-select');
-            const data = snapshot.val() || {};
             
             grid.innerHTML = '';
-            select.innerHTML = '<option value="None">No Course Assigned</option>';
+            select.innerHTML = '<option value="None">None</option>';
             
             Object.values(data).forEach(c => {
                 grid.innerHTML += `
-                <div class="bg-white border border-gray-100 rounded-3xl overflow-hidden card-hover">
-                    <img src="${c.thumbnail || 'https://picsum.photos/id/1015/600/340'}" class="w-full h-52 object-cover">
+                <div class="bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm group">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="${c.thumbnail}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    </div>
                     <div class="p-6">
-                        <h4 class="font-semibold text-lg">${c.title}</h4>
-                        <p class="text-2xl font-bold text-indigo-600 mt-2">R ${c.price}</p>
+                        <h4 class="font-bold text-lg">${c.title}</h4>
+                        <div class="flex justify-between items-center mt-4">
+                            <p class="text-2xl font-bold text-indigo-600">R ${c.price}</p>
+                            <span class="text-xs font-bold bg-slate-50 px-3 py-1 rounded-full text-slate-400">COURSE ID</span>
+                        </div>
                     </div>
                 </div>`;
                 select.innerHTML += `<option value="${c.title}">${c.title}</option>`;
             });
-            
             document.getElementById('stat-courses').textContent = Object.keys(data).length;
+            calculateRevenue();
         });
-        
-        function renderRecentEnrollments(data) {
-            const container = document.getElementById('recent-enrollments');
-            container.innerHTML = '';
+
+        onValue(ref(db, 'learners'), (snapshot) => {
+            const data = snapshot.val() || {};
+            window.learnersMap = data;
+            const table = document.getElementById('learner-table-body');
+            const stream = document.getElementById('recent-enrollments');
             
-            const sorted = Object.entries(data)
-                .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
-                .slice(0, 5);
+            table.innerHTML = '';
+            stream.innerHTML = '';
             
-            if (sorted.length === 0) {
-                container.innerHTML = `<p class="text-gray-400 text-center py-8">No recent enrollments yet.</p>`;
-                return;
-            }
-            
-            sorted.forEach(([key, learner]) => {
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-3 -mx-3 rounded-2xl hover:bg-zinc-50 cursor-pointer";
-                div.innerHTML = `
-                    <div class="flex items-center gap-x-4">
-                        <div class="w-10 h-10 bg-zinc-100 rounded-2xl flex items-center justify-center text-2xl">👤</div>
-                        <div>
-                            <p class="font-medium">${learner.name}</p>
-                            <p class="text-xs text-gray-500">${learner.assignedCourse || 'General'}</p>
+            Object.entries(data).reverse().forEach(([key, l], index) => {
+                // Table Rendering
+                const statusColor = l.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
+                table.innerHTML += `
+                <tr onclick="viewLearnerProfile('${key}')" class="cursor-pointer hover:bg-slate-50 transition-colors">
+                    <td class="px-8 py-6 font-mono text-[10px] text-indigo-400">${l.id || 'N/A'}</td>
+                    <td class="px-8 py-6">
+                        <div class="font-bold">${l.name}</div>
+                        <div class="text-xs text-slate-400">${l.email}</div>
+                    </td>
+                    <td class="px-8 py-6 font-semibold text-slate-600">${l.assignedCourse || '—'}</td>
+                    <td class="px-8 py-6">
+                        <span class="${statusColor} text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">${l.status || 'ACTIVE'}</span>
+                    </td>
+                    <td class="px-8 py-6 text-right"><i data-lucide="chevron-right" class="inline w-4 h-4 text-slate-300"></i></td>
+                </tr>`;
+
+                // Stream Rendering (top 5)
+                if(index < 5) {
+                    stream.innerHTML += `
+                    <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold">
+                                ${l.name.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold">${l.name}</p>
+                                <p class="text-xs text-slate-400">Joined Rare Grade Tech</p>
+                            </div>
                         </div>
-                    </div>
-                    <span class="text-emerald-600 text-sm font-medium">Just now</span>
-                `;
-                container.appendChild(div);
+                        <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Active</span>
+                    </div>`;
+                }
             });
+
+            document.getElementById('stat-learners').textContent = Object.keys(data).length;
+            calculateRevenue();
+            lucide.createIcons();
+        });
+
+        function calculateRevenue() {
+            let total = 0;
+            const learners = Object.values(window.learnersMap);
+            const courses = Object.values(window.coursesMap);
+            
+            learners.forEach(l => {
+                const course = courses.find(c => c.title === l.assignedCourse);
+                if(course) total += parseInt(course.price);
+            });
+            document.getElementById('stat-revenue').textContent = `R ${total.toLocaleString()}`;
         }
-        
+
         window.viewLearnerProfile = (key) => {
             const l = window.learnersMap[key];
-            if (!l) return;
             window.currentActionKey = key;
-            
             document.getElementById('detail-name').innerText = l.name;
-            document.getElementById('detail-id').innerText = l.id || '—';
+            document.getElementById('detail-initials').innerText = l.name.charAt(0);
+            document.getElementById('detail-id').innerText = l.id || 'N/A';
             document.getElementById('detail-email').innerText = l.email;
             document.getElementById('detail-course').innerText = l.assignedCourse || 'None';
-            document.getElementById('detail-dob').innerText = l.dob || '—';
-            document.getElementById('detail-gender').innerText = l.gender || '—';
-            
-            const badge = document.getElementById('detail-status-badge');
-            badge.innerText = l.status || 'ACTIVE';
-            badge.className = (l.status === 'ACTIVE') 
-                ? 'inline-block px-6 py-2 rounded-3xl text-sm font-semibold bg-emerald-100 text-emerald-700' 
-                : 'inline-block px-6 py-2 rounded-3xl text-sm font-semibold bg-red-100 text-red-700';
-            
-            document.getElementById('btn-suspend').innerText = (l.status === 'ACTIVE') ? 'Suspend' : 'Unsuspend';
+            document.getElementById('btn-suspend').innerText = (l.status === 'ACTIVE') ? 'Suspend Student' : 'Activate Student';
             toggleModal('learner-detail', true);
+            lucide.createIcons();
         };
-        
-        window.openLearnerForm = (editMode = false) => {
-            document.getElementById('learner-form').reset();
-            document.getElementById('learner-edit-key').value = '';
-            
-            if (editMode && window.currentActionKey) {
+
+        window.openLearnerForm = (edit = false) => {
+            const form = document.getElementById('learner-form');
+            form.reset();
+            document.getElementById('learner-edit-key').value = edit ? window.currentActionKey : '';
+            if(edit) {
                 const l = window.learnersMap[window.currentActionKey];
-                document.getElementById('learner-form-title').innerText = "Edit Learner";
-                document.getElementById('learner-edit-key').value = window.currentActionKey;
                 document.getElementById('learner-name').value = l.name;
                 document.getElementById('learner-email').value = l.email;
-                document.getElementById('learner-dob').value = l.dob;
-                document.getElementById('learner-gender').value = l.gender;
-                document.getElementById('learner-course-select').value = l.assignedCourse || 'None';
-            } else {
-                document.getElementById('learner-form-title').innerText = "Add New Learner";
+                document.getElementById('learner-course-select').value = l.assignedCourse;
             }
             toggleModal('learner-detail', false);
             toggleModal('learner', true);
         };
-        
-        document.getElementById('btn-delete').onclick = async () => {
-            if (confirm("Delete this learner permanently?")) {
-                loader(true, "Deleting...");
-                await remove(ref(db, `learners/${window.currentActionKey}`));
-                toggleModal('learner-detail', false);
-                loader(false);
-            }
-        };
-        
-        document.getElementById('btn-suspend').onclick = async () => {
-            loader(true, "Updating status...");
-            const current = window.learnersMap[window.currentActionKey].status;
-            const newStatus = current === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-            await update(ref(db, `learners/${window.currentActionKey}`), { status: newStatus });
-            loader(false);
-            viewLearnerProfile(window.currentActionKey);
-        };
-        
+
         document.getElementById('learner-form').onsubmit = async (e) => {
             e.preventDefault();
-            loader(true, "Saving Learner...");
-            const editKey = document.getElementById('learner-edit-key').value;
+            loader(true, "Writing to Firebase...");
+            const key = document.getElementById('learner-edit-key').value;
             const data = {
                 name: document.getElementById('learner-name').value,
                 email: document.getElementById('learner-email').value,
-                dob: document.getElementById('learner-dob').value,
-                gender: document.getElementById('learner-gender').value,
                 assignedCourse: document.getElementById('learner-course-select').value,
                 status: 'ACTIVE'
             };
-            if (editKey) {
-                await update(ref(db, `learners/${editKey}`), data);
+            if(key) {
+                await update(ref(db, `learners/${key}`), data);
             } else {
-                data.id = `RG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-                data.createdAt = Date.now();
+                data.id = `RG-${Math.floor(1000 + Math.random() * 9000)}`;
                 await set(push(ref(db, 'learners')), data);
             }
             toggleModal('learner', false);
             loader(false);
         };
-        
+
         document.getElementById('add-course-form').onsubmit = async (e) => {
             e.preventDefault();
             const file = document.getElementById('course-file').files[0];
-            if (!file) return alert("Please select an image");
-            
-            loader(true, "Uploading image...");
+            loader(true, "Uploading Thumbnail...");
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', UPLOAD_PRESET);
@@ -606,34 +495,40 @@
             try {
                 const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
                 const cloud = await res.json();
-                
                 await set(push(ref(db, 'courses')), {
                     title: document.getElementById('course-title').value,
                     price: document.getElementById('course-price').value,
-                    thumbnail: cloud.secure_url,
-                    createdAt: Date.now()
+                    thumbnail: cloud.secure_url
                 });
                 toggleModal('course', false);
-                document.getElementById('add-course-form').reset();
-            } catch (err) {
-                alert("Upload failed");
-            }
+                e.target.reset();
+            } catch (err) { alert("Network Error"); }
             loader(false);
         };
-        
-        window.searchLearners = () => {
-            const q = document.getElementById('learner-search').value.toLowerCase();
-            document.querySelectorAll('#learner-table-body tr').forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
-            });
+
+        document.getElementById('btn-suspend').onclick = async () => {
+            const current = window.learnersMap[window.currentActionKey].status;
+            await update(ref(db, `learners/${window.currentActionKey}`), { status: current === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE' });
+            toggleModal('learner-detail', false);
         };
-        
+
+        document.getElementById('btn-delete').onclick = async () => {
+            if(confirm("Confirm deletion?")) {
+                await remove(ref(db, `learners/${window.currentActionKey}`));
+                toggleModal('learner-detail', false);
+            }
+        };
+
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('local-clock').innerText = now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }) + " Pretoria, ZA";
+        }, 1000);
+
         window.onload = () => {
             checkDevice();
-            nav('dashboard');
+            lucide.createIcons();
         };
-        
-        window.addEventListener('resize', checkDevice);
+        window.onresize = checkDevice;
     </script>
 </body>
 </html>
