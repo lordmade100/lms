@@ -5,168 +5,414 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rare Grade LMS | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .hidden-section { display: none; }
-        .loader { border-top-color: #4f46e5; animation: spinner 0.6s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .loader {
+            border-top-color: #6366f1;
+            animation: spinner 0.7s linear infinite;
+        }
+        @keyframes spinner { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        .nav-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgb(79 70 229 / 0.2);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        table tr {
+            transition: all 0.2s ease;
+        }
+        table tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .modal {
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPop {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
-<body class="bg-gray-50 flex">
-
-    <!-- Global Loading Overlay -->
-    <div id="global-loader" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100]">
-        <div class="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-            <p class="text-gray-700 font-bold" id="loader-text">Processing...</p>
+<body class="bg-zinc-50 flex min-h-screen">
+    <!-- Top Bar (Mobile + Desktop) -->
+    <div class="md:hidden fixed top-0 left-0 right-0 bg-white border-b z-50 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-x-3">
+            <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl font-bold">RG</div>
+            <span class="font-bold text-xl text-gray-900">Rare Grade</span>
         </div>
+        <button onclick="toggleMobileSidebar()" class="text-2xl text-gray-700">
+            <i class="fa-solid fa-bars"></i>
+        </button>
     </div>
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 h-screen sticky top-0 text-white hidden md:flex flex-col">
-        <div class="p-6 text-2xl font-bold text-indigo-400">Rare Grade LMS</div>
-        <nav class="flex-1 px-4 space-y-2 mt-4">
-            <button onclick="nav('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 bg-indigo-600 p-3 rounded-lg text-white transition"><span>🏠</span> <span>Dashboard</span></button>
-            <button onclick="nav('courses')" id="nav-courses" class="w-full flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 transition"><span>📚</span> <span>Courses</span></button>
-            <button onclick="nav('learners')" id="nav-learners" class="w-full flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 transition"><span>👥</span> <span>Learners</span></button>
+    <aside id="sidebar" class="w-72 bg-slate-950 h-screen sticky top-0 text-white flex flex-col shadow-2xl md:translate-x-0 -translate-x-full transition-transform duration-300 z-50">
+        <div class="p-6 border-b border-slate-800 flex items-center gap-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-inner">RG</div>
+            <div>
+                <div class="text-2xl font-bold tracking-tight">Rare Grade</div>
+                <div class="text-xs text-slate-400 -mt-1">LMS Admin</div>
+            </div>
+        </div>
+        
+        <nav class="flex-1 px-4 py-8 space-y-1">
+            <button onclick="nav('dashboard')" id="nav-dashboard" 
+                    class="nav-btn active w-full flex items-center gap-x-3 px-5 py-4 rounded-2xl text-left">
+                <i class="fa-solid fa-house w-5"></i>
+                <span class="font-medium">Dashboard</span>
+            </button>
+            <button onclick="nav('courses')" id="nav-courses" 
+                    class="nav-btn w-full flex items-center gap-x-3 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
+                <i class="fa-solid fa-book w-5"></i>
+                <span class="font-medium">Courses</span>
+            </button>
+            <button onclick="nav('learners')" id="nav-learners" 
+                    class="nav-btn w-full flex items-center gap-x-3 px-5 py-4 rounded-2xl text-left text-slate-400 hover:bg-slate-900 hover:text-white">
+                <i class="fa-solid fa-users w-5"></i>
+                <span class="font-medium">Learners</span>
+            </button>
         </nav>
-        <div class="p-6 border-t border-slate-800 text-xs text-gray-500">Project: fire-b-a8878</div>
+        
+        <div class="p-6 border-t border-slate-800">
+            <div class="flex items-center gap-x-3">
+                <div class="w-9 h-9 bg-slate-700 rounded-full flex items-center justify-center text-lg">👨‍💼</div>
+                <div class="flex-1">
+                    <p class="font-medium text-sm">Admin User</p>
+                    <p class="text-xs text-slate-500">Pretoria, ZA</p>
+                </div>
+            </div>
+        </div>
     </aside>
 
-    <main class="flex-1 min-h-screen p-8">
-        <!-- DASHBOARD SECTION -->
-        <section id="section-dashboard">
-            <h2 class="text-2xl font-bold text-gray-800 mb-8">Admin Dashboard</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><p class="text-gray-500 text-sm uppercase">Total Learners</p><h3 id="stat-learners" class="text-3xl font-bold mt-2">0</h3></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><p class="text-gray-500 text-sm uppercase">Course Catalog</p><h3 id="stat-courses" class="text-3xl font-bold mt-2 text-indigo-600">0</h3></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><p class="text-gray-500 text-sm uppercase">Revenue</p><h3 id="stat-revenue" class="text-3xl font-bold mt-2">R 0.00</h3></div>
+    <!-- Main Content -->
+    <main class="flex-1 min-h-screen md:ml-0">
+        <!-- Dashboard Header -->
+        <header class="bg-white border-b px-8 py-6 flex items-center justify-between sticky top-0 z-40">
+            <div class="flex items-center gap-x-4">
+                <h1 id="page-title" class="text-3xl font-semibold text-gray-900">Dashboard</h1>
             </div>
-        </section>
-
-        <!-- LEARNERS SECTION -->
-        <section id="section-learners" class="hidden-section">
-            <header class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Learner Registry</h2>
-                    <p class="text-gray-500">Click on any learner to view options.</p>
+            
+            <div class="flex items-center gap-x-6">
+                <div class="relative">
+                    <input type="text" id="global-search" 
+                           placeholder="Search anything..." 
+                           class="w-80 bg-zinc-100 border border-transparent focus:border-indigo-300 pl-11 py-3 rounded-3xl text-sm focus:outline-none transition">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400"></i>
                 </div>
-                <button onclick="openLearnerForm()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg">
-                    + Add New Learner
+                
+                <button onclick="toggleNotifications()" 
+                        class="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-zinc-100 rounded-2xl transition">
+                    <i class="fa-solid fa-bell text-xl"></i>
                 </button>
-            </header>
-
-            <div class="mb-6">
-                <input type="text" id="learner-search" onkeyup="searchLearners()" placeholder="Search by Name or Student ID..." class="w-full md:w-1/3 p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+                
+                <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center text-white font-bold cursor-pointer">
+                    AK
+                </div>
             </div>
+        </header>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-gray-400 text-xs uppercase">
-                        <tr><th class="px-6 py-4">ID</th><th class="px-6 py-4">Full Name</th><th class="px-6 py-4">Email</th><th class="px-6 py-4">Course</th><th class="px-6 py-4">Status</th></tr>
-                    </thead>
-                    <tbody id="learner-table-body" class="divide-y divide-gray-100 cursor-pointer"></tbody>
-                </table>
-            </div>
-        </section>
+        <div class="p-8">
+            <!-- DASHBOARD SECTION -->
+            <section id="section-dashboard">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <!-- Stat 1 -->
+                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Total Learners</p>
+                                <h3 id="stat-learners" class="stat-number text-5xl font-bold text-gray-900 mt-3">248</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl">
+                                👥
+                            </div>
+                        </div>
+                        <div class="mt-6 text-emerald-600 text-sm font-medium flex items-center gap-x-1">
+                            <span>+18 this month</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Stat 2 -->
+                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Active Courses</p>
+                                <h3 id="stat-courses" class="stat-number text-5xl font-bold text-indigo-600 mt-3">14</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl">
+                                📚
+                            </div>
+                        </div>
+                        <div class="mt-6 text-emerald-600 text-sm font-medium flex items-center gap-x-1">
+                            <span>2 new this week</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Stat 3 -->
+                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Revenue</p>
+                                <h3 id="stat-revenue" class="stat-number text-5xl font-bold text-gray-900 mt-3">R 87,420</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-3xl">
+                                💰
+                            </div>
+                        </div>
+                        <div class="mt-6 text-emerald-600 text-sm font-medium flex items-center gap-x-1">
+                            <span>+12% from last month</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Stat 4 -->
+                    <div class="bg-white rounded-3xl p-8 card-hover shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="uppercase text-xs tracking-widest font-medium text-gray-500">Completion Rate</p>
+                                <h3 class="text-5xl font-bold text-gray-900 mt-3">83%</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-3xl">
+                                📈
+                            </div>
+                        </div>
+                        <div class="mt-6 text-emerald-600 text-sm font-medium flex items-center gap-x-1">
+                            <span>+5% improvement</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-        <!-- COURSES SECTION -->
-        <section id="section-courses" class="hidden-section">
-            <header class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold text-gray-800">Courses</h2>
-                <button onclick="toggleModal('course', true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium shadow-lg">
-                    + Create Course
-                </button>
-            </header>
-            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-        </section>
+            <!-- LEARNERS SECTION -->
+            <section id="section-learners" class="hidden-section">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-semibold text-gray-900">Learner Registry</h2>
+                        <p class="text-gray-500 mt-1">Manage and monitor all enrolled students</p>
+                    </div>
+                    <button onclick="openLearnerForm()" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg shadow-indigo-200 transition">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add New Learner</span>
+                    </button>
+                </div>
+                
+                <div class="mb-6">
+                    <input type="text" id="learner-search" onkeyup="searchLearners()" 
+                           placeholder="Search by name, email or ID..." 
+                           class="w-full max-w-md bg-white border border-gray-200 focus:border-indigo-400 p-5 rounded-3xl outline-none text-sm">
+                </div>
+                
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-zinc-50">
+                            <tr class="text-xs uppercase font-medium text-gray-500">
+                                <th class="px-8 py-6 text-left">Student ID</th>
+                                <th class="px-8 py-6 text-left">Full Name</th>
+                                <th class="px-8 py-6 text-left">Email</th>
+                                <th class="px-8 py-6 text-left">Course</th>
+                                <th class="px-8 py-6 text-left">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="learner-table-body" class="divide-y divide-gray-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- COURSES SECTION -->
+            <section id="section-courses" class="hidden-section">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-semibold text-gray-900">Course Catalog</h2>
+                    <button onclick="toggleModal('course', true)" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 shadow-lg shadow-indigo-200 transition">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>New Course</span>
+                    </button>
+                </div>
+                
+                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </section>
+        </div>
     </main>
 
-    <!-- CENTERED MODALS -->
-    <div id="modal-container" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <!-- MODALS -->
+    <div id="modal-container" class="fixed inset-0 bg-black/60 backdrop-blur-xl hidden items-center justify-center z-[100]">
         
-        <!-- LEARNER ADD/EDIT FORM -->
-        <div id="modal-learner" class="bg-white w-full max-w-lg rounded-2xl shadow-2xl hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
-                <h3 class="font-bold text-lg" id="learner-form-title">Add New Learner</h3>
-                <button onclick="toggleModal('learner', false)" class="text-2xl">&times;</button>
+        <!-- Learner Detail Modal -->
+        <div id="modal-learner-detail" class="modal bg-white w-full max-w-lg rounded-3xl shadow-2xl hidden overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-white">
+                <div class="flex justify-between">
+                    <div>
+                        <h3 id="detail-name" class="text-2xl font-bold"></h3>
+                        <p id="detail-id" class="font-mono text-indigo-300 mt-1"></p>
+                    </div>
+                    <button onclick="toggleModal('learner-detail', false)" class="text-4xl leading-none text-white/60 hover:text-white">&times;</button>
+                </div>
             </div>
-            <form id="learner-form" class="p-6 grid grid-cols-2 gap-4">
-                <input type="hidden" id="learner-edit-key" value=""> <!-- Hidden field for updates -->
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
-                    <input type="text" id="learner-name" required class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+            
+            <div class="p-8 space-y-8">
+                <div class="grid grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <p class="text-gray-400 text-xs font-medium">EMAIL</p>
+                        <p id="detail-email" class="font-medium mt-1"></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-xs font-medium">COURSE</p>
+                        <p id="detail-course" class="font-medium mt-1"></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-xs font-medium">DATE OF BIRTH</p>
+                        <p id="detail-dob" class="font-medium mt-1"></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-xs font-medium">GENDER</p>
+                        <p id="detail-gender" class="font-medium mt-1"></p>
+                    </div>
                 </div>
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email Address</label>
-                    <input type="email" id="learner-email" required class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
+                
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Date of Birth</label>
-                    <input type="date" id="learner-dob" required class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <p class="text-gray-400 text-xs font-medium mb-2">STATUS</p>
+                    <span id="detail-status-badge" class="inline-block px-6 py-2 rounded-3xl text-sm font-semibold"></span>
                 </div>
+            </div>
+            
+            <div class="border-t border-gray-100 p-6 flex gap-3">
+                <button onclick="openLearnerForm(true)" 
+                        class="flex-1 py-4 bg-white border border-gray-300 hover:bg-gray-50 rounded-3xl font-semibold">
+                    Edit Profile
+                </button>
+                <button id="btn-suspend" 
+                        class="flex-1 py-4 bg-white border border-amber-300 text-amber-700 hover:bg-amber-50 rounded-3xl font-semibold">
+                    Suspend
+                </button>
+                <button id="btn-delete" 
+                        class="flex-1 py-4 bg-white border border-red-300 text-red-600 hover:bg-red-50 rounded-3xl font-semibold">
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Learner Add/Edit Form -->
+        <div id="modal-learner" class="modal bg-white w-full max-w-lg rounded-3xl shadow-2xl hidden">
+            <div class="px-8 pt-8 pb-6 border-b">
+                <h3 id="learner-form-title" class="font-bold text-2xl">Add New Learner</h3>
+            </div>
+            <form id="learner-form" class="p-8 space-y-6">
+                <input type="hidden" id="learner-edit-key">
+                
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Gender</label>
-                    <select id="learner-gender" class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <option>Male</option><option>Female</option><option>Other</option>
-                    </select>
+                    <label class="block text-xs font-semibold text-gray-500 mb-2">FULL NAME</label>
+                    <input type="text" id="learner-name" required 
+                           class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
                 </div>
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Assign Course</label>
-                    <select id="learner-course-select" class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></select>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2">EMAIL</label>
+                        <input type="email" id="learner-email" required 
+                               class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2">DATE OF BIRTH</label>
+                        <input type="date" id="learner-dob" required 
+                               class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
+                    </div>
                 </div>
-                <button type="submit" class="col-span-2 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition mt-2">Save Learner</button>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2">GENDER</label>
+                        <select id="learner-gender" 
+                                class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2">ASSIGN COURSE</label>
+                        <select id="learner-course-select" 
+                                class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none"></select>
+                    </div>
+                </div>
+                
+                <div class="pt-4 flex gap-4">
+                    <button type="button" onclick="toggleModal('learner', false)" 
+                            class="flex-1 py-5 border border-gray-300 rounded-3xl font-semibold">Cancel</button>
+                    <button type="submit" 
+                            class="flex-1 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-semibold">Save Learner</button>
+                </div>
             </form>
         </div>
 
-        <!-- NEW: LEARNER PROFILE DETAIL MODAL -->
-        <div id="modal-learner-detail" class="bg-white w-full max-w-md rounded-2xl shadow-2xl hidden overflow-hidden">
-            <div class="p-6 bg-slate-900 flex justify-between items-start text-white">
+        <!-- Course Creation Modal -->
+        <div id="modal-course" class="modal bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
+            <div class="p-8 border-b">
+                <h3 class="font-bold text-2xl">Create New Course</h3>
+            </div>
+            <form id="add-course-form" class="p-8 space-y-8">
                 <div>
-                    <h3 id="detail-name" class="font-bold text-xl">Name</h3>
-                    <p id="detail-id" class="text-indigo-300 font-mono text-sm mt-1">ID</p>
+                    <label class="block text-xs font-semibold text-gray-500 mb-2">COURSE TITLE</label>
+                    <input type="text" id="course-title" required 
+                           class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
                 </div>
-                <button onclick="toggleModal('learner-detail', false)" class="text-2xl text-gray-400 hover:text-white">&times;</button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div><p class="text-gray-400 uppercase text-[10px] font-bold">Status</p><p id="detail-status" class="font-bold"></p></div>
-                    <div><p class="text-gray-400 uppercase text-[10px] font-bold">Enrolled Course</p><p id="detail-course" class="font-bold"></p></div>
-                    <div class="col-span-2"><p class="text-gray-400 uppercase text-[10px] font-bold">Email</p><p id="detail-email" class="font-bold"></p></div>
-                    <div><p class="text-gray-400 uppercase text-[10px] font-bold">Date of Birth</p><p id="detail-dob" class="font-bold"></p></div>
-                    <div><p class="text-gray-400 uppercase text-[10px] font-bold">Gender</p><p id="detail-gender" class="font-bold"></p></div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-2">PRICE (ZAR)</label>
+                    <input type="number" id="course-price" required 
+                           class="w-full border border-gray-200 focus:border-indigo-400 rounded-3xl px-6 py-4 outline-none">
                 </div>
-            </div>
-            <!-- Actions -->
-            <div class="flex border-t border-gray-100 bg-gray-50 p-4 gap-2">
-                <button id="btn-edit" class="flex-1 bg-white border border-gray-200 text-indigo-600 py-2 rounded-lg font-bold hover:bg-indigo-50 transition">Edit</button>
-                <button id="btn-suspend" class="flex-1 bg-white border border-gray-200 text-yellow-600 py-2 rounded-lg font-bold hover:bg-yellow-50 transition">Suspend</button>
-                <button id="btn-delete" class="flex-1 bg-white border border-red-200 text-red-600 py-2 rounded-lg font-bold hover:bg-red-50 transition">Delete</button>
-            </div>
-        </div>
-
-        <!-- COURSE FORM -->
-        <div id="modal-course" class="bg-white w-full max-w-md rounded-2xl shadow-2xl hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
-                <h3 class="font-bold text-lg">Create Course</h3>
-                <button onclick="toggleModal('course', false)" class="text-2xl">&times;</button>
-            </div>
-            <form id="add-course-form" class="p-6 space-y-4">
-                <input type="text" id="course-title" placeholder="Course Title" required class="w-full border border-gray-200 p-3 rounded-lg outline-none">
-                <input type="number" id="course-price" placeholder="Price (ZAR)" required class="w-full border border-gray-200 p-3 rounded-lg outline-none">
-                <input type="file" id="course-file" accept="image/*" required class="w-full text-sm">
-                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Upload & Save</button>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-2">THUMBNAIL IMAGE</label>
+                    <input type="file" id="course-file" accept="image/*" required 
+                           class="w-full text-sm file:mr-4 file:py-3 file:px-6 file:rounded-3xl file:border-0 file:bg-indigo-50 file:text-indigo-700">
+                </div>
+                
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="toggleModal('course', false)" 
+                            class="flex-1 py-5 border border-gray-300 rounded-3xl font-semibold">Cancel</button>
+                    <button type="submit" 
+                            class="flex-1 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-semibold">Upload &amp; Publish</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- FIREBASE LOGIC -->
+    <!-- Global Loader -->
+    <div id="global-loader" class="fixed inset-0 bg-slate-900/70 backdrop-blur-lg hidden items-center justify-center z-[200]">
+        <div class="bg-white rounded-3xl p-10 flex flex-col items-center shadow-2xl">
+            <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-6"></div>
+            <p id="loader-text" class="text-gray-700 font-semibold">Processing...</p>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // Added update and remove imports for CRUD
         import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+        
         const firebaseConfig = {
             apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
             authDomain: "fire-b-a8878.firebaseapp.com",
@@ -176,145 +422,179 @@
             messagingSenderId: "658673187627",
             appId: "1:658673187627:web:db830dda676c5b4dafa36e"
         };
-
+        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // Global state to store learners for quick access
         window.learnersMap = {};
         window.currentActionKey = null;
-
+        
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
         const UPLOAD_PRESET = "banter_box";
-
+        
+        // Navigation
         window.nav = (target) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(`section-${target}`).classList.remove('hidden-section');
+            
+            // Update active nav
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${target}`).classList.add('active');
+            
+            document.getElementById('page-title').textContent = 
+                target === 'dashboard' ? 'Dashboard' : 
+                target === 'learners' ? 'Learners' : 'Courses';
         };
-
+        
         window.toggleModal = (type, show) => {
-            document.getElementById('modal-container').classList.toggle('hidden', !show);
-            document.getElementById('modal-container').classList.toggle('flex', show);
+            const container = document.getElementById('modal-container');
+            container.classList.toggle('hidden', !show);
+            container.classList.toggle('flex', show);
+            
             document.querySelectorAll('#modal-container > div').forEach(d => d.classList.add('hidden'));
-            if(show) document.getElementById(`modal-${type}`).classList.remove('hidden');
+            if (show && document.getElementById(`modal-${type}`)) {
+                document.getElementById(`modal-${type}`).classList.remove('hidden');
+            }
         };
-
-        const loader = (show, text) => {
+        
+        const loader = (show, text = "Processing...") => {
             const l = document.getElementById('global-loader');
             document.getElementById('loader-text').innerText = text;
-            l.classList.toggle('hidden', !show); l.classList.toggle('flex', show);
+            l.classList.toggle('hidden', !show);
+            l.classList.toggle('flex', show);
         };
-
-        // --- FETCH LEARNERS ---
+        
+        // Fetch Learners
         onValue(ref(db, 'learners'), (snapshot) => {
             const table = document.getElementById('learner-table-body');
-            const data = snapshot.val();
-            table.innerHTML = '';
-            window.learnersMap = data || {}; // Save to global state
+            const data = snapshot.val() || {};
+            window.learnersMap = data;
             
-            if(data) {
-                Object.entries(data).forEach(([key, l]) => {
-                    const statusClass = l.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-                    table.innerHTML += `
-                    <tr class="hover:bg-indigo-50 border-b learner-row transition" onclick="viewLearnerProfile('${key}')">
-                        <td class="px-6 py-4 font-mono text-xs text-indigo-600 font-bold l-id">${l.id}</td>
-                        <td class="px-6 py-4 font-medium l-name">${l.name}</td>
-                        <td class="px-6 py-4 text-gray-500">${l.email}</td>
-                        <td class="px-6 py-4 text-xs font-bold text-gray-600">${l.assignedCourse}</td>
-                        <td class="px-6 py-4"><span class="${statusClass} px-2 py-1 rounded text-[10px] font-bold">${l.status}</span></td>
-                    </tr>`;
-                });
-                document.getElementById('stat-learners').innerText = Object.keys(data).length;
-            }
+            table.innerHTML = '';
+            
+            Object.entries(data).forEach(([key, learner]) => {
+                const statusClass = learner.status === 'ACTIVE' 
+                    ? 'bg-emerald-100 text-emerald-700' 
+                    : 'bg-red-100 text-red-700';
+                
+                table.innerHTML += `
+                <tr onclick="viewLearnerProfile('${key}')" class="cursor-pointer hover:bg-zinc-50">
+                    <td class="px-8 py-6 font-mono text-indigo-600">${learner.id || 'N/A'}</td>
+                    <td class="px-8 py-6 font-medium">${learner.name}</td>
+                    <td class="px-8 py-6 text-gray-500">${learner.email}</td>
+                    <td class="px-8 py-6">${learner.assignedCourse || '—'}</td>
+                    <td class="px-8 py-6">
+                        <span class="${statusClass} text-xs font-bold px-5 py-2 rounded-3xl">${learner.status || 'ACTIVE'}</span>
+                    </td>
+                </tr>`;
+            });
+            
+            document.getElementById('stat-learners').textContent = Object.keys(data).length;
         });
-
-        // Fetch Courses...
+        
+        // Fetch Courses
         onValue(ref(db, 'courses'), (snapshot) => {
             const grid = document.getElementById('courses-grid');
             const select = document.getElementById('learner-course-select');
-            const data = snapshot.val();
-            grid.innerHTML = ''; select.innerHTML = '<option value="None">No Course Assigned</option>';
-            if(data) {
-                Object.values(data).forEach(c => {
-                    grid.innerHTML += `<div class="bg-white border rounded-xl overflow-hidden p-4"><img src="${c.thumbnail}" class="w-full h-32 object-cover rounded-lg mb-3"><h4 class="font-bold">${c.title}</h4><p class="text-indigo-600 font-bold">R ${c.price}</p></div>`;
-                    select.innerHTML += `<option value="${c.title}">${c.title}</option>`;
-                });
-            }
-        });
-
-        // --- NEW: PROFILE & CRUD LOGIC ---
-
-        // 1. Open Profile Modal
-        window.viewLearnerProfile = (key) => {
-            const l = window.learnersMap[key];
-            window.currentActionKey = key; // Store key for edit/delete/suspend
-
-            document.getElementById('detail-name').innerText = l.name;
-            document.getElementById('detail-id').innerText = l.id;
-            document.getElementById('detail-email').innerText = l.email;
-            document.getElementById('detail-course').innerText = l.assignedCourse;
-            document.getElementById('detail-dob').innerText = l.dob;
-            document.getElementById('detail-gender').innerText = l.gender;
+            const data = snapshot.val() || {};
             
-            const statusEl = document.getElementById('detail-status');
-            statusEl.innerText = l.status;
-            statusEl.className = l.status === 'ACTIVE' ? 'text-green-500' : 'text-red-500';
-
-            const suspendBtn = document.getElementById('btn-suspend');
-            suspendBtn.innerText = l.status === 'ACTIVE' ? 'Suspend' : 'Unsuspend';
+            grid.innerHTML = '';
+            select.innerHTML = '<option value="None">No Course Assigned</option>';
+            
+            Object.values(data).forEach(course => {
+                grid.innerHTML += `
+                <div class="bg-white border border-gray-100 rounded-3xl overflow-hidden card-hover">
+                    <img src="${course.thumbnail || 'https://picsum.photos/id/1015/600/340'}" 
+                         class="w-full h-52 object-cover">
+                    <div class="p-6">
+                        <h4 class="font-semibold text-lg">${course.title}</h4>
+                        <p class="text-2xl font-bold text-indigo-600 mt-2">R ${course.price}</p>
+                    </div>
+                </div>`;
+                
+                select.innerHTML += `<option value="${course.title}">${course.title}</option>`;
+            });
+            
+            document.getElementById('stat-courses').textContent = Object.keys(data).length;
+        });
+        
+        // View Learner Profile
+        window.viewLearnerProfile = (key) => {
+            const learner = window.learnersMap[key];
+            if (!learner) return;
+            
+            window.currentActionKey = key;
+            
+            document.getElementById('detail-name').textContent = learner.name;
+            document.getElementById('detail-id').textContent = learner.id || '—';
+            document.getElementById('detail-email').textContent = learner.email;
+            document.getElementById('detail-course').textContent = learner.assignedCourse || 'None';
+            document.getElementById('detail-dob').textContent = learner.dob;
+            document.getElementById('detail-gender').textContent = learner.gender;
+            
+            const badge = document.getElementById('detail-status-badge');
+            badge.textContent = learner.status || 'ACTIVE';
+            badge.className = learner.status === 'ACTIVE' 
+                ? 'inline-block px-6 py-2 rounded-3xl text-sm font-semibold bg-emerald-100 text-emerald-700' 
+                : 'inline-block px-6 py-2 rounded-3xl text-sm font-semibold bg-red-100 text-red-700';
+            
+            document.getElementById('btn-suspend').textContent = 
+                (learner.status === 'ACTIVE') ? 'Suspend' : 'Unsuspend';
             
             toggleModal('learner-detail', true);
         };
-
-        // 2. Open Add/Edit Form
+        
+        // Open Learner Form (Add/Edit)
         window.openLearnerForm = (editMode = false) => {
             document.getElementById('learner-form').reset();
             document.getElementById('learner-edit-key').value = '';
-            document.getElementById('learner-form-title').innerText = "Add New Learner";
-
+            
             if (editMode && window.currentActionKey) {
-                const l = window.learnersMap[window.currentActionKey];
-                document.getElementById('learner-form-title').innerText = "Edit Learner Details";
+                const learner = window.learnersMap[window.currentActionKey];
+                document.getElementById('learner-form-title').textContent = "Edit Learner";
                 document.getElementById('learner-edit-key').value = window.currentActionKey;
-                document.getElementById('learner-name').value = l.name;
-                document.getElementById('learner-email').value = l.email;
-                document.getElementById('learner-dob').value = l.dob;
-                document.getElementById('learner-gender').value = l.gender;
-                document.getElementById('learner-course-select').value = l.assignedCourse;
+                
+                document.getElementById('learner-name').value = learner.name;
+                document.getElementById('learner-email').value = learner.email;
+                document.getElementById('learner-dob').value = learner.dob;
+                document.getElementById('learner-gender').value = learner.gender;
+                document.getElementById('learner-course-select').value = learner.assignedCourse || 'None';
+            } else {
+                document.getElementById('learner-form-title').textContent = "Add New Learner";
             }
+            
+            toggleModal('learner-detail', false);
             toggleModal('learner', true);
         };
-
-        // Edit Action Click
-        document.getElementById('btn-edit').onclick = () => openLearnerForm(true);
-
-        // Delete Action
+        
+        // Delete Learner
         document.getElementById('btn-delete').onclick = async () => {
-            if (confirm("Are you sure you want to permanently delete this learner?")) {
-                loader(true, "Deleting...");
-                await remove(ref(db, `learners/${window.currentActionKey}`));
-                toggleModal('learner-detail', false);
-                loader(false);
-            }
-        };
-
-        // Suspend/Unsuspend Action
-        document.getElementById('btn-suspend').onclick = async () => {
-            loader(true, "Updating Status...");
-            const currentStatus = window.learnersMap[window.currentActionKey].status;
-            const newStatus = currentStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+            if (!window.currentActionKey) return;
+            if (!confirm("Delete this learner permanently?")) return;
             
-            await update(ref(db, `learners/${window.currentActionKey}`), { status: newStatus });
-            
-            // Re-render the profile to show immediate change
-            window.viewLearnerProfile(window.currentActionKey);
+            loader(true, "Deleting learner...");
+            await remove(ref(db, `learners/${window.currentActionKey}`));
+            toggleModal('learner-detail', false);
             loader(false);
         };
-
-        // Save Form (Handles both CREATE and EDIT)
+        
+        // Suspend / Unsuspend
+        document.getElementById('btn-suspend').onclick = async () => {
+            if (!window.currentActionKey) return;
+            loader(true, "Updating status...");
+            
+            const learner = window.learnersMap[window.currentActionKey];
+            const newStatus = learner.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+            
+            await update(ref(db, `learners/${window.currentActionKey}`), { status: newStatus });
+            loader(false);
+            viewLearnerProfile(window.currentActionKey);
+        };
+        
+        // Save Learner (Create / Update)
         document.getElementById('learner-form').onsubmit = async (e) => {
             e.preventDefault();
-            loader(true, "Saving Learner...");
+            loader(true, "Saving learner...");
             
             const editKey = document.getElementById('learner-edit-key').value;
             const data = {
@@ -323,48 +603,84 @@
                 dob: document.getElementById('learner-dob').value,
                 gender: document.getElementById('learner-gender').value,
                 assignedCourse: document.getElementById('learner-course-select').value,
-                status: 'ACTIVE' // Default status
+                status: 'ACTIVE'
             };
-
+            
             if (editKey) {
-                // UPDATE existing
                 await update(ref(db, `learners/${editKey}`), data);
             } else {
-                // CREATE new
-                data.id = `RG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+                data.id = `RG-${new Date().getFullYear()}-${String(Math.floor(1000 + Math.random() * 9000))}`;
                 data.createdAt = Date.now();
                 await set(push(ref(db, 'learners')), data);
             }
-
+            
             toggleModal('learner', false);
             loader(false);
         };
-
-        // Adding Courses...
+        
+        // Create Course
         document.getElementById('add-course-form').onsubmit = async (e) => {
             e.preventDefault();
-            loader(true, "Uploading to Cloudinary...");
             const file = document.getElementById('course-file').files[0];
+            if (!file) return alert("Please select an image");
+            
+            loader(true, "Uploading image...");
+            
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', UPLOAD_PRESET);
-            const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-            const cloud = await res.json();
-            await set(push(ref(db, 'courses')), {
-                title: document.getElementById('course-title').value,
-                price: document.getElementById('course-price').value,
-                thumbnail: cloud.secure_url,
-                createdAt: Date.now()
-            });
-            toggleModal('course', false); document.getElementById('add-course-form').reset(); loader(false);
+            
+            try {
+                const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                const cloud = await res.json();
+                
+                await set(push(ref(db, 'courses')), {
+                    title: document.getElementById('course-title').value,
+                    price: parseInt(document.getElementById('course-price').value),
+                    thumbnail: cloud.secure_url,
+                    createdAt: Date.now()
+                });
+                
+                toggleModal('course', false);
+                document.getElementById('add-course-form').reset();
+            } catch (err) {
+                alert("Upload failed. Please try again.");
+            }
+            
+            loader(false);
         };
-
-        // Search logic
+        
+        // Search
         window.searchLearners = () => {
-            const q = document.getElementById('learner-search').value.toLowerCase();
-            document.querySelectorAll('.learner-row').forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+            const query = document.getElementById('learner-search').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#learner-table-body tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
             });
+        };
+        
+        // Mobile Sidebar
+        window.toggleMobileSidebar = () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        };
+        
+        // Close modals on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                const container = document.getElementById('modal-container');
+                if (!container.classList.contains('hidden')) {
+                    container.classList.add('hidden');
+                    container.classList.remove('flex');
+                }
+            }
+        });
+        
+        // Initialize
+        window.onload = () => {
+            nav('dashboard');
         };
     </script>
 </body>
