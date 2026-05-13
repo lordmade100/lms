@@ -10,10 +10,26 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .hidden-section { display: none; }
-        .modal-active { display: flex; }
+        /* Custom Spinner Animation */
+        .loader {
+            border-top-color: #4f46e5;
+            animation: spinner 0.6s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 flex">
+
+    <!-- Global Loading Overlay (For Uploads) -->
+    <div id="global-loader" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100]">
+        <div class="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+            <p class="text-gray-700 font-bold" id="loader-text">Syncing with Cloud...</p>
+        </div>
+    </div>
 
     <!-- Sidebar -->
     <aside class="w-64 bg-slate-900 h-screen sticky top-0 text-white hidden md:flex flex-col">
@@ -29,7 +45,7 @@
             </button>
         </nav>
         <div class="p-6 border-t border-slate-800 text-xs text-gray-500">
-            Connected to Project: fire-b-a8878
+            Project: fire-b-a8878
         </div>
     </aside>
 
@@ -40,26 +56,25 @@
         <section id="section-dashboard">
             <header class="mb-8">
                 <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
-                <p class="text-gray-500">Live system performance in Rands (ZAR).</p>
+                <p class="text-gray-500">Real-time stats from Firebase.</p>
             </header>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Active Students</p>
+                    <p class="text-gray-500 text-sm font-medium uppercase">Active Students</p>
                     <h3 id="stat-students" class="text-3xl font-bold mt-2">0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Revenue</p>
+                    <p class="text-gray-500 text-sm font-medium uppercase">Revenue (ZAR)</p>
                     <h3 id="stat-revenue" class="text-3xl font-bold mt-2 text-indigo-600">R 0.00</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Course Catalog</p>
+                    <p class="text-gray-500 text-sm font-medium uppercase">Total Courses</p>
                     <h3 id="stat-courses" class="text-3xl font-bold mt-2">0</h3>
                 </div>
             </div>
             
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h4 class="font-bold mb-4 text-gray-700">Platform Growth</h4>
                 <canvas id="growthChart" height="80"></canvas>
             </div>
         </section>
@@ -69,52 +84,56 @@
             <header class="flex justify-between items-center mb-8">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800">Course Management</h2>
-                    <p class="text-gray-500">Syncing directly with Cloudinary & Firebase.</p>
+                    <p class="text-gray-500">Manage your South African curriculum.</p>
                 </div>
-                <button onclick="toggleModal(true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
-                    + Create Course
+                <button onclick="toggleModal(true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg">
+                    + Add New Course
                 </button>
             </header>
 
-            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Real data from Firebase injected here -->
+            <!-- Inline Fetching Spinner -->
+            <div id="courses-loader" class="flex flex-col items-center justify-center py-20">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10 mb-4"></div>
+                <p class="text-gray-400 text-sm">Fetching catalog...</p>
+            </div>
+
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                <!-- Data goes here -->
             </div>
         </section>
     </main>
 
-    <!-- ADD COURSE MODAL -->
+    <!-- MODAL -->
     <div id="course-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="font-bold text-lg text-gray-800">New Course Details</h3>
+            <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-gray-800">Create New Course</h3>
                 <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
             <form id="add-course-form" class="p-6 space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Course Name</label>
-                    <input type="text" id="course-title" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Course Title</label>
+                    <input type="text" id="course-title" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Price (ZAR)</label>
-                    <input type="number" id="course-price" placeholder="0.00" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                    <input type="number" id="course-price" placeholder="499" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thumbnail Image</label>
-                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thumbnail</label>
+                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
                 </div>
-                <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition disabled:bg-gray-300">
-                    Sync to Cloud & Save
+                <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition">
+                    Upload & Save Course
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Initialization Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Your specific Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
             authDomain: "fire-b-a8878.firebaseapp.com",
@@ -128,9 +147,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- CLOUDINARY CONFIG (Action Required: Replace These) ---
-        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/REPLACE_WITH_YOUR_CLOUD_NAME/upload";
-        const UPLOAD_PRESET = "REPLACE_WITH_YOUR_UNSIGNED_PRESET";
+        // --- CLOUDINARY CONFIG ---
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
+        const UPLOAD_PRESET = "banter_box";
 
         // Navigation
         window.nav = (target) => {
@@ -146,10 +165,19 @@
             m.classList.toggle('modal-active', show);
         };
 
-        // Fetch Live Courses
+        const showGlobalLoader = (show, text = "Syncing with Cloud...") => {
+            const l = document.getElementById('global-loader');
+            document.getElementById('loader-text').innerText = text;
+            l.classList.toggle('hidden', !show);
+            l.classList.toggle('flex', show);
+        };
+
+        // Fetch Courses with Spinner logic
         onValue(ref(db, 'courses'), (snapshot) => {
             const grid = document.getElementById('courses-grid');
+            const loader = document.getElementById('courses-loader');
             const data = snapshot.val();
+            
             grid.innerHTML = '';
             let count = 0;
 
@@ -158,30 +186,31 @@
                     const c = data[key];
                     count++;
                     grid.innerHTML += `
-                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition">
-                            <img src="${c.thumbnail}" class="w-full h-44 object-cover">
+                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition group">
+                            <img src="${c.thumbnail}" class="w-full h-44 object-cover group-hover:scale-105 transition duration-500">
                             <div class="p-5">
                                 <h5 class="font-bold text-gray-800 truncate">${c.title}</h5>
                                 <p class="text-indigo-600 font-bold mt-1">${formatCurrency(c.price)}</p>
-                                <p class="text-[10px] text-gray-400 mt-3 uppercase tracking-widest">Added ${new Date(c.createdAt).toLocaleDateString()}</p>
                             </div>
                         </div>`;
                 });
             }
+            
+            // Hide spinner and show grid once data is ready
+            loader.classList.add('hidden');
+            grid.classList.remove('hidden');
             document.getElementById('stat-courses').innerText = count;
         });
 
-        // Form Logic
+        // Handle Add Course
         document.getElementById('add-course-form').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submit-btn');
             const file = document.getElementById('course-file').files[0];
             
-            btn.disabled = true;
-            btn.innerText = "Processing Assets...";
+            toggleModal(false); // Close modal immediately
+            showGlobalLoader(true, "Optimizing Image...");
 
             try {
-                // Cloudinary Upload
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLOAD_PRESET);
@@ -189,7 +218,8 @@
                 const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
                 const cloudData = await response.json();
 
-                // Firebase Save
+                showGlobalLoader(true, "Writing to Firebase...");
+
                 const newCourseRef = push(ref(db, 'courses'));
                 await set(newCourseRef, {
                     title: document.getElementById('course-title').value,
@@ -198,13 +228,11 @@
                     createdAt: Date.now()
                 });
 
-                toggleModal(false);
                 document.getElementById('add-course-form').reset();
             } catch (err) {
                 alert("Upload failed. Check Cloudinary settings.");
             } finally {
-                btn.disabled = false;
-                btn.innerText = "Sync to Cloud & Save";
+                showGlobalLoader(false);
             }
         };
 
