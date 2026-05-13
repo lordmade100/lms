@@ -10,12 +10,12 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .hidden-section { display: none; }
-        
+
         /* Smooth Sidebar Transition */
         .sidebar-transition {
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .glass {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
@@ -36,7 +36,12 @@
             color: white;
             box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
         }
+
+        .progress-bar {
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
+<base target="_blank">
 </head>
 <body class="bg-[#f8fafc] flex min-h-screen text-slate-900">
 
@@ -52,31 +57,36 @@
 
     <aside id="sidebar" 
            class="sidebar-transition group w-20 hover:w-72 bg-slate-950 h-screen fixed left-0 top-0 text-white flex flex-col z-50 overflow-hidden">
-        
+
         <div class="p-6 mb-4 flex items-center gap-x-4">
             <div class="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0">
                 <i data-lucide="layers" class="w-6 h-6"></i>
             </div>
             <span class="font-bold text-xl tracking-tight opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Rare Grade</span>
         </div>
-        
+
         <nav class="flex-1 px-3 space-y-2">
             <button onclick="nav('dashboard')" id="nav-dashboard" class="nav-btn active w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl transition-all">
                 <i data-lucide="layout-dashboard" class="w-6 h-6 flex-shrink-0"></i>
                 <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Dashboard</span>
             </button>
-            
+
             <button onclick="nav('courses')" id="nav-courses" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
                 <i data-lucide="book-open" class="w-6 h-6 flex-shrink-0"></i>
                 <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Courses</span>
             </button>
-            
+
+            <button onclick="nav('teachers')" id="nav-teachers" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
+                <i data-lucide="graduation-cap" class="w-6 h-6 flex-shrink-0"></i>
+                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Teachers</span>
+            </button>
+
             <button onclick="nav('learners')" id="nav-learners" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
                 <i data-lucide="users" class="w-6 h-6 flex-shrink-0"></i>
                 <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Learners</span>
             </button>
         </nav>
-        
+
         <div class="p-6 border-t border-slate-800">
             <div class="flex items-center gap-x-4">
                 <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0">
@@ -96,7 +106,7 @@
                 <h1 id="page-title" class="text-2xl font-bold text-slate-900">Dashboard</h1>
                 <p class="text-sm text-slate-500">Welcome back, Katlego.</p>
             </div>
-            
+
             <div class="flex items-center gap-x-4">
                 <div class="text-right mr-4 hidden md:block">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Local Time</p>
@@ -123,6 +133,16 @@
 
                     <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
                         <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <p class="text-slate-500 text-sm font-medium">Total Teachers</p>
+                        <h3 id="stat-teachers" class="text-4xl font-bold mt-1 tracking-tight text-violet-600">0</h3>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
                                 <i data-lucide="book" class="w-6 h-6"></i>
                             </div>
@@ -140,25 +160,85 @@
                         <p class="text-slate-500 text-sm font-medium">Projected Revenue</p>
                         <h3 id="stat-revenue" class="text-4xl font-bold mt-1 tracking-tight">R 0</h3>
                     </div>
+                </div>
 
-                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center">
-                                <i data-lucide="trending-up" class="w-6 h-6"></i>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden lg:col-span-2">
+                        <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Recent Enrollment Stream</h3>
+                            <i data-lucide="refresh-cw" class="w-5 h-5 text-slate-300"></i>
+                        </div>
+                        <div id="recent-enrollments" class="divide-y divide-slate-50">
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="p-8 border-b border-slate-50">
+                            <h3 class="font-bold text-lg">Progress Overview</h3>
+                            <p class="text-sm text-slate-500 mt-1">Average completion across all learners</p>
+                        </div>
+                        <div class="p-8">
+                            <div class="flex items-center justify-center mb-6">
+                                <div class="relative w-32 h-32">
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="#f1f5f9" stroke-width="8"/>
+                                        <circle id="avg-progress-circle" cx="50" cy="50" r="45" fill="none" stroke="#4f46e5" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="283" stroke-linecap="round" class="transition-all duration-1000"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span id="avg-progress-text" class="text-2xl font-bold text-slate-900">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-slate-500">Completed</span>
+                                    <span id="completed-count" class="font-semibold text-emerald-600">0</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-slate-500">In Progress</span>
+                                    <span id="inprogress-count" class="font-semibold text-indigo-600">0</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-slate-500">Not Started</span>
+                                    <span id="notstarted-count" class="font-semibold text-slate-400">0</span>
+                                </div>
                             </div>
                         </div>
-                        <p class="text-slate-500 text-sm font-medium">System Health</p>
-                        <h3 class="text-4xl font-bold mt-1 tracking-tight">Stable</h3>
                     </div>
+                </div>
+            </section>
+
+            <section id="section-teachers" class="hidden-section">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Teacher Registry</h2>
+                        <p class="text-slate-500 mt-1">Manage faculty and instructor assignments</p>
+                    </div>
+                    <button onclick="toggleModal('teacher', true)" class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-4 rounded-2xl font-bold flex items-center gap-x-2 shadow-lg shadow-violet-200 transition-all">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>Add Teacher</span>
+                    </button>
                 </div>
 
                 <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                    <div class="p-8 border-b border-slate-50 flex justify-between items-center">
-                        <h3 class="font-bold text-lg">Recent Enrollment Stream</h3>
-                        <i data-lucide="refresh-cw" class="w-5 h-5 text-slate-300"></i>
-                    </div>
-                    <div id="recent-enrollments" class="divide-y divide-slate-50">
+                    <div class="p-6 border-b border-slate-50">
+                        <div class="relative max-w-md">
+                            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3.5 text-slate-400"></i>
+                            <input type="text" id="teacher-search" onkeyup="searchTeachers()" placeholder="Filter by name or email..." class="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-violet-500 transition-all outline-none">
                         </div>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50 text-[11px] uppercase tracking-widest font-bold text-slate-400">
+                            <tr>
+                                <th class="px-8 py-5">TID</th>
+                                <th class="px-8 py-5">Instructor</th>
+                                <th class="px-8 py-5">Specialization</th>
+                                <th class="px-8 py-5">Assigned Learners</th>
+                                <th class="px-8 py-5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-table-body" class="divide-y divide-slate-50"></tbody>
+                    </table>
                 </div>
             </section>
 
@@ -166,19 +246,19 @@
                 <div class="flex justify-between items-end mb-8">
                     <div>
                         <h2 class="text-3xl font-bold">Learner Registry</h2>
-                        <p class="text-slate-500 mt-1">Direct Firebase Realtime Sync</p>
+                        <p class="text-slate-500 mt-1">Direct Firebase Realtime Sync with Progress Tracking</p>
                     </div>
                     <button onclick="openLearnerForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-2xl font-bold flex items-center gap-x-2 shadow-lg shadow-indigo-200 transition-all">
                         <i data-lucide="plus" class="w-5 h-5"></i>
                         <span>Register Learner</span>
                     </button>
                 </div>
-                
+
                 <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                     <div class="p-6 border-b border-slate-50">
                         <div class="relative max-w-md">
                             <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3.5 text-slate-400"></i>
-                            <input type="text" id="learner-search" onkeyup="searchLearners()" placeholder="Filter by name or email..." class="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-indigo-500 transition-all outline-none">
+                            <input type="text" id="learner-search" onkeyup="searchLearners()" placeholder="Filter by name, email or teacher..." class="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-indigo-500 transition-all outline-none">
                         </div>
                     </div>
                     <table class="w-full text-left">
@@ -186,7 +266,9 @@
                             <tr>
                                 <th class="px-8 py-5">UID</th>
                                 <th class="px-8 py-5">Student</th>
+                                <th class="px-8 py-5">Teacher</th>
                                 <th class="px-8 py-5">Enrollment</th>
+                                <th class="px-8 py-5">Progress</th>
                                 <th class="px-8 py-5">Status</th>
                                 <th class="px-8 py-5 text-right">Action</th>
                             </tr>
@@ -210,7 +292,7 @@
     </main>
 
     <div id="modal-container" class="fixed inset-0 bg-slate-950/40 backdrop-blur-md hidden items-center justify-center z-[100] p-4">
-        <div id="modal-learner-detail" class="bg-white w-full max-w-xl rounded-[40px] shadow-2xl hidden overflow-hidden">
+        <div id="modal-learner-detail" class="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl hidden overflow-hidden">
             <div class="bg-indigo-600 p-10 text-white relative">
                 <button onclick="toggleModal('learner-detail', false)" class="absolute top-6 right-6 hover:rotate-90 transition-transform">
                     <i data-lucide="x" class="w-6 h-6"></i>
@@ -224,10 +306,25 @@
                 </div>
             </div>
             <div class="p-10 space-y-8">
-                <div class="grid grid-cols-2 gap-8">
+                <div class="grid grid-cols-3 gap-8">
                     <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Email Address</p><p id="detail-email" class="font-semibold"></p></div>
                     <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Assigned Course</p><p id="detail-course" class="font-semibold text-indigo-600"></p></div>
+                    <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Assigned Teacher</p><p id="detail-teacher" class="font-semibold text-violet-600"></p></div>
                 </div>
+
+                <div class="bg-slate-50 rounded-3xl p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="font-bold text-lg">Learning Progress</h4>
+                        <span id="detail-progress-percent" class="text-2xl font-bold text-indigo-600">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3 mb-6">
+                        <div id="detail-progress-bar" class="bg-indigo-600 h-3 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div id="detail-modules" class="grid grid-cols-2 gap-4">
+                        <!-- Modules populated dynamically -->
+                    </div>
+                </div>
+
                 <div class="flex gap-4">
                     <button onclick="openLearnerForm(true)" class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold hover:bg-slate-200 transition-colors text-slate-700">Edit Profile</button>
                     <button id="btn-suspend" class="flex-1 py-4 border-2 border-amber-100 text-amber-600 rounded-2xl font-bold hover:bg-amber-50 transition-colors">Suspend</button>
@@ -254,9 +351,40 @@
                         <select id="learner-course-select" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"></select>
                     </div>
                 </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Assigned Teacher</label>
+                    <select id="learner-teacher-select" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <option value="None">None</option>
+                    </select>
+                </div>
                 <div class="flex gap-4 pt-4">
                     <button type="button" onclick="toggleModal('learner', false)" class="flex-1 py-4 text-slate-500 font-bold">Cancel</button>
                     <button type="submit" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100">Save Learner</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="modal-teacher" class="bg-white w-full max-w-lg rounded-[40px] shadow-2xl hidden p-10">
+            <h3 id="teacher-form-title" class="text-2xl font-bold mb-8">Add Teacher</h3>
+            <form id="teacher-form" class="space-y-6">
+                <input type="hidden" id="teacher-edit-key">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Full Name</label>
+                    <input type="text" id="teacher-name" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-violet-500 outline-none transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Email</label>
+                        <input type="email" id="teacher-email" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-violet-500 outline-none transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Specialization</label>
+                        <input type="text" id="teacher-specialization" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-violet-500 outline-none transition-all">
+                    </div>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="toggleModal('teacher', false)" class="flex-1 py-4 text-slate-500 font-bold">Cancel</button>
+                    <button type="submit" class="flex-1 py-4 bg-violet-600 text-white rounded-2xl font-bold shadow-lg shadow-violet-100">Save Teacher</button>
                 </div>
             </form>
         </div>
@@ -294,7 +422,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        
+
         const firebaseConfig = {
             apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
             authDomain: "fire-b-a8878.firebaseapp.com",
@@ -304,14 +432,17 @@
             messagingSenderId: "658673187627",
             appId: "1:658673187627:web:db830dda676c5b4dafa36e"
         };
-        
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
+
         window.learnersMap = {};
         window.coursesMap = {};
+        window.teachersMap = {};
+        window.progressMap = {};
         window.currentActionKey = null;
-        
+        window.currentTeacherKey = null;
+
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
         const UPLOAD_PRESET = "banter_box";
 
@@ -346,16 +477,50 @@
             if (show) document.getElementById(`modal-${type}`).classList.remove('hidden');
         };
 
-        // Real-time Dashboard Sync
+        // Real-time Teachers Sync
+        onValue(ref(db, 'teachers'), (snapshot) => {
+            const data = snapshot.val() || {};
+            window.teachersMap = data;
+            const table = document.getElementById('teacher-table-body');
+            const teacherSelect = document.getElementById('learner-teacher-select');
+
+            table.innerHTML = '';
+            teacherSelect.innerHTML = '<option value="None">None</option>';
+
+            Object.entries(data).forEach(([key, t]) => {
+                const assignedCount = Object.values(window.learnersMap).filter(l => l.assignedTeacher === t.name).length;
+
+                table.innerHTML += `
+                <tr onclick="viewTeacherProfile('${key}')" class="cursor-pointer hover:bg-slate-50 transition-colors">
+                    <td class="px-8 py-6 font-mono text-[10px] text-violet-400">${t.id || 'N/A'}</td>
+                    <td class="px-8 py-6">
+                        <div class="font-bold">${t.name}</div>
+                        <div class="text-xs text-slate-400">${t.email}</div>
+                    </td>
+                    <td class="px-8 py-6 font-semibold text-slate-600">${t.specialization || '—'}</td>
+                    <td class="px-8 py-6">
+                        <span class="bg-violet-50 text-violet-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">${assignedCount} Learners</span>
+                    </td>
+                    <td class="px-8 py-6 text-right"><i data-lucide="chevron-right" class="inline w-4 h-4 text-slate-300"></i></td>
+                </tr>`;
+
+                teacherSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+            });
+
+            document.getElementById('stat-teachers').textContent = Object.keys(data).length;
+            lucide.createIcons();
+        });
+
+        // Real-time Courses Sync
         onValue(ref(db, 'courses'), (snapshot) => {
             const data = snapshot.val() || {};
             window.coursesMap = data;
             const grid = document.getElementById('courses-grid');
             const select = document.getElementById('learner-course-select');
-            
+
             grid.innerHTML = '';
             select.innerHTML = '<option value="None">None</option>';
-            
+
             Object.values(data).forEach(c => {
                 grid.innerHTML += `
                 <div class="bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm group">
@@ -376,18 +541,39 @@
             calculateRevenue();
         });
 
+        // Real-time Progress Sync
+        onValue(ref(db, 'progress'), (snapshot) => {
+            const data = snapshot.val() || {};
+            window.progressMap = data;
+            updateProgressStats();
+            // Re-render learners if already loaded to show progress
+            if (Object.keys(window.learnersMap).length > 0) {
+                renderLearners();
+            }
+        });
+
+        // Real-time Learners Sync
         onValue(ref(db, 'learners'), (snapshot) => {
             const data = snapshot.val() || {};
             window.learnersMap = data;
+            renderLearners();
+            calculateRevenue();
+        });
+
+        function renderLearners() {
             const table = document.getElementById('learner-table-body');
             const stream = document.getElementById('recent-enrollments');
-            
+
             table.innerHTML = '';
             stream.innerHTML = '';
-            
-            Object.entries(data).reverse().forEach(([key, l], index) => {
-                // Table Rendering
+
+            Object.entries(window.learnersMap).reverse().forEach(([key, l], index) => {
+                const progress = window.progressMap[key];
+                const percent = progress ? (progress.percentage || 0) : 0;
+                const progressColor = percent === 100 ? 'bg-emerald-500' : percent > 50 ? 'bg-indigo-500' : 'bg-amber-500';
                 const statusColor = l.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
+
+                // Table Rendering
                 table.innerHTML += `
                 <tr onclick="viewLearnerProfile('${key}')" class="cursor-pointer hover:bg-slate-50 transition-colors">
                     <td class="px-8 py-6 font-mono text-[10px] text-indigo-400">${l.id || 'N/A'}</td>
@@ -395,7 +581,16 @@
                         <div class="font-bold">${l.name}</div>
                         <div class="text-xs text-slate-400">${l.email}</div>
                     </td>
+                    <td class="px-8 py-6 font-semibold text-slate-600">${l.assignedTeacher || '—'}</td>
                     <td class="px-8 py-6 font-semibold text-slate-600">${l.assignedCourse || '—'}</td>
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-24 bg-slate-100 rounded-full h-2">
+                                <div class="${progressColor} h-2 rounded-full progress-bar" style="width: ${percent}%"></div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-500">${percent}%</span>
+                        </div>
+                    </td>
                     <td class="px-8 py-6">
                         <span class="${statusColor} text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">${l.status || 'ACTIVE'}</span>
                     </td>
@@ -412,24 +607,56 @@
                             </div>
                             <div>
                                 <p class="text-sm font-bold">${l.name}</p>
-                                <p class="text-xs text-slate-400">Joined Rare Grade Tech</p>
+                                <p class="text-xs text-slate-400">${l.assignedCourse || 'No course assigned'}</p>
                             </div>
                         </div>
-                        <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Active</span>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest block">${l.status || 'Active'}</span>
+                            <span class="text-[10px] text-slate-400">${percent}% complete</span>
+                        </div>
                     </div>`;
                 }
             });
 
-            document.getElementById('stat-learners').textContent = Object.keys(data).length;
-            calculateRevenue();
+            document.getElementById('stat-learners').textContent = Object.keys(window.learnersMap).length;
             lucide.createIcons();
-        });
+        }
+
+        function updateProgressStats() {
+            const learners = Object.keys(window.learnersMap);
+            if (learners.length === 0) return;
+
+            let totalPercent = 0;
+            let completed = 0;
+            let inProgress = 0;
+            let notStarted = 0;
+
+            learners.forEach(key => {
+                const p = window.progressMap[key];
+                const percent = p ? (p.percentage || 0) : 0;
+                totalPercent += percent;
+
+                if (percent === 100) completed++;
+                else if (percent > 0) inProgress++;
+                else notStarted++;
+            });
+
+            const avg = Math.round(totalPercent / learners.length);
+            const circumference = 2 * Math.PI * 45; // r=45
+            const offset = circumference - (avg / 100) * circumference;
+
+            document.getElementById('avg-progress-text').textContent = avg + '%';
+            document.getElementById('avg-progress-circle').style.strokeDashoffset = offset;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('inprogress-count').textContent = inProgress;
+            document.getElementById('notstarted-count').textContent = notStarted;
+        }
 
         function calculateRevenue() {
             let total = 0;
             const learners = Object.values(window.learnersMap);
             const courses = Object.values(window.coursesMap);
-            
+
             learners.forEach(l => {
                 const course = courses.find(c => c.title === l.assignedCourse);
                 if(course) total += parseInt(course.price);
@@ -439,29 +666,85 @@
 
         window.viewLearnerProfile = (key) => {
             const l = window.learnersMap[key];
+            const progress = window.progressMap[key];
             window.currentActionKey = key;
+
             document.getElementById('detail-name').innerText = l.name;
             document.getElementById('detail-initials').innerText = l.name.charAt(0);
             document.getElementById('detail-id').innerText = l.id || 'N/A';
             document.getElementById('detail-email').innerText = l.email;
             document.getElementById('detail-course').innerText = l.assignedCourse || 'None';
+            document.getElementById('detail-teacher').innerText = l.assignedTeacher || 'None';
+
+            const percent = progress ? (progress.percentage || 0) : 0;
+            document.getElementById('detail-progress-percent').innerText = percent + '%';
+            document.getElementById('detail-progress-bar').style.width = percent + '%';
+
+            const modulesContainer = document.getElementById('detail-modules');
+            modulesContainer.innerHTML = '';
+
+            if (progress && progress.modules) {
+                Object.entries(progress.modules).forEach(([name, mod]) => {
+                    const modPercent = mod.percentage || 0;
+                    const modColor = mod.completed ? 'bg-emerald-500' : 'bg-indigo-500';
+                    modulesContainer.innerHTML += `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-semibold text-sm">${name}</span>
+                            <span class="text-xs font-bold ${mod.completed ? 'text-emerald-600' : 'text-indigo-600'}">${modPercent}%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="${modColor} h-2 rounded-full progress-bar" style="width: ${modPercent}%"></div>
+                        </div>
+                        ${mod.lastAccessed ? `<p class="text-[10px] text-slate-400 mt-2">Last accessed: ${new Date(mod.lastAccessed).toLocaleDateString()}</p>` : ''}
+                    </div>`;
+                });
+            } else {
+                modulesContainer.innerHTML = '<div class="col-span-2 text-center text-slate-400 py-8">No progress data available from learner portal</div>';
+            }
+
             document.getElementById('btn-suspend').innerText = (l.status === 'ACTIVE') ? 'Suspend Student' : 'Activate Student';
             toggleModal('learner-detail', true);
             lucide.createIcons();
+        };
+
+        window.viewTeacherProfile = (key) => {
+            window.currentTeacherKey = key;
+            // For now, just show teacher details in a simple alert or could expand to a detail modal
+            // Since we don't have a teacher detail modal designed, let's open edit form
+            openTeacherForm(true);
         };
 
         window.openLearnerForm = (edit = false) => {
             const form = document.getElementById('learner-form');
             form.reset();
             document.getElementById('learner-edit-key').value = edit ? window.currentActionKey : '';
+            document.getElementById('learner-form-title').innerText = edit ? 'Edit Student' : 'Register Student';
+
             if(edit) {
                 const l = window.learnersMap[window.currentActionKey];
                 document.getElementById('learner-name').value = l.name;
                 document.getElementById('learner-email').value = l.email;
                 document.getElementById('learner-course-select').value = l.assignedCourse;
+                document.getElementById('learner-teacher-select').value = l.assignedTeacher || 'None';
             }
             toggleModal('learner-detail', false);
             toggleModal('learner', true);
+        };
+
+        window.openTeacherForm = (edit = false) => {
+            const form = document.getElementById('teacher-form');
+            form.reset();
+            document.getElementById('teacher-edit-key').value = edit ? window.currentTeacherKey : '';
+            document.getElementById('teacher-form-title').innerText = edit ? 'Edit Teacher' : 'Add Teacher';
+
+            if(edit) {
+                const t = window.teachersMap[window.currentTeacherKey];
+                document.getElementById('teacher-name').value = t.name;
+                document.getElementById('teacher-email').value = t.email;
+                document.getElementById('teacher-specialization').value = t.specialization;
+            }
+            toggleModal('teacher', true);
         };
 
         document.getElementById('learner-form').onsubmit = async (e) => {
@@ -472,6 +755,7 @@
                 name: document.getElementById('learner-name').value,
                 email: document.getElementById('learner-email').value,
                 assignedCourse: document.getElementById('learner-course-select').value,
+                assignedTeacher: document.getElementById('learner-teacher-select').value,
                 status: 'ACTIVE'
             };
             if(key) {
@@ -484,6 +768,25 @@
             loader(false);
         };
 
+        document.getElementById('teacher-form').onsubmit = async (e) => {
+            e.preventDefault();
+            loader(true, "Saving Teacher...");
+            const key = document.getElementById('teacher-edit-key').value;
+            const data = {
+                name: document.getElementById('teacher-name').value,
+                email: document.getElementById('teacher-email').value,
+                specialization: document.getElementById('teacher-specialization').value
+            };
+            if(key) {
+                await update(ref(db, `teachers/${key}`), data);
+            } else {
+                data.id = `TCH-${Math.floor(1000 + Math.random() * 9000)}`;
+                await set(push(ref(db, 'teachers')), data);
+            }
+            toggleModal('teacher', false);
+            loader(false);
+        };
+
         document.getElementById('add-course-form').onsubmit = async (e) => {
             e.preventDefault();
             const file = document.getElementById('course-file').files[0];
@@ -491,7 +794,7 @@
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', UPLOAD_PRESET);
-            
+
             try {
                 const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
                 const cloud = await res.json();
@@ -517,6 +820,24 @@
                 await remove(ref(db, `learners/${window.currentActionKey}`));
                 toggleModal('learner-detail', false);
             }
+        };
+
+        window.searchLearners = () => {
+            const query = document.getElementById('learner-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#learner-table-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        };
+
+        window.searchTeachers = () => {
+            const query = document.getElementById('teacher-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#teacher-table-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
         };
 
         setInterval(() => {
