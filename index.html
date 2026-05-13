@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rare LMS - Institutional Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for State Management (Active Lessons/Menus) -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans antialiased" x-data="{ 
+    activeLesson: 1,
+    lessons: [
+        { id: 1, title: 'Introduction to the System', duration: '05:20', description: 'Overview of the core architecture and user hierarchy.' },
+        { id: 2, title: 'Database Configuration', duration: '12:45', description: 'Setting up real-time listeners and security rules.' },
+        { id: 3, title: 'Media Management', duration: '08:15', description: 'Handling large-scale video uploads and delivery.' },
+        { id: 4, title: 'Compliance Reporting', duration: '10:30', description: 'Automating progress tracking for institutional audits.' }
+    ]
+}">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside class="w-64 bg-black flex-shrink-0 flex flex-col justify-between border-r border-gray-800 p-6">
+            <div class="space-y-8">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                    </div>
+                    <h1 class="text-xl font-bold tracking-tighter uppercase">Rare LMS</h1>
+                </div>
+
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg bg-blue-600 text-white">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-800 transition">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                        <span class="font-medium">Courses</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-800 transition">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                        <span class="font-medium">Analytics</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-800 transition">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span class="font-medium">Settings</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="pt-6 border-t border-gray-800">
+                <button class="flex items-center space-x-3 p-3 w-full text-gray-400 hover:text-red-400 transition">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                    <span class="font-medium">Sign Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 bg-gray-900">
+            
+            <!-- Header -->
+            <header class="h-16 flex items-center justify-between px-8 bg-gray-900/50 backdrop-blur-md border-b border-gray-800">
+                <h2 class="text-lg font-semibold text-gray-200">Full-Stack Development Course</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-medium">Katlego</p>
+                        <p class="text-xs text-gray-500">Administrator</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 border-2 border-gray-800 flex items-center justify-center font-bold">
+                        K
+                    </div>
+                </div>
+            </header>
+
+            <!-- Learning Interface -->
+            <main class="flex-1 overflow-y-auto p-8">
+                <div class="max-w-6xl mx-auto">
+                    <div class="grid grid-cols-12 gap-8">
+                        
+                        <!-- Video Player Area -->
+                        <div class="col-span-12 lg:col-span-8 space-y-6">
+                            <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800 group relative">
+                                <!-- Placeholder for Cloudinary Player -->
+                                <div class="absolute inset-0 flex items-center justify-center bg-gray-800">
+                                    <i data-lucide="play-circle" class="w-16 h-16 text-blue-500 opacity-50 group-hover:opacity-100 transition duration-300"></i>
+                                </div>
+                                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                    <div class="h-1 bg-gray-700 w-full rounded-full">
+                                        <div class="h-full bg-blue-600 w-1/3 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-800/50 p-6 rounded-2xl border border-gray-700">
+                                <template x-for="lesson in lessons" :key="lesson.id">
+                                    <div x-show="activeLesson === lesson.id">
+                                        <h3 class="text-2xl font-bold mb-2" x-text="lesson.title"></h3>
+                                        <p class="text-gray-400 leading-relaxed" x-text="lesson.description"></p>
+                                    </div>
+                                </template>
+                                
+                                <div class="mt-6 flex space-x-4">
+                                    <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition">
+                                        Mark as Complete
+                                    </button>
+                                    <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-semibold transition">
+                                        Download Resources
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Course Navigation Sidebar -->
+                        <div class="col-span-12 lg:col-span-4">
+                            <div class="bg-gray-800/30 rounded-2xl border border-gray-800 overflow-hidden">
+                                <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-800/50">
+                                    <h4 class="font-bold text-sm tracking-widest uppercase text-gray-400">Course Modules</h4>
+                                    <span class="text-xs font-bold text-blue-500">25% Done</span>
+                                </div>
+                                <div class="p-2 space-y-1">
+                                    <template x-for="lesson in lessons" :key="lesson.id">
+                                        <button 
+                                            @click="activeLesson = lesson.id"
+                                            :class="activeLesson === lesson.id ? 'bg-blue-600/20 border-blue-600/50 text-blue-100' : 'hover:bg-gray-800 text-gray-400 border-transparent'"
+                                            class="w-full text-left p-4 rounded-xl border flex items-center justify-between transition group"
+                                        >
+                                            <div class="flex items-center space-x-3">
+                                                <div :class="activeLesson === lesson.id ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-500'" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition">
+                                                    <span x-text="lesson.id"></span>
+                                                </div>
+                                                <span class="text-sm font-medium" x-text="lesson.title"></span>
+                                            </div>
+                                            <i data-lucide="play" :class="activeLesson === lesson.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'" class="w-4 h-4 transition"></i>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
