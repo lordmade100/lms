@@ -5,127 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rare Grade LMS | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .hidden-section { display: none; }
-        /* Custom Spinner Animation */
-        .loader {
-            border-top-color: #4f46e5;
-            animation: spinner 0.6s linear infinite;
-        }
-        @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .loader { border-top-color: #4f46e5; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-50 flex">
 
-    <!-- Global Loading Overlay (For Uploads) -->
+    <!-- Global Loading Overlay -->
     <div id="global-loader" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100]">
         <div class="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-            <p class="text-gray-700 font-bold" id="loader-text">Syncing with Cloud...</p>
+            <p class="text-gray-700 font-bold" id="loader-text">Processing...</p>
         </div>
     </div>
 
     <!-- Sidebar -->
     <aside class="w-64 bg-slate-900 h-screen sticky top-0 text-white hidden md:flex flex-col">
-        <div class="p-6">
-            <h1 class="text-2xl font-bold tracking-tight text-indigo-400">Rare Grade LMS</h1>
-        </div>
+        <div class="p-6 text-2xl font-bold text-indigo-400">Rare Grade LMS</div>
         <nav class="flex-1 px-4 space-y-2 mt-4">
-            <button onclick="nav('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 bg-indigo-600 p-3 rounded-lg text-white transition">
-                <span>🏠</span> <span>Dashboard</span>
-            </button>
-            <button onclick="nav('courses')" id="nav-courses" class="w-full flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 hover:text-white transition">
-                <span>📚</span> <span>Courses</span>
-            </button>
+            <button onclick="nav('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 bg-indigo-600 p-3 rounded-lg text-white transition"><span>🏠</span> <span>Dashboard</span></button>
+            <button onclick="nav('courses')" id="nav-courses" class="w-full flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 transition"><span>📚</span> <span>Courses</span></button>
+            <button onclick="nav('learners')" id="nav-learners" class="w-full flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-slate-800 transition"><span>👥</span> <span>Learners</span></button>
         </nav>
-        <div class="p-6 border-t border-slate-800 text-xs text-gray-500">
-            Project: fire-b-a8878
-        </div>
+        <div class="p-6 border-t border-slate-800 text-xs text-gray-500">Project: fire-b-a8878</div>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 min-h-screen p-8">
         
         <!-- DASHBOARD SECTION -->
         <section id="section-dashboard">
-            <header class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
-                <p class="text-gray-500">Real-time stats from Firebase.</p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-8">Admin Dashboard</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><p class="text-gray-500 text-sm uppercase">Total Learners</p><h3 id="stat-learners" class="text-3xl font-bold mt-2">0</h3></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><p class="text-gray-500 text-sm uppercase">Course Catalog</p><h3 id="stat-courses" class="text-3xl font-bold mt-2 text-indigo-600">0</h3></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><p class="text-gray-500 text-sm uppercase">Revenue</p><h3 id="stat-revenue" class="text-3xl font-bold mt-2">R 0.00</h3></div>
+            </div>
+        </section>
+
+        <!-- LEARNERS SECTION -->
+        <section id="section-learners" class="hidden-section">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Learner Registry</h2>
+                    <p class="text-gray-500">Search and manage student profiles.</p>
+                </div>
+                <button onclick="toggleModal('learner', true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg">
+                    + Add New Learner
+                </button>
             </header>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase">Active Students</p>
-                    <h3 id="stat-students" class="text-3xl font-bold mt-2">0</h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase">Revenue (ZAR)</p>
-                    <h3 id="stat-revenue" class="text-3xl font-bold mt-2 text-indigo-600">R 0.00</h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium uppercase">Total Courses</p>
-                    <h3 id="stat-courses" class="text-3xl font-bold mt-2">0</h3>
-                </div>
+            <div class="mb-6">
+                <input type="text" id="learner-search" onkeyup="searchLearners()" placeholder="Search by Name or Student ID..." class="w-full md:w-1/3 p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
             </div>
-            
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <canvas id="growthChart" height="80"></canvas>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-400 text-xs uppercase">
+                        <tr><th class="px-6 py-4">ID</th><th class="px-6 py-4">Full Name</th><th class="px-6 py-4">Email</th><th class="px-6 py-4">Course</th><th class="px-6 py-4">Status</th></tr>
+                    </thead>
+                    <tbody id="learner-table-body" class="divide-y divide-gray-100"></tbody>
+                </table>
             </div>
         </section>
 
         <!-- COURSES SECTION -->
         <section id="section-courses" class="hidden-section">
             <header class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Course Management</h2>
-                    <p class="text-gray-500">Manage your South African curriculum.</p>
-                </div>
-                <button onclick="toggleModal(true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg">
-                    + Add New Course
+                <h2 class="text-2xl font-bold text-gray-800">Courses</h2>
+                <button onclick="toggleModal('course', true)" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium shadow-lg">
+                    + Create Course
                 </button>
             </header>
-
-            <!-- Inline Fetching Spinner -->
-            <div id="courses-loader" class="flex flex-col items-center justify-center py-20">
-                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10 mb-4"></div>
-                <p class="text-gray-400 text-sm">Fetching catalog...</p>
-            </div>
-
-            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
-                <!-- Data goes here -->
-            </div>
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
     </main>
 
-    <!-- MODAL -->
-    <div id="course-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-gray-800">Create New Course</h3>
-                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <!-- CENTERED MODALS -->
+    <div id="modal-container" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        
+        <!-- LEARNER FORM -->
+        <div id="modal-learner" class="bg-white w-full max-w-lg rounded-2xl shadow-2xl hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="font-bold text-lg">Add New Learner</h3>
+                <button onclick="toggleModal('learner', false)" class="text-2xl">&times;</button>
             </div>
-            <form id="add-course-form" class="p-6 space-y-5">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Course Title</label>
-                    <input type="text" id="course-title" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+            <form id="add-learner-form" class="p-6 grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                    <input type="text" id="learner-name" required class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email Address</label>
+                    <input type="email" id="learner-email" required class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Price (ZAR)</label>
-                    <input type="number" id="course-price" placeholder="499" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Date of Birth</label>
+                    <input type="date" id="learner-dob" required class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thumbnail</label>
-                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Gender</label>
+                    <select id="learner-gender" class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option>Male</option><option>Female</option><option>Other</option>
+                    </select>
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition">
-                    Upload & Save Course
-                </button>
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Assign Course</label>
+                    <select id="learner-course-select" class="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></select>
+                </div>
+                <button type="submit" class="col-span-2 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition mt-2">Register Learner</button>
+            </form>
+        </div>
+
+        <!-- COURSE FORM -->
+        <div id="modal-course" class="bg-white w-full max-w-md rounded-2xl shadow-2xl hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="font-bold text-lg">Create Course</h3>
+                <button onclick="toggleModal('course', false)" class="text-2xl">&times;</button>
+            </div>
+            <form id="add-course-form" class="p-6 space-y-4">
+                <input type="text" id="course-title" placeholder="Course Title" required class="w-full border border-gray-200 p-3 rounded-lg outline-none">
+                <input type="number" id="course-price" placeholder="Price (ZAR)" required class="w-full border border-gray-200 p-3 rounded-lg outline-none">
+                <input type="file" id="course-file" accept="image/*" required class="w-full text-sm">
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Upload & Save</button>
             </form>
         </div>
     </div>
@@ -146,99 +151,116 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // --- CLOUDINARY CONFIG ---
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
         const UPLOAD_PRESET = "banter_box";
 
-        // Navigation
+        // Navigation & Modal Controls
         window.nav = (target) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(`section-${target}`).classList.remove('hidden-section');
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('bg-indigo-600', 'text-white'));
-            document.getElementById(`nav-${target}`).classList.add('bg-indigo-600', 'text-white');
         };
 
-        window.toggleModal = (show) => {
-            const m = document.getElementById('course-modal');
-            m.classList.toggle('hidden', !show);
-            m.classList.toggle('modal-active', show);
+        window.toggleModal = (type, show) => {
+            document.getElementById('modal-container').classList.toggle('hidden', !show);
+            document.getElementById('modal-container').classList.toggle('flex', show);
+            document.getElementById(`modal-course`).classList.add('hidden');
+            document.getElementById(`modal-learner`).classList.add('hidden');
+            if(show) document.getElementById(`modal-${type}`).classList.remove('hidden');
         };
 
-        const showGlobalLoader = (show, text = "Syncing with Cloud...") => {
+        const loader = (show, text) => {
             const l = document.getElementById('global-loader');
             document.getElementById('loader-text').innerText = text;
-            l.classList.toggle('hidden', !show);
-            l.classList.toggle('flex', show);
+            l.classList.toggle('hidden', !show); l.classList.toggle('flex', show);
         };
 
-        // Fetch Courses with Spinner logic
+        // Real-time Data Sync
         onValue(ref(db, 'courses'), (snapshot) => {
             const grid = document.getElementById('courses-grid');
-            const loader = document.getElementById('courses-loader');
+            const select = document.getElementById('learner-course-select');
             const data = snapshot.val();
-            
-            grid.innerHTML = '';
-            let count = 0;
-
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    const c = data[key];
-                    count++;
-                    grid.innerHTML += `
-                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition group">
-                            <img src="${c.thumbnail}" class="w-full h-44 object-cover group-hover:scale-105 transition duration-500">
-                            <div class="p-5">
-                                <h5 class="font-bold text-gray-800 truncate">${c.title}</h5>
-                                <p class="text-indigo-600 font-bold mt-1">${formatCurrency(c.price)}</p>
-                            </div>
-                        </div>`;
+            grid.innerHTML = ''; select.innerHTML = '<option value="None">No Course Assigned</option>';
+            if(data) {
+                Object.values(data).forEach(c => {
+                    grid.innerHTML += `<div class="bg-white border rounded-xl overflow-hidden p-4 shadow-sm"><img src="${c.thumbnail}" class="w-full h-32 object-cover rounded-lg mb-3 font-bold"><h4 class="font-bold">${c.title}</h4><p class="text-indigo-600 font-bold">R ${c.price}</p></div>`;
+                    select.innerHTML += `<option value="${c.title}">${c.title}</option>`;
                 });
+                document.getElementById('stat-courses').innerText = Object.keys(data).length;
             }
-            
-            // Hide spinner and show grid once data is ready
-            loader.classList.add('hidden');
-            grid.classList.remove('hidden');
-            document.getElementById('stat-courses').innerText = count;
         });
 
-        // Handle Add Course
-        document.getElementById('add-course-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const file = document.getElementById('course-file').files[0];
-            
-            toggleModal(false); // Close modal immediately
-            showGlobalLoader(true, "Optimizing Image...");
-
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', UPLOAD_PRESET);
-
-                const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-                const cloudData = await response.json();
-
-                showGlobalLoader(true, "Writing to Firebase...");
-
-                const newCourseRef = push(ref(db, 'courses'));
-                await set(newCourseRef, {
-                    title: document.getElementById('course-title').value,
-                    price: parseFloat(document.getElementById('course-price').value),
-                    thumbnail: cloudData.secure_url,
-                    createdAt: Date.now()
+        onValue(ref(db, 'learners'), (snapshot) => {
+            const table = document.getElementById('learner-table-body');
+            const data = snapshot.val();
+            table.innerHTML = '';
+            if(data) {
+                Object.values(data).forEach(l => {
+                    table.innerHTML += `<tr class="hover:bg-gray-50 border-b learner-row">
+                        <td class="px-6 py-4 font-mono text-xs text-indigo-600 font-bold l-id">${l.id}</td>
+                        <td class="px-6 py-4 font-medium l-name">${l.name}</td>
+                        <td class="px-6 py-4 text-gray-500">${l.email}</td>
+                        <td class="px-6 py-4 text-xs font-bold text-gray-600">${l.assignedCourse}</td>
+                        <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold">ACTIVE</span></td>
+                    </tr>`;
                 });
-
-                document.getElementById('add-course-form').reset();
-            } catch (err) {
-                alert("Upload failed. Check Cloudinary settings.");
-            } finally {
-                showGlobalLoader(false);
+                document.getElementById('stat-learners').innerText = Object.keys(data).length;
             }
+        });
+
+        // Add Learner with Unique ID
+        document.getElementById('add-learner-form').onsubmit = async (e) => {
+            e.preventDefault();
+            loader(true, "Registering Student...");
+            const studentId = `RG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+            
+            await set(push(ref(db, 'learners')), {
+                id: studentId,
+                name: document.getElementById('learner-name').value,
+                email: document.getElementById('learner-email').value,
+                dob: document.getElementById('learner-dob').value,
+                gender: document.getElementById('learner-gender').value,
+                assignedCourse: document.getElementById('learner-course-select').value,
+                createdAt: Date.now()
+            });
+
+            toggleModal('learner', false);
+            document.getElementById('add-learner-form').reset();
+            loader(false);
         };
 
-        function formatCurrency(v) {
-            return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(v);
-        }
+        // Add Course (Cloudinary + Firebase)
+        document.getElementById('add-course-form').onsubmit = async (e) => {
+            e.preventDefault();
+            loader(true, "Uploading to Cloudinary...");
+            const file = document.getElementById('course-file').files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', UPLOAD_PRESET);
+
+            const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+            const cloud = await res.json();
+
+            await set(push(ref(db, 'courses')), {
+                title: document.getElementById('course-title').value,
+                price: document.getElementById('course-price').value,
+                thumbnail: cloud.secure_url,
+                createdAt: Date.now()
+            });
+
+            toggleModal('course', false);
+            document.getElementById('add-course-form').reset();
+            loader(false);
+        };
+
+        // Search Logic
+        window.searchLearners = () => {
+            const query = document.getElementById('learner-search').value.toLowerCase();
+            document.querySelectorAll('.learner-row').forEach(row => {
+                const name = row.querySelector('.l-name').innerText.toLowerCase();
+                const id = row.querySelector('.l-id').innerText.toLowerCase();
+                row.style.display = (name.includes(query) || id.includes(query)) ? '' : 'none';
+            });
+        };
     </script>
 </body>
 </html>
