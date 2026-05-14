@@ -3,232 +3,1189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rare Grade LMS | Admin Console</title>
+    <title>Rare Grade LMS | Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
-        .hidden-section { display: none; }
-        .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        #global-loader {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-        .loader {
-            border-top-color: #4f46e5;
-            animation: spinner 0.6s linear infinite;
-        }
-        @keyframes spinner { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
+        /* Sidebar */
+        #sidebar { width: 72px; transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+        #sidebar:hover { width: 270px; }
+        .sb-text { opacity: 0; transition: opacity 0.15s ease; white-space: nowrap; pointer-events: none; }
+        #sidebar:hover .sb-text { opacity: 1; transition-delay: 0.15s; }
 
-        .nav-btn.active {
-            background: #4f46e5;
-            color: white;
-            box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.3);
+        /* Nav items */
+        .nav-item { transition: background 0.2s ease, color 0.2s ease; color: #64748b; }
+        .nav-item.active { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white !important; box-shadow: 0 4px 16px rgba(79,70,229,0.35); }
+        .nav-item:not(.active):hover { background: rgba(255,255,255,0.07); color: #e2e8f0; }
+
+        /* Sections */
+        .section-in { animation: sIn 0.3s ease; }
+        @keyframes sIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Cards */
+        .hov-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .hov-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.09); }
+
+        /* Course card overlay */
+        .crs-overlay { opacity:0; transition: opacity 0.25s ease; }
+        .course-card:hover .crs-overlay { opacity:1; }
+        .course-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .course-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.11); }
+
+        /* Table */
+        .trow:hover { background:#f8f9ff; }
+
+        /* Modal */
+        #modal-overlay { opacity:0; pointer-events:none; transition: opacity 0.25s ease; }
+        #modal-overlay.open { opacity:1; pointer-events:auto; }
+        .mpanel { transform: scale(0.93) translateY(20px); opacity:0; transition: transform 0.35s cubic-bezier(0.34,1.25,0.64,1), opacity 0.25s ease; }
+        .mpanel.open { transform: scale(1) translateY(0); opacity:1; }
+
+        /* Toast */
+        #toast-root { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+        .toast { transform:translateX(115%); transition:transform 0.4s cubic-bezier(0.34,1.2,0.64,1); display:flex; align-items:center; gap:10px; padding:13px 18px; border-radius:16px; font-size:14px; font-weight:500; min-width:260px; max-width:340px; box-shadow:0 8px 28px rgba(0,0,0,0.14); pointer-events:auto; background:white; }
+        .toast.show { transform:translateX(0); }
+        .toast.success { border-left:4px solid #10b981; color:#065f46; }
+        .toast.error   { border-left:4px solid #ef4444; color:#7f1d1d; }
+        .toast.info    { border-left:4px solid #6366f1; color:#312e81; }
+
+        /* Loader spin */
+        .spin { animation: spin 0.75s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Status badges */
+        .badge-active    { background:#dcfce7; color:#166534; }
+        .badge-suspended { background:#fee2e2; color:#991b1b; }
+
+        /* Chart bars */
+        .cbar { transition: width 0.9s cubic-bezier(0.34,1.1,0.64,1); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:99px; }
+
+        /* Input focus */
+        .field { transition: border-color 0.2s, box-shadow 0.2s; }
+        .field:focus { outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.13); }
+
+        /* Announcement borders */
+        .ann-high   { border-left:4px solid #ef4444; }
+        .ann-normal { border-left:4px solid #6366f1; }
+        .ann-low    { border-left:4px solid #94a3b8; }
+
+        /* Filter tab */
+        .ftab { transition: all 0.2s ease; }
+        .ftab.active { background:#4f46e5; color:white; }
+
+        /* Mobile block */
+        @media (max-width:768px) {
+            #mobile-wall { display:flex !important; }
+            body > *:not(#mobile-wall) { display:none !important; }
         }
     </style>
 </head>
-<body class="bg-[#f8fafc] flex min-h-screen text-slate-800">
+<body class="bg-slate-50 flex min-h-screen">
 
-    <div id="global-loader" class="fixed inset-0 hidden items-center justify-center flex-col">
-        <div class="loader rounded-full border-4 border-slate-200 h-12 w-12 mb-3"></div>
-        <p id="loader-text" class="text-indigo-600 font-bold text-sm tracking-tight">Syncing Database...</p>
+<!-- Mobile Wall -->
+<div id="mobile-wall" class="hidden fixed inset-0 bg-slate-950 z-[9999] flex-col items-center justify-center p-8 text-center">
+    <div class="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center text-5xl mb-6">💻</div>
+    <h2 class="text-2xl font-bold text-white mb-3">Desktop Only</h2>
+    <p class="text-slate-400 max-w-xs">This admin portal is optimised for desktop. Please open on a computer or laptop.</p>
+</div>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside id="sidebar" class="bg-[#0d1117] h-screen fixed top-0 left-0 flex flex-col z-50 overflow-hidden flex-shrink-0 shadow-2xl">
+    <!-- Logo -->
+    <div class="flex items-center gap-3 px-4 py-5 border-b border-white/[0.07] flex-shrink-0">
+        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center text-white font-bold text-base flex-shrink-0 shadow-lg">RG</div>
+        <div class="sb-text">
+            <p class="text-white font-bold text-base leading-tight">Rare Grade</p>
+            <p class="text-slate-500 text-xs">LMS Admin Portal</p>
+        </div>
     </div>
 
-    <aside id="sidebar" class="sidebar-transition group w-16 hover:w-64 bg-slate-950 h-screen fixed left-0 top-0 text-white flex flex-col z-50 overflow-hidden">
-        <div class="p-4 mb-4 flex items-center gap-x-3">
-            <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <i data-lucide="layers" class="w-5 h-5 text-white"></i>
-            </div>
-            <span class="font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity">Rare Grade</span>
+    <!-- Nav -->
+    <nav class="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
+        <button onclick="nav('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+            <span class="sb-text font-medium text-sm">Dashboard</span>
+        </button>
+        <button onclick="nav('courses')" id="nav-courses" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.5 8.5 5 6 5S2.5 5.5 2 6.5V19c.5-1 2.5-1.5 4-1.5s3.5.5 6 1.5M12 6.5C13.5 5.5 15.5 5 18 5s3.5.5 4 1.5V19c-.5-1-2.5-1.5-4-1.5s-4 .5-6 1.5M12 6.5v13"/></svg>
+            <span class="sb-text font-medium text-sm">Courses</span>
+        </button>
+        <button onclick="nav('learners')" id="nav-learners" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <span class="sb-text font-medium text-sm">Learners</span>
+        </button>
+        <button onclick="nav('analytics')" id="nav-analytics" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="5" height="10" rx="1"/><rect x="9.5" y="6" width="5" height="16" rx="1"/><rect x="17" y="2" width="5" height="20" rx="1"/></svg>
+            <span class="sb-text font-medium text-sm">Analytics</span>
+        </button>
+        <button onclick="nav('announcements')" id="nav-announcements" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a4 4 0 010 8M6 8l10-4v16L6 16H3a1 1 0 01-1-1v-6a1 1 0 011-1h3z"/><path d="M6 19v2"/></svg>
+            <span class="sb-text font-medium text-sm">Announcements</span>
+        </button>
+    </nav>
+
+    <!-- User -->
+    <div class="p-4 border-t border-white/[0.07] flex items-center gap-3 flex-shrink-0">
+        <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AK</div>
+        <div class="sb-text">
+            <p class="text-white text-sm font-semibold">Admin</p>
+            <p class="text-slate-500 text-xs">Pretoria, ZA</p>
         </div>
+    </div>
+</aside>
 
-        <nav class="flex-1 px-2 space-y-1">
-            <button onclick="nav('dashboard')" id="nav-dashboard" class="nav-btn active w-full flex items-center gap-x-4 px-3 py-3 rounded-xl transition-all">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
-                <span class="opacity-0 group-hover:opacity-100 font-medium text-sm">Dashboard</span>
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="flex-1 flex flex-col min-h-screen" style="margin-left:72px;">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-40">
+        <div>
+            <h1 id="page-title" class="text-xl font-bold text-gray-900">Dashboard</h1>
+            <p id="page-sub" class="text-xs text-gray-400 mt-0.5">Real-time Firebase sync</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <input id="global-search" onkeyup="globalSearch()" placeholder="Search learners, courses…" class="field w-64 bg-slate-50 border border-slate-200 rounded-2xl pl-9 pr-4 py-2.5 text-sm">
+                <svg class="w-4 h-4 absolute left-3 top-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </div>
+            <button class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center text-slate-600 relative">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+                <span id="notif-dot" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <button onclick="nav('teachers')" id="nav-teachers" class="nav-btn w-full flex items-center gap-x-4 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-900 transition-all">
-                <i data-lucide="graduation-cap" class="w-5 h-5 flex-shrink-0"></i>
-                <span class="opacity-0 group-hover:opacity-100 font-medium text-sm">Teachers</span>
-            </button>
-            <button onclick="nav('learners')" id="nav-learners" class="nav-btn w-full flex items-center gap-x-4 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-900 transition-all">
-                <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
-                <span class="opacity-0 group-hover:opacity-100 font-medium text-sm">Learners</span>
-            </button>
-        </nav>
-    </aside>
+            <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-xs cursor-pointer">AK</div>
+        </div>
+    </header>
 
-    <main class="flex-1 ml-16">
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
-            <h1 id="page-title" class="text-xl font-bold text-slate-900">Dashboard</h1>
-            <div id="local-clock" class="text-[11px] font-bold text-slate-400 uppercase">Pretoria, ZA</div>
-        </header>
+    <div class="flex-1 overflow-y-auto p-8">
 
-        <div class="p-6 max-w-[1600px] mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Learners</p>
-                    <h3 id="stat-learners" class="text-2xl font-bold">0</h3>
+        <!-- ── DASHBOARD ── -->
+        <section id="sec-dashboard" class="section-in">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                <!-- Stat cards -->
+                <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Total Learners</p>
+                            <h3 id="stat-learners" class="mono text-5xl font-bold text-gray-900 mt-3">0</h3>
+                        </div>
+                        <div class="w-11 h-11 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3"><span id="stat-active-count" class="text-emerald-600 font-semibold">0</span> active</p>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                    <p class="text-violet-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Teachers</p>
-                    <h3 id="stat-teachers" class="text-2xl font-bold text-violet-600">0</h3>
+
+                <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Active Courses</p>
+                            <h3 id="stat-courses" class="mono text-5xl font-bold text-indigo-600 mt-3">0</h3>
+                        </div>
+                        <div class="w-11 h-11 bg-indigo-100 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6.5C10.5 5.5 8.5 5 6 5S2.5 5.5 2 6.5V19c.5-1 2.5-1.5 4-1.5s3.5.5 6 1.5M12 6.5C13.5 5.5 15.5 5 18 5s3.5.5 4 1.5V19c-.5-1-2.5-1.5-4-1.5s-4 .5-6 1.5M12 6.5v13"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3">Across all programs</p>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                    <p class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Revenue</p>
-                    <h3 id="stat-revenue" class="text-2xl font-bold text-emerald-600">R 0</h3>
+
+                <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Total Revenue</p>
+                            <h3 id="stat-revenue" class="mono text-5xl font-bold text-gray-900 mt-3">R 0</h3>
+                        </div>
+                        <div class="w-11 h-11 bg-amber-100 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8.5 10a3.5 3.5 0 017 0c0 2-3.5 3-3.5 3s-3.5 1-3.5 3a3.5 3.5 0 007 0"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3">From enrolled learners</p>
+                </div>
+
+                <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Announcements</p>
+                            <h3 id="stat-anns" class="mono text-5xl font-bold text-violet-600 mt-3">0</h3>
+                        </div>
+                        <div class="w-11 h-11 bg-violet-100 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8a4 4 0 010 8M6 8l10-4v16L6 16H3a1 1 0 01-1-1v-6a1 1 0 011-1h3z"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3">Posted notices</p>
                 </div>
             </div>
 
-            <section id="section-teachers" class="hidden-section">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold">Teacher Registry</h2>
-                    <button onclick="toggleModal('teacher', true)" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Add Teacher</button>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Recent enrollments -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-7 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-semibold text-gray-900">Recent Enrollments</h3>
+                        <button onclick="nav('learners')" class="text-indigo-600 text-xs font-semibold hover:underline">View all →</button>
+                    </div>
+                    <div id="recent-list" class="space-y-4"></div>
                 </div>
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-[10px] uppercase tracking-widest font-bold text-slate-400">
-                            <tr>
-                                <th class="px-6 py-4">Instructor Name</th>
-                                <th class="px-6 py-4">Specialization</th>
-                                <th class="px-6 py-4">Email</th>
-                                <th class="px-6 py-4 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teacher-table-body" class="divide-y divide-slate-50 text-sm">
-                            </tbody>
-                    </table>
-                </div>
-            </section>
 
-            <section id="section-dashboard">
-                <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-                    <h3 class="font-bold text-sm mb-4">Financial Summary</h3>
-                    <div class="h-32 flex items-end gap-2">
-                        <div class="bg-emerald-100 w-full rounded-t-lg" style="height: 40%"></div>
-                        <div class="bg-emerald-200 w-full rounded-t-lg" style="height: 65%"></div>
-                        <div class="bg-emerald-500 w-full rounded-t-lg" style="height: 100%"></div>
+                <!-- Quick actions -->
+                <div class="bg-white rounded-3xl p-7 border border-gray-100">
+                    <h3 class="font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <button onclick="openLearnerForm()" class="w-full flex items-center gap-3 p-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium text-sm transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 11c1.656 0 3-.896 3-2s-1.344-2-3-2-3 .896-3 2 1.344 2 3 2zm-8 0c1.656 0 3-.896 3-2s-1.344-2-3-2-3 .896-3 2 1.344 2 3 2zm8 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm-8 0C5.67 13 1 14.17 1 16.5V19h7v-2.5c0-.85.33-1.63.88-2.23A12.57 12.57 0 008 13z"/></svg>
+                            Add New Learner
+                        </button>
+                        <button onclick="openNewCourseForm()" class="w-full flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium text-sm transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
+                            Create New Course
+                        </button>
+                        <button onclick="exportCSV()" class="w-full flex items-center gap-3 p-4 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium text-sm transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17l.01-.01M3 12l.01-.01M3 7l.01-.01M8 17h13M8 12h13M8 7h13"/></svg>
+                            Export Learners CSV
+                        </button>
+                        <button onclick="nav('announcements');setTimeout(()=>toggleModal('announcement',true),100)" class="w-full flex items-center gap-3 p-4 rounded-2xl bg-violet-50 hover:bg-violet-100 text-violet-700 font-medium text-sm transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8a4 4 0 010 8M6 8l10-4v16L6 16H3a1 1 0 01-1-1v-6a1 1 0 011-1h3z"/></svg>
+                            Post Announcement
+                        </button>
                     </div>
                 </div>
-            </section>
-        </div>
-    </main>
+            </div>
+        </section>
 
-    <div id="modal-container" class="fixed inset-0 hidden items-center justify-center bg-slate-950/40 backdrop-blur-sm z-[100] p-4">
-        <div id="modal-teacher" class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6">
-            <h3 class="text-lg font-bold mb-4">Add New Teacher</h3>
-            <form id="teacher-form" class="space-y-4">
+        <!-- ── COURSES ── -->
+        <section id="sec-courses" class="hidden">
+            <div class="flex items-center justify-between mb-7">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Full Name</label>
-                    <input type="text" id="teacher-name" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm outline-none">
+                    <h2 class="text-2xl font-bold text-gray-900">Course Catalog</h2>
+                    <p class="text-sm text-gray-400 mt-1">Manage your courses — hover a card to edit or delete</p>
                 </div>
+                <button onclick="openNewCourseForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 shadow-lg transition text-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 4v16m8-8H4"/></svg>
+                    New Course
+                </button>
+            </div>
+            <div class="mb-6">
+                <input id="course-search" oninput="searchCourses()" placeholder="Search courses…" class="field w-full max-w-xs bg-white border border-gray-200 px-4 py-3 rounded-2xl text-sm">
+            </div>
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7"></div>
+        </section>
+
+        <!-- ── LEARNERS ── -->
+        <section id="sec-learners" class="hidden">
+            <div class="flex items-center justify-between mb-7">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Specialization</label>
-                    <input type="text" id="teacher-dept" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm outline-none">
+                    <h2 class="text-2xl font-bold text-gray-900">Learner Registry</h2>
+                    <p class="text-sm text-gray-400 mt-1">Real-time Firebase sync</p>
                 </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="toggleModal('teacher', false)" class="flex-1 text-sm font-bold text-slate-500">Cancel</button>
-                    <button type="submit" class="flex-1 bg-violet-600 text-white py-2.5 rounded-xl text-sm font-bold">Save Teacher</button>
+                <div class="flex items-center gap-3">
+                    <button onclick="exportCSV()" class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-5 py-3 rounded-2xl font-medium flex items-center gap-2 transition text-sm">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Export CSV
+                    </button>
+                    <button onclick="openLearnerForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 shadow-lg transition text-sm">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 4v16m8-8H4"/></svg>
+                        Add Learner
+                    </button>
                 </div>
-            </form>
+            </div>
+
+            <div class="flex flex-wrap gap-3 mb-5">
+                <input id="learner-search" oninput="filterLearnerTable()" placeholder="Search name, email, ID…" class="field flex-1 min-w-[200px] max-w-xs bg-white border border-gray-200 px-4 py-3 rounded-2xl text-sm">
+                <div class="flex gap-2">
+                    <button onclick="setStatusFilter('all')" id="ftab-all" class="ftab active px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-white">All</button>
+                    <button onclick="setStatusFilter('active')" id="ftab-active" class="ftab px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-white">Active</button>
+                    <button onclick="setStatusFilter('suspended')" id="ftab-suspended" class="ftab px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-white">Suspended</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-gray-100 overflow-x-auto shadow-sm">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50 text-xs uppercase font-semibold text-gray-400 tracking-wider">
+                        <tr>
+                            <th class="px-7 py-5 text-left">Student ID</th>
+                            <th class="px-7 py-5 text-left">Full Name</th>
+                            <th class="px-7 py-5 text-left">Email</th>
+                            <th class="px-7 py-5 text-left">Course</th>
+                            <th class="px-7 py-5 text-left">Duration</th>
+                            <th class="px-7 py-5 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="learner-tbody" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ── ANALYTICS ── -->
+        <section id="sec-analytics" class="hidden">
+            <div class="mb-7">
+                <h2 class="text-2xl font-bold text-gray-900">Analytics & Reports</h2>
+                <p class="text-sm text-gray-400 mt-1">Computed from live Firebase data</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Revenue by Course -->
+                <div class="bg-white rounded-3xl p-7 border border-gray-100">
+                    <h4 class="font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8.5 10a3.5 3.5 0 017 0c0 2-3.5 3-3.5 3s-3.5 1-3.5 3a3.5 3.5 0 007 0"/></svg>
+                        Revenue by Course
+                    </h4>
+                    <div id="chart-revenue" class="space-y-3"></div>
+                </div>
+                <!-- Enrollment by Course -->
+                <div class="bg-white rounded-3xl p-7 border border-gray-100">
+                    <h4 class="font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                        Enrollments by Course
+                    </h4>
+                    <div id="chart-enrollment" class="space-y-3"></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Status breakdown -->
+                <div class="bg-white rounded-3xl p-7 border border-gray-100">
+                    <h4 class="font-semibold text-gray-900 mb-5">Learner Status</h4>
+                    <div id="chart-status"></div>
+                </div>
+                <!-- Gender breakdown -->
+                <div class="bg-white rounded-3xl p-7 border border-gray-100">
+                    <h4 class="font-semibold text-gray-900 mb-5">Gender Split</h4>
+                    <div id="chart-gender"></div>
+                </div>
+                <!-- Summary numbers -->
+                <div class="bg-white rounded-3xl p-7 border border-gray-100">
+                    <h4 class="font-semibold text-gray-900 mb-5">Key Metrics</h4>
+                    <div id="chart-metrics" class="space-y-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── ANNOUNCEMENTS ── -->
+        <section id="sec-announcements" class="hidden">
+            <div class="flex items-center justify-between mb-7">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Announcements</h2>
+                    <p class="text-sm text-gray-400 mt-1">Notices for learners and staff</p>
+                </div>
+                <button onclick="toggleModal('announcement',true)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 shadow-lg transition text-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 4v16m8-8H4"/></svg>
+                    Post Announcement
+                </button>
+            </div>
+            <div id="ann-list" class="space-y-4"></div>
+        </section>
+
+    </div><!-- /p-8 -->
+</main>
+
+<!-- ═══════════ MODAL OVERLAY ═══════════ -->
+<div id="modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+
+    <!-- Learner Detail Modal -->
+    <div id="modal-learner-detail" class="mpanel bg-white w-full max-w-lg rounded-3xl shadow-2xl hidden overflow-hidden">
+        <div class="bg-gradient-to-br from-slate-900 to-indigo-950 p-8 text-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 id="det-name" class="text-2xl font-bold"></h3>
+                    <p id="det-id" class="mono text-indigo-300 mt-1 text-sm"></p>
+                </div>
+                <button onclick="toggleModal('learner-detail',false)" class="text-white/50 hover:text-white text-3xl leading-none">&times;</button>
+            </div>
+        </div>
+        <div class="p-8 space-y-6">
+            <div class="grid grid-cols-2 gap-5 text-sm">
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Email</p><p id="det-email" class="font-medium"></p></div>
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Course</p><p id="det-course" class="font-medium"></p></div>
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Date of Birth</p><p id="det-dob" class="font-medium"></p></div>
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Gender</p><p id="det-gender" class="font-medium"></p></div>
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Duration</p><p id="det-duration" class="font-medium"></p></div>
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Enrolled</p><p id="det-enrolled" class="font-medium"></p></div>
+            </div>
+            <div>
+                <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Status</p>
+                <span id="det-status-badge" class="inline-block px-5 py-1.5 rounded-full text-sm font-semibold"></span>
+            </div>
+        </div>
+        <div class="border-t border-gray-100 p-6 flex gap-3">
+            <button onclick="openLearnerForm(true)" class="flex-1 py-3.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-2xl font-semibold text-sm transition">Edit</button>
+            <button id="btn-suspend-learner" class="flex-1 py-3.5 bg-white border border-amber-200 text-amber-700 hover:bg-amber-50 rounded-2xl font-semibold text-sm transition">Suspend</button>
+            <button id="btn-delete-learner" class="flex-1 py-3.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 rounded-2xl font-semibold text-sm transition">Delete</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <!-- Learner Form Modal -->
+    <div id="modal-learner" class="mpanel bg-white w-full max-w-lg rounded-3xl shadow-2xl hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-gray-100">
+            <h3 id="learner-form-title" class="font-bold text-xl">Add New Learner</h3>
+        </div>
+        <form id="learner-form" class="p-8 space-y-5 max-h-[80vh] overflow-y-auto">
+            <input type="hidden" id="learner-edit-key">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
+                <input type="text" id="f-name" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email</label>
+                    <input type="email" id="f-email" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Date of Birth</label>
+                    <input type="date" id="f-dob" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Gender</label>
+                    <select id="f-gender" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                        <option>Male</option><option>Female</option><option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Assign Course</label>
+                    <select id="f-course" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white" onchange="onCourseSelectChange()"></select>
+                </div>
+            </div>
+            <!-- Dynamic duration info -->
+            <div id="course-dur-info" class="hidden flex items-center gap-2 bg-indigo-50 text-indigo-700 text-sm px-4 py-3 rounded-xl">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="course-dur-text">Duration: —</span>
+            </div>
+            <div class="pt-2 flex gap-4">
+                <button type="button" onclick="toggleModal('learner',false)" class="flex-1 py-4 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold text-sm transition">Save Learner</button>
+            </div>
+        </form>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
-            authDomain: "fire-b-a8878.firebaseapp.com",
-            databaseURL: "https://fire-b-a8878.firebaseio.com",
-            projectId: "fire-b-a8878",
-            storageBucket: "fire-b-a8878.firebasestorage.app",
-            messagingSenderId: "658673187627",
-            appId: "1:658673187627:web:db830dda676c5b4dafa36e"
-        };
+    <!-- Course Form Modal -->
+    <div id="modal-course" class="mpanel bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-gray-100">
+            <h3 id="course-form-title" class="font-bold text-xl">Create New Course</h3>
+        </div>
+        <form id="course-form" class="p-8 space-y-5">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Course Title</label>
+                <input type="text" id="cf-title" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Price (ZAR)</label>
+                    <input type="number" id="cf-price" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Duration</label>
+                    <input type="text" id="cf-duration" placeholder="e.g. 8 weeks" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+            </div>
+            <div>
+                <label id="cf-img-label" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Thumbnail Image</label>
+                <input type="file" id="cf-file" accept="image/*" class="w-full text-sm file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            </div>
+            <div class="pt-2 flex gap-4">
+                <button type="button" onclick="toggleModal('course',false)" class="flex-1 py-4 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" id="cf-submit-btn" class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold text-sm transition">Upload & Publish</button>
+            </div>
+        </form>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    <!-- Confirm Delete Modal -->
+    <div id="modal-confirm" class="mpanel bg-white w-full max-w-sm rounded-3xl shadow-2xl hidden">
+        <div class="p-8 text-center">
+            <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <svg class="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </div>
+            <h3 id="confirm-title" class="text-lg font-bold text-gray-900">Are you sure?</h3>
+            <p id="confirm-msg" class="text-gray-500 text-sm mt-2">This action cannot be undone.</p>
+            <div class="flex gap-3 mt-7">
+                <button onclick="toggleModal('confirm',false)" class="flex-1 py-3.5 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button id="btn-confirm-action" class="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-semibold text-sm transition">Delete</button>
+            </div>
+        </div>
+    </div>
 
-        // UI State
-        const showLoader = (show) => {
-            document.getElementById('global-loader').classList.toggle('hidden', !show);
-            document.getElementById('global-loader').classList.toggle('flex', show);
-        };
+    <!-- Announcement Form Modal -->
+    <div id="modal-announcement" class="mpanel bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-gray-100">
+            <h3 class="font-bold text-xl">Post Announcement</h3>
+        </div>
+        <form id="announcement-form" class="p-8 space-y-5">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Title</label>
+                <input type="text" id="af-title" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Message</label>
+                <textarea id="af-body" required rows="4" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Priority</label>
+                <select id="af-priority" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                    <option value="normal">Normal</option>
+                    <option value="high">High</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div class="pt-2 flex gap-4">
+                <button type="button" onclick="toggleModal('announcement',false)" class="flex-1 py-4 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold text-sm transition">Post Now</button>
+            </div>
+        </form>
+    </div>
 
-        window.nav = (target) => {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
-            document.getElementById(`section-${target}`).classList.remove('hidden-section');
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`nav-${target}`).classList.add('active');
-            document.getElementById('page-title').innerText = target.charAt(0).toUpperCase() + target.slice(1);
-        };
+</div><!-- /modal-overlay -->
 
-        window.toggleModal = (type, show) => {
-            document.getElementById('modal-container').classList.toggle('hidden', !show);
-            document.getElementById('modal-container').classList.toggle('flex', show);
-        };
+<!-- Toast Root -->
+<div id="toast-root"></div>
 
-        // Firebase Listeners
-        showLoader(true);
+<!-- Loader -->
+<div id="loader" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[200] hidden items-center justify-center">
+    <div class="bg-white rounded-3xl px-10 py-8 flex flex-col items-center shadow-2xl">
+        <svg class="spin w-12 h-12 text-indigo-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+        <p id="loader-text" class="text-gray-700 font-semibold mt-4">Processing…</p>
+    </div>
+</div>
 
-        // Fetch Teachers
-        onValue(ref(db, 'teachers'), (snapshot) => {
-            const data = snapshot.val() || {};
-            const table = document.getElementById('teacher-table-body');
-            table.innerHTML = '';
-            
-            Object.entries(data).forEach(([key, t]) => {
-                table.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-3 font-bold text-slate-700">${t.name}</td>
-                        <td class="px-6 py-3 text-slate-500">${t.dept || 'General'}</td>
-                        <td class="px-6 py-3 text-slate-400">${t.email || 'n/a'}</td>
-                        <td class="px-6 py-3 text-right"><i data-lucide="more-horizontal" class="w-4 h-4 inline opacity-30"></i></td>
-                    </tr>
-                `;
-            });
-            document.getElementById('stat-teachers').innerText = Object.keys(data).length;
-            lucide.createIcons();
+<!-- ═══════════ SCRIPT ═══════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
+    authDomain: "fire-b-a8878.firebaseapp.com",
+    databaseURL: "https://fire-b-a8878.firebaseio.com",
+    projectId: "fire-b-a8878",
+    storageBucket: "fire-b-a8878.firebasestorage.app",
+    messagingSenderId: "658673187627",
+    appId: "1:658673187627:web:db830dda676c5b4dafa36e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
+const UPLOAD_PRESET   = "banter_box";
+
+// ─── State ───────────────────────────────────────────────
+window.learnersMap      = {};
+window.coursesMap       = {};
+window.coursesByTitle   = {};
+window.announcementsMap = {};
+window.currentLearnerKey = null;
+window.courseEditKey     = null;
+window.confirmCallback   = null;
+let statusFilter = 'all';
+
+// ─── Utilities ───────────────────────────────────────────
+function showToast(msg, type = 'success') {
+    const root = document.getElementById('toast-root');
+    const el = document.createElement('div');
+    const icons = { success:'✓', error:'✕', info:'i' };
+    const ic = { success:'bg-emerald-100 text-emerald-700', error:'bg-red-100 text-red-600', info:'bg-indigo-100 text-indigo-600' };
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${ic[type]}">${icons[type]}</span><span>${msg}</span>`;
+    root.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 450); }, 3500);
+}
+
+function showLoader(show, text = 'Processing…') {
+    const l = document.getElementById('loader');
+    document.getElementById('loader-text').textContent = text;
+    l.classList.toggle('hidden', !show);
+    l.classList.toggle('flex', show);
+}
+
+window.toggleModal = (type, show) => {
+    const overlay = document.getElementById('modal-overlay');
+    overlay.classList.toggle('open', show);
+    document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('open', ...Array.from(p.classList).filter(c=>c!=='mpanel'&&c!=='hidden'&&c!=='bg-white'&&c!=='w-full')));
+    document.querySelectorAll('.mpanel').forEach(p => p.classList.add('hidden'));
+    if (show) {
+        const panel = document.getElementById(`modal-${type}`);
+        if (panel) { panel.classList.remove('hidden'); requestAnimationFrame(() => panel.classList.add('open')); }
+    }
+};
+
+window.nav = (target) => {
+    document.querySelectorAll('[id^="sec-"]').forEach(s => s.classList.add('hidden'));
+    const sec = document.getElementById(`sec-${target}`);
+    if (sec) { sec.classList.remove('hidden'); sec.classList.add('section-in'); setTimeout(()=>sec.classList.remove('section-in'),400); }
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById(`nav-${target}`)?.classList.add('active');
+    const titles = { dashboard:'Dashboard', courses:'Course Catalog', learners:'Learner Registry', analytics:'Analytics & Reports', announcements:'Announcements' };
+    document.getElementById('page-title').textContent = titles[target] || target;
+    if (target === 'analytics') setTimeout(renderAnalytics, 150);
+};
+
+window.showConfirm = (title, msg, cb) => {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent   = msg;
+    window.confirmCallback = cb;
+    toggleModal('confirm', true);
+};
+
+document.getElementById('btn-confirm-action').onclick = async () => {
+    if (window.confirmCallback) await window.confirmCallback();
+    toggleModal('confirm', false);
+};
+
+// Close overlay on backdrop click
+document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) toggleModal('', false);
+});
+
+// ─── Firebase Listeners ──────────────────────────────────
+onValue(ref(db, 'learners'), snap => {
+    window.learnersMap = snap.val() || {};
+    renderLearnerTable();
+    renderRecentEnrollments();
+    updateStats();
+});
+
+onValue(ref(db, 'courses'), snap => {
+    window.coursesMap = snap.val() || {};
+    window.coursesByTitle = {};
+    Object.values(window.coursesMap).forEach(c => { window.coursesByTitle[c.title] = c; });
+    renderCourses();
+    populateCourseSelect();
+    updateStats();
+});
+
+onValue(ref(db, 'announcements'), snap => {
+    window.announcementsMap = snap.val() || {};
+    renderAnnouncements();
+    document.getElementById('stat-anns').textContent = Object.keys(window.announcementsMap).length;
+    const notifDot = document.getElementById('notif-dot');
+    const highPrio = Object.values(window.announcementsMap).some(a => a.priority === 'high');
+    notifDot.classList.toggle('hidden', !highPrio);
+});
+
+// ─── Stats ───────────────────────────────────────────────
+function updateStats() {
+    const learners = Object.values(window.learnersMap);
+    const total    = learners.length;
+    const active   = learners.filter(l => l.status !== 'SUSPENDED').length;
+
+    let revenue = 0;
+    learners.forEach(l => {
+        const c = window.coursesByTitle[l.assignedCourse];
+        if (c && c.price) revenue += parseFloat(c.price);
+    });
+
+    document.getElementById('stat-learners').textContent    = total;
+    document.getElementById('stat-active-count').textContent = active;
+    document.getElementById('stat-courses').textContent     = Object.keys(window.coursesMap).length;
+    document.getElementById('stat-revenue').textContent     = `R ${revenue.toLocaleString('en-ZA')}`;
+}
+
+// ─── Render: Courses ─────────────────────────────────────
+function renderCourses(filter = '') {
+    const grid = document.getElementById('courses-grid');
+    const entries = Object.entries(window.coursesMap).filter(([,c]) =>
+        !filter || c.title.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    if (!entries.length) {
+        grid.innerHTML = `<div class="col-span-3 py-20 text-center text-gray-400">
+            <div class="text-6xl mb-4">📚</div>
+            <p class="font-medium">No courses yet. Create your first one!</p>
+        </div>`;
+        return;
+    }
+
+    // Count enrollments per course title
+    const enrollment = {};
+    Object.values(window.learnersMap).forEach(l => {
+        enrollment[l.assignedCourse] = (enrollment[l.assignedCourse] || 0) + 1;
+    });
+
+    grid.innerHTML = entries.map(([key, c]) => {
+        const count   = enrollment[c.title] || 0;
+        const thumb   = c.thumbnail || `https://picsum.photos/seed/${encodeURIComponent(c.title)}/600/340`;
+        return `
+        <div class="course-card bg-white rounded-3xl overflow-hidden border border-gray-100">
+            <div class="relative h-48 overflow-hidden">
+                <img src="${thumb}" class="w-full h-full object-cover">
+                <div class="crs-overlay absolute inset-0 bg-black/55 flex items-center justify-center gap-3">
+                    <button onclick="editCourse('${key}')" class="bg-white text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Edit
+                    </button>
+                    <button onclick="confirmDeleteCourse('${key}')" class="bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex items-start justify-between gap-2 mb-3">
+                    <h4 class="font-semibold text-gray-900 leading-snug">${c.title}</h4>
+                    <span class="flex-shrink-0 text-xs bg-indigo-50 text-indigo-600 font-semibold px-2.5 py-1 rounded-lg">${count} enrolled</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-2xl font-bold text-gray-900">R ${Number(c.price).toLocaleString('en-ZA')}</span>
+                    ${c.duration ? `<span class="flex items-center gap-1 text-sm text-gray-500">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${c.duration}
+                    </span>` : ''}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+window.searchCourses = () => renderCourses(document.getElementById('course-search').value);
+
+window.editCourse = (key) => {
+    window.courseEditKey = key;
+    const c = window.coursesMap[key];
+    document.getElementById('course-form-title').textContent = 'Edit Course';
+    document.getElementById('cf-title').value    = c.title;
+    document.getElementById('cf-price').value    = c.price;
+    document.getElementById('cf-duration').value = c.duration || '';
+    document.getElementById('cf-img-label').textContent = 'Change Thumbnail (optional)';
+    document.getElementById('cf-submit-btn').textContent = 'Save Changes';
+    document.getElementById('cf-file').removeAttribute('required');
+    toggleModal('course', true);
+};
+
+window.openNewCourseForm = () => {
+    window.courseEditKey = null;
+    document.getElementById('course-form').reset();
+    document.getElementById('course-form-title').textContent = 'Create New Course';
+    document.getElementById('cf-img-label').textContent = 'Thumbnail Image';
+    document.getElementById('cf-submit-btn').textContent = 'Upload & Publish';
+    document.getElementById('cf-file').setAttribute('required', 'required');
+    toggleModal('course', true);
+};
+
+window.confirmDeleteCourse = (key) => {
+    const c = window.coursesMap[key];
+    showConfirm(
+        'Delete Course?',
+        `Are you sure you want to delete "${c?.title}"? This cannot be undone.`,
+        async () => {
+            showLoader(true, 'Deleting course…');
+            await remove(ref(db, `courses/${key}`));
             showLoader(false);
-        });
+            showToast('Course deleted successfully');
+        }
+    );
+};
 
-        // Fetch Revenue & Stats
-        onValue(ref(db, 'stats/revenue'), (snapshot) => {
-            const rev = snapshot.val() || 0;
-            document.getElementById('stat-revenue').innerText = `R ${rev.toLocaleString()}`;
-        });
+document.getElementById('course-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const file  = document.getElementById('cf-file').files[0];
+    const isEdit = !!window.courseEditKey;
+    if (!isEdit && !file) { showToast('Please select a thumbnail image', 'error'); return; }
+    showLoader(true, isEdit ? 'Saving course…' : 'Uploading & publishing…');
 
-        onValue(ref(db, 'learners'), (snapshot) => {
-            const count = snapshot.val() ? Object.keys(snapshot.val()).length : 0;
-            document.getElementById('stat-learners').innerText = count;
-        });
+    let thumbnailUrl = isEdit ? (window.coursesMap[window.courseEditKey]?.thumbnail || '') : '';
+    if (file) {
+        try {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', UPLOAD_PRESET);
+            const res  = await fetch(CLOUDINARY_URL, { method:'POST', body:fd });
+            const cloud = await res.json();
+            thumbnailUrl = cloud.secure_url;
+        } catch { showToast('Image upload failed', 'error'); showLoader(false); return; }
+    }
 
-        // Form Handling
-        document.getElementById('teacher-form').onsubmit = async (e) => {
-            e.preventDefault();
-            showLoader(true);
-            const newTeacher = {
-                name: document.getElementById('teacher-name').value,
-                dept: document.getElementById('teacher-dept').value,
-                joinedAt: new Date().toISOString()
-            };
-            try {
-                await push(ref(db, 'teachers'), newTeacher);
-                toggleModal('teacher', false);
-            } catch (err) { console.error(err); }
-            showLoader(false);
-        };
+    const data = {
+        title:    document.getElementById('cf-title').value.trim(),
+        price:    parseFloat(document.getElementById('cf-price').value),
+        duration: document.getElementById('cf-duration').value.trim(),
+        thumbnail: thumbnailUrl,
+    };
 
-        window.onload = () => lucide.createIcons();
-    </script>
+    if (isEdit) {
+        await update(ref(db, `courses/${window.courseEditKey}`), data);
+        showToast('Course updated!');
+    } else {
+        data.createdAt = Date.now();
+        await set(push(ref(db, 'courses')), data);
+        showToast('Course published!');
+    }
+
+    toggleModal('course', false);
+    document.getElementById('course-form').reset();
+    window.courseEditKey = null;
+    showLoader(false);
+};
+
+// ─── Render: Learners ────────────────────────────────────
+function renderLearnerTable() {
+    const query  = (document.getElementById('learner-search')?.value || '').toLowerCase();
+    const tbody  = document.getElementById('learner-tbody');
+    const entries = Object.entries(window.learnersMap);
+
+    const filtered = entries.filter(([, l]) => {
+        const matchStatus = statusFilter === 'all'
+            || (statusFilter === 'active'    && l.status !== 'SUSPENDED')
+            || (statusFilter === 'suspended' && l.status === 'SUSPENDED');
+        const matchQuery  = !query
+            || (l.name  || '').toLowerCase().includes(query)
+            || (l.email || '').toLowerCase().includes(query)
+            || (l.id    || '').toLowerCase().includes(query);
+        return matchStatus && matchQuery;
+    });
+
+    if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-7 py-14 text-center text-gray-400">
+            <div class="text-4xl mb-3">🔍</div>No learners found.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(([key, l]) => {
+        const sc = l.status === 'SUSPENDED' ? 'badge-suspended' : 'badge-active';
+        const dur = window.coursesByTitle[l.assignedCourse]?.duration || '—';
+        return `<tr class="trow cursor-pointer text-sm" onclick="viewLearnerProfile('${key}')">
+            <td class="px-7 py-5 mono text-indigo-600 text-xs">${l.id || '—'}</td>
+            <td class="px-7 py-5 font-medium text-gray-900">${l.name}</td>
+            <td class="px-7 py-5 text-gray-500">${l.email}</td>
+            <td class="px-7 py-5 text-gray-700">${l.assignedCourse || '—'}</td>
+            <td class="px-7 py-5 text-gray-500 flex items-center gap-1">
+                ${dur !== '—' ? `<svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>` : ''}
+                ${dur}
+            </td>
+            <td class="px-7 py-5">
+                <span class="${sc} text-xs font-bold px-3.5 py-1.5 rounded-full">${l.status || 'ACTIVE'}</span>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+window.filterLearnerTable = renderLearnerTable;
+
+window.setStatusFilter = (s) => {
+    statusFilter = s;
+    document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+    document.getElementById(`ftab-${s}`)?.classList.add('active');
+    renderLearnerTable();
+};
+
+// ─── Learner Profile ─────────────────────────────────────
+window.viewLearnerProfile = (key) => {
+    const l = window.learnersMap[key];
+    if (!l) return;
+    window.currentLearnerKey = key;
+    const course = window.coursesByTitle[l.assignedCourse];
+
+    document.getElementById('det-name').textContent     = l.name;
+    document.getElementById('det-id').textContent       = l.id || '—';
+    document.getElementById('det-email').textContent    = l.email;
+    document.getElementById('det-course').textContent   = l.assignedCourse || 'None';
+    document.getElementById('det-dob').textContent      = l.dob || '—';
+    document.getElementById('det-gender').textContent   = l.gender || '—';
+    document.getElementById('det-duration').textContent = course?.duration || '—';
+    document.getElementById('det-enrolled').textContent = l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA') : '—';
+
+    const badge = document.getElementById('det-status-badge');
+    badge.textContent  = l.status || 'ACTIVE';
+    badge.className    = `inline-block px-5 py-1.5 rounded-full text-sm font-semibold ${l.status === 'SUSPENDED' ? 'badge-suspended' : 'badge-active'}`;
+
+    document.getElementById('btn-suspend-learner').textContent = l.status === 'SUSPENDED' ? 'Unsuspend' : 'Suspend';
+    toggleModal('learner-detail', true);
+};
+
+window.openLearnerForm = (editMode = false) => {
+    document.getElementById('learner-form').reset();
+    document.getElementById('learner-edit-key').value = '';
+    document.getElementById('course-dur-info').classList.add('hidden');
+
+    if (editMode && window.currentLearnerKey) {
+        const l = window.learnersMap[window.currentLearnerKey];
+        document.getElementById('learner-form-title').textContent = 'Edit Learner';
+        document.getElementById('learner-edit-key').value = window.currentLearnerKey;
+        document.getElementById('f-name').value   = l.name;
+        document.getElementById('f-email').value  = l.email;
+        document.getElementById('f-dob').value    = l.dob || '';
+        document.getElementById('f-gender').value = l.gender || 'Male';
+        setTimeout(() => {
+            document.getElementById('f-course').value = l.assignedCourse || 'None';
+            onCourseSelectChange();
+        }, 50);
+    } else {
+        document.getElementById('learner-form-title').textContent = 'Add New Learner';
+    }
+    toggleModal('learner-detail', false);
+    toggleModal('learner', true);
+};
+
+window.onCourseSelectChange = () => {
+    const sel   = document.getElementById('f-course').value;
+    const course = window.coursesByTitle[sel];
+    const info  = document.getElementById('course-dur-info');
+    const text  = document.getElementById('course-dur-text');
+    if (course && course.duration) {
+        text.textContent = `Course duration: ${course.duration}`;
+        info.classList.remove('hidden');
+    } else {
+        info.classList.add('hidden');
+    }
+};
+
+function populateCourseSelect() {
+    const sel = document.getElementById('f-course');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="None">No Course Assigned</option>';
+    Object.values(window.coursesMap).forEach(c => {
+        sel.innerHTML += `<option value="${c.title}">${c.title}${c.duration ? ' · ' + c.duration : ''}</option>`;
+    });
+    if (cur) sel.value = cur;
+}
+
+document.getElementById('btn-suspend-learner').onclick = async () => {
+    showLoader(true, 'Updating status…');
+    const l = window.learnersMap[window.currentLearnerKey];
+    const ns = l.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
+    await update(ref(db, `learners/${window.currentLearnerKey}`), { status: ns });
+    showLoader(false);
+    showToast(`Learner ${ns === 'ACTIVE' ? 'unsuspended' : 'suspended'}`);
+    viewLearnerProfile(window.currentLearnerKey);
+};
+
+document.getElementById('btn-delete-learner').onclick = () => {
+    toggleModal('learner-detail', false);
+    showConfirm('Delete Learner?', 'This will permanently remove the learner from the system.', async () => {
+        showLoader(true, 'Removing learner…');
+        await remove(ref(db, `learners/${window.currentLearnerKey}`));
+        showLoader(false);
+        showToast('Learner removed');
+    });
+};
+
+document.getElementById('learner-form').onsubmit = async (e) => {
+    e.preventDefault();
+    showLoader(true, 'Saving learner…');
+    const key = document.getElementById('learner-edit-key').value;
+    const data = {
+        name:          document.getElementById('f-name').value.trim(),
+        email:         document.getElementById('f-email').value.trim(),
+        dob:           document.getElementById('f-dob').value,
+        gender:        document.getElementById('f-gender').value,
+        assignedCourse: document.getElementById('f-course').value,
+        status:        'ACTIVE',
+    };
+    if (key) {
+        await update(ref(db, `learners/${key}`), data);
+        showToast('Learner updated!');
+    } else {
+        data.id        = `RG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+        data.createdAt = Date.now();
+        await set(push(ref(db, 'learners')), data);
+        showToast('Learner added!');
+    }
+    toggleModal('learner', false);
+    showLoader(false);
+};
+
+// ─── Recent Enrollments ──────────────────────────────────
+function renderRecentEnrollments() {
+    const el  = document.getElementById('recent-list');
+    const sorted = Object.entries(window.learnersMap)
+        .sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0))
+        .slice(0, 6);
+
+    if (!sorted.length) {
+        el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No enrollments yet.</p>`;
+        return;
+    }
+
+    const avatarColors = ['bg-indigo-100 text-indigo-600','bg-emerald-100 text-emerald-600','bg-amber-100 text-amber-700','bg-violet-100 text-violet-600','bg-rose-100 text-rose-600'];
+    el.innerHTML = sorted.map(([,l], i) => {
+        const initials = l.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+        const color    = avatarColors[i % avatarColors.length];
+        const date     = l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) : 'Just now';
+        return `<div class="flex items-center gap-4 group">
+            <div class="w-10 h-10 rounded-2xl ${color} flex items-center justify-center text-xs font-bold flex-shrink-0">${initials}</div>
+            <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-900 text-sm truncate">${l.name}</p>
+                <p class="text-xs text-gray-400 truncate">${l.assignedCourse || 'General'}</p>
+            </div>
+            <span class="text-xs text-gray-400 flex-shrink-0">${date}</span>
+        </div>`;
+    }).join('');
+}
+
+// ─── Announcements ───────────────────────────────────────
+function renderAnnouncements() {
+    const el = document.getElementById('ann-list');
+    const entries = Object.entries(window.announcementsMap).sort((a,b) => (b[1].createdAt||0)-(a[1].createdAt||0));
+
+    if (!entries.length) {
+        el.innerHTML = `<div class="text-center py-20 text-gray-400">
+            <div class="text-6xl mb-4">📣</div><p class="font-medium">No announcements yet.</p></div>`;
+        return;
+    }
+
+    const pColors = { high:'bg-red-100 text-red-700', normal:'bg-indigo-100 text-indigo-700', low:'bg-slate-100 text-slate-600' };
+    el.innerHTML = entries.map(([key, a]) => `
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 ann-${a.priority || 'normal'}">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h4 class="font-semibold text-gray-900">${a.title}</h4>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${pColors[a.priority]||pColors.normal}">${a.priority||'normal'}</span>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">${a.body}</p>
+                    <p class="text-xs text-gray-400 mt-3">${a.createdAt ? new Date(a.createdAt).toLocaleString('en-ZA') : ''}</p>
+                </div>
+                <button onclick="deleteAnnouncement('${key}')" class="flex-shrink-0 w-8 h-8 rounded-xl hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.deleteAnnouncement = (key) => {
+    showConfirm('Delete Announcement?', 'This notice will be removed permanently.', async () => {
+        await remove(ref(db, `announcements/${key}`));
+        showToast('Announcement removed');
+    });
+};
+
+document.getElementById('announcement-form').onsubmit = async (e) => {
+    e.preventDefault();
+    showLoader(true, 'Posting announcement…');
+    await set(push(ref(db, 'announcements')), {
+        title:     document.getElementById('af-title').value.trim(),
+        body:      document.getElementById('af-body').value.trim(),
+        priority:  document.getElementById('af-priority').value,
+        createdAt: Date.now(),
+    });
+    toggleModal('announcement', false);
+    document.getElementById('announcement-form').reset();
+    showLoader(false);
+    showToast('Announcement posted!');
+};
+
+// ─── Analytics ───────────────────────────────────────────
+function renderAnalytics() {
+    const learners = Object.values(window.learnersMap);
+    const total    = learners.length || 1;
+    const active   = learners.filter(l => l.status !== 'SUSPENDED').length;
+    const suspended = total - active - 1 < 0 ? 0 : total - active;
+
+    let male=0, female=0, other=0;
+    const courseEnrollment = {}, courseRevenue = {};
+
+    learners.forEach(l => {
+        if (l.gender === 'Male') male++;
+        else if (l.gender === 'Female') female++;
+        else other++;
+
+        const title = l.assignedCourse || 'Unassigned';
+        courseEnrollment[title] = (courseEnrollment[title] || 0) + 1;
+        const c = window.coursesByTitle[title];
+        if (c?.price) courseRevenue[title] = (courseRevenue[title] || 0) + parseFloat(c.price);
+    });
+
+    function barHtml(label, count, tot, color) {
+        const pct = tot > 0 ? Math.round(count / tot * 100) : 0;
+        return `<div class="mb-4">
+            <div class="flex justify-between text-xs mb-1.5"><span class="text-gray-600 font-medium">${label}</span><span class="text-gray-900 font-semibold">${count} <span class="text-gray-400 font-normal">(${pct}%)</span></span></div>
+            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${color} rounded-full cbar" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+
+    // Status
+    document.getElementById('chart-status').innerHTML =
+        barHtml('Active', active, learners.length||1, 'bg-emerald-500') +
+        barHtml('Suspended', learners.length - active, learners.length||1, 'bg-red-400');
+
+    // Gender
+    document.getElementById('chart-gender').innerHTML =
+        barHtml('Male',   male,   learners.length||1, 'bg-blue-500') +
+        barHtml('Female', female, learners.length||1, 'bg-pink-400') +
+        barHtml('Other',  other,  learners.length||1, 'bg-violet-400');
+
+    // Revenue by course (horizontal bars)
+    const maxRev = Math.max(...Object.values(courseRevenue), 1);
+    document.getElementById('chart-revenue').innerHTML = Object.entries(courseRevenue).length
+        ? Object.entries(courseRevenue).sort((a,b)=>b[1]-a[1]).map(([title, rev]) => `
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-28 text-xs text-gray-500 truncate text-right flex-shrink-0" title="${title}">${title}</div>
+                <div class="flex-1 h-8 bg-slate-100 rounded-xl overflow-hidden">
+                    <div class="h-full bg-amber-400 rounded-xl cbar flex items-center justify-end pr-3" style="width:${Math.max(20,Math.round(rev/maxRev*100))}%">
+                        <span class="text-white text-xs font-semibold">R ${rev.toLocaleString('en-ZA')}</span>
+                    </div>
+                </div>
+            </div>`).join('')
+        : `<p class="text-gray-400 text-sm py-4">No revenue data yet.</p>`;
+
+    // Enrollment by course
+    const maxEnr = Math.max(...Object.values(courseEnrollment), 1);
+    document.getElementById('chart-enrollment').innerHTML = Object.entries(courseEnrollment).length
+        ? Object.entries(courseEnrollment).sort((a,b)=>b[1]-a[1]).map(([title, count]) => `
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-28 text-xs text-gray-500 truncate text-right flex-shrink-0" title="${title}">${title}</div>
+                <div class="flex-1 h-8 bg-slate-100 rounded-xl overflow-hidden">
+                    <div class="h-full bg-indigo-500 rounded-xl cbar flex items-center justify-end pr-3" style="width:${Math.max(20,Math.round(count/maxEnr*100))}%">
+                        <span class="text-white text-xs font-semibold">${count}</span>
+                    </div>
+                </div>
+            </div>`).join('')
+        : `<p class="text-gray-400 text-sm py-4">No enrollment data yet.</p>`;
+
+    // Key metrics
+    const totalRevenue = Object.values(courseRevenue).reduce((a,b) => a+b, 0);
+    const avgPrice = Object.values(window.coursesMap).reduce((a,c) => a + parseFloat(c.price||0), 0) / (Object.keys(window.coursesMap).length || 1);
+    document.getElementById('chart-metrics').innerHTML = [
+        { label:'Total Learners', val: learners.length, color:'text-emerald-600' },
+        { label:'Active Learners', val: active, color:'text-indigo-600' },
+        { label:'Total Revenue', val:`R ${totalRevenue.toLocaleString('en-ZA')}`, color:'text-amber-600' },
+        { label:'Avg Course Price', val:`R ${Math.round(avgPrice).toLocaleString('en-ZA')}`, color:'text-violet-600' },
+        { label:'Total Courses', val: Object.keys(window.coursesMap).length, color:'text-blue-600' },
+    ].map(m => `<div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+        <span class="text-sm text-gray-500">${m.label}</span>
+        <span class="font-bold ${m.color}">${m.val}</span>
+    </div>`).join('');
+}
+
+// ─── CSV Export ──────────────────────────────────────────
+window.exportCSV = () => {
+    const headers = ['Student ID','Full Name','Email','Date of Birth','Gender','Assigned Course','Course Duration','Status','Enrolled Date'];
+    const rows = Object.values(window.learnersMap).map(l => {
+        const dur = window.coursesByTitle[l.assignedCourse]?.duration || '';
+        return [
+            l.id || '', l.name, l.email, l.dob || '', l.gender || '',
+            l.assignedCourse || '', dur, l.status || 'ACTIVE',
+            l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA') : ''
+        ].map(v => `"${String(v).replace(/"/g,'""')}"`);
+    });
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = `rare-grade-learners-${Date.now()}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Exported successfully!');
+};
+
+// ─── Global Search ───────────────────────────────────────
+window.globalSearch = () => {
+    const q = document.getElementById('global-search').value.toLowerCase().trim();
+    if (!q) return;
+    // Navigate to learners and apply search
+    nav('learners');
+    document.getElementById('learner-search').value = q;
+    renderLearnerTable();
+};
+
+// ─── Init ────────────────────────────────────────────────
+nav('dashboard');
+</script>
 </body>
 </html>
