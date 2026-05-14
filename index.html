@@ -8,23 +8,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         .hidden-section { display: none; }
 
-        /* Smooth Sidebar Transition */
+        /* Smoother Sidebar */
         .sidebar-transition {
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .glass {
+        /* Enhanced Overlay Spinner */
+        #global-loader {
             background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
         }
 
         .loader {
-            border-top-color: #6366f1;
-            animation: spinner 0.7s linear infinite;
+            border-top-color: #4f46e5;
+            animation: spinner 0.6s linear infinite;
         }
         @keyframes spinner { 
             0% { transform: rotate(0deg); } 
@@ -34,388 +35,252 @@
         .nav-btn.active {
             background: #4f46e5;
             color: white;
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.3);
         }
 
-        .progress-bar {
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Table Responsiveness */
+        .table-container {
+            overflow-x: auto;
+            max-width: 100%;
         }
     </style>
-<base target="_blank">
 </head>
-<body class="bg-[#f8fafc] flex min-h-screen text-slate-900">
+<body class="bg-[#f8fafc] flex min-h-screen text-slate-800">
+
+    <div id="global-loader" class="fixed inset-0 hidden items-center justify-center flex-col">
+        <div class="loader rounded-full border-4 border-slate-200 h-12 w-12 mb-3"></div>
+        <p id="loader-text" class="text-indigo-600 font-bold text-sm tracking-tight">Processing...</p>
+    </div>
 
     <div id="mobile-warning" class="hidden fixed inset-0 bg-slate-950 z-[999] flex items-center justify-center p-8 text-center">
         <div class="max-w-sm">
-            <div class="w-20 h-20 bg-indigo-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <i data-lucide="monitor" class="w-10 h-10 text-indigo-400"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-white mb-4">Desktop Access Only</h2>
-            <p class="text-slate-400 leading-relaxed">The Rare Grade Admin Portal is optimized for high-density displays. Please switch to a computer to manage your learners.</p>
+            <h2 class="text-xl font-bold text-white mb-2">Desktop Access Only</h2>
+            <p class="text-slate-400 text-sm">Please switch to a computer to manage the Rare Grade system.</p>
         </div>
     </div>
 
-    <aside id="sidebar" 
-           class="sidebar-transition group w-20 hover:w-72 bg-slate-950 h-screen fixed left-0 top-0 text-white flex flex-col z-50 overflow-hidden">
-
-        <div class="p-6 mb-4 flex items-center gap-x-4">
-            <div class="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0">
-                <i data-lucide="layers" class="w-6 h-6"></i>
+    <aside id="sidebar" class="sidebar-transition group w-16 hover:w-64 bg-slate-950 h-screen fixed left-0 top-0 text-white flex flex-col z-50 overflow-hidden">
+        <div class="p-4 mb-4 flex items-center gap-x-3">
+            <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i data-lucide="layers" class="w-5 h-5 text-white"></i>
             </div>
-            <span class="font-bold text-xl tracking-tight opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Rare Grade</span>
+            <span class="font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity">Rare Grade</span>
         </div>
 
-        <nav class="flex-1 px-3 space-y-2">
-            <button onclick="nav('dashboard')" id="nav-dashboard" class="nav-btn active w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl transition-all">
-                <i data-lucide="layout-dashboard" class="w-6 h-6 flex-shrink-0"></i>
-                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Dashboard</span>
+        <nav class="flex-1 px-2 space-y-1">
+            <button onclick="nav('dashboard')" id="nav-dashboard" class="nav-btn active w-full flex items-center gap-x-4 px-3 py-3 rounded-xl transition-all">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
+                <span class="opacity-0 group-hover:opacity-100 font-medium text-sm">Dashboard</span>
             </button>
-
-            <button onclick="nav('courses')" id="nav-courses" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
-                <i data-lucide="book-open" class="w-6 h-6 flex-shrink-0"></i>
-                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Courses</span>
+            <button onclick="nav('courses')" id="nav-courses" class="nav-btn w-full flex items-center gap-x-4 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-900 transition-all">
+                <i data-lucide="book-open" class="w-5 h-5 flex-shrink-0"></i>
+                <span class="opacity-0 group-hover:opacity-100 font-medium text-sm">Courses</span>
             </button>
-
-            <button onclick="nav('teachers')" id="nav-teachers" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
-                <i data-lucide="graduation-cap" class="w-6 h-6 flex-shrink-0"></i>
-                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Teachers</span>
+            <button onclick="nav('teachers')" id="nav-teachers" class="nav-btn w-full flex items-center gap-x-4 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-900 transition-all">
+                <i data-lucide="graduation-cap" class="w-5 h-5 flex-shrink-0"></i>
+                <span class="opacity-0 group-hover:opacity-100 font-medium text-sm">Teachers</span>
             </button>
-
-            <button onclick="nav('learners')" id="nav-learners" class="nav-btn w-full flex items-center gap-x-4 px-4 py-4 rounded-2xl text-slate-400 hover:bg-slate-900 transition-all">
-                <i data-lucide="users" class="w-6 h-6 flex-shrink-0"></i>
-                <span class="opacity-0 group-hover:opacity-100 font-medium whitespace-nowrap">Learners</span>
+            <button onclick="nav('learners')" id="nav-learners" class="nav-btn w-full flex items-center gap-x-4 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-900 transition-all">
+                <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
+                <span class="opacity-0 group-hover:opacity-100 font-medium text-sm">Learners</span>
             </button>
         </nav>
 
-        <div class="p-6 border-t border-slate-800">
-            <div class="flex items-center gap-x-4">
-                <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
-                </div>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-x-3">
+                <div class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0 text-xs">K</div>
                 <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    <p class="font-semibold text-sm">Katlego</p>
-                    <p class="text-xs text-slate-500">Administrator</p>
+                    <p class="font-semibold text-xs">Katlego</p>
+                    <p class="text-[10px] text-slate-500 uppercase">Admin</p>
                 </div>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 ml-20 transition-all">
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-6 flex items-center justify-between sticky top-0 z-40">
+    <main class="flex-1 ml-16 transition-all">
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
             <div>
-                <h1 id="page-title" class="text-2xl font-bold text-slate-900">Dashboard</h1>
-                <p class="text-sm text-slate-500">Welcome back, Katlego.</p>
+                <h1 id="page-title" class="text-xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+                <p class="text-xs text-slate-500">System Overview</p>
             </div>
-
             <div class="flex items-center gap-x-4">
-                <div class="text-right mr-4 hidden md:block">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Local Time</p>
-                    <p id="local-clock" class="text-sm font-medium text-slate-700">Pretoria, ZA</p>
-                </div>
-                <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
+                <div id="local-clock" class="text-right text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Pretoria, ZA</div>
+                <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 cursor-pointer">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
                 </div>
             </div>
         </header>
 
-        <div class="p-8">
+        <div class="p-6 max-w-[1600px] mx-auto">
             <section id="section-dashboard">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                                <i data-lucide="users" class="w-6 h-6"></i>
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-sm font-medium">Total Learners</p>
-                        <h3 id="stat-learners" class="text-4xl font-bold mt-1 tracking-tight">0</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1">Total Learners</p>
+                        <h3 id="stat-learners" class="text-2xl font-bold tracking-tight">0</h3>
                     </div>
-
-                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center">
-                                <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-sm font-medium">Total Teachers</p>
-                        <h3 id="stat-teachers" class="text-4xl font-bold mt-1 tracking-tight text-violet-600">0</h3>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1 text-violet-500">Total Teachers</p>
+                        <h3 id="stat-teachers" class="text-2xl font-bold tracking-tight text-violet-600">0</h3>
                     </div>
-
-                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
-                                <i data-lucide="book" class="w-6 h-6"></i>
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-sm font-medium">Active Courses</p>
-                        <h3 id="stat-courses" class="text-4xl font-bold mt-1 tracking-tight text-indigo-600">0</h3>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1 text-indigo-500">Active Courses</p>
+                        <h3 id="stat-courses" class="text-2xl font-bold tracking-tight text-indigo-600">0</h3>
                     </div>
-
-                    <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
-                                <i data-lucide="wallet" class="w-6 h-6"></i>
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-sm font-medium">Projected Revenue</p>
-                        <h3 id="stat-revenue" class="text-4xl font-bold mt-1 tracking-tight">R 0</h3>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1 text-emerald-500">Revenue</p>
+                        <h3 id="stat-revenue" class="text-2xl font-bold tracking-tight">R 0</h3>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-                    <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden lg:col-span-2">
-                        <div class="p-8 border-b border-slate-50 flex justify-between items-center">
-                            <h3 class="font-bold text-lg">Recent Enrollment Stream</h3>
-                            <i data-lucide="refresh-cw" class="w-5 h-5 text-slate-300"></i>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden lg:col-span-2">
+                        <div class="p-5 border-b border-slate-50 flex justify-between items-center">
+                            <h3 class="font-bold text-sm">Recent Enrollments</h3>
+                            <button onclick="window.location.reload()"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-300"></i></button>
                         </div>
-                        <div id="recent-enrollments" class="divide-y divide-slate-50">
-                        </div>
+                        <div id="recent-enrollments" class="divide-y divide-slate-50"></div>
                     </div>
 
-                    <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                        <div class="p-8 border-b border-slate-50">
-                            <h3 class="font-bold text-lg">Progress Overview</h3>
-                            <p class="text-sm text-slate-500 mt-1">Average completion across all learners</p>
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="p-5 border-b border-slate-50">
+                            <h3 class="font-bold text-sm">Progress Overview</h3>
                         </div>
-                        <div class="p-8">
+                        <div class="p-6">
                             <div class="flex items-center justify-center mb-6">
-                                <div class="relative w-32 h-32">
+                                <div class="relative w-24 h-24">
                                     <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="45" fill="none" stroke="#f1f5f9" stroke-width="8"/>
                                         <circle id="avg-progress-circle" cx="50" cy="50" r="45" fill="none" stroke="#4f46e5" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="283" stroke-linecap="round" class="transition-all duration-1000"/>
                                     </svg>
                                     <div class="absolute inset-0 flex items-center justify-center">
-                                        <span id="avg-progress-text" class="text-2xl font-bold text-slate-900">0%</span>
+                                        <span id="avg-progress-text" class="text-lg font-bold text-slate-900">0%</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="space-y-4">
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-slate-500">Completed</span>
-                                    <span id="completed-count" class="font-semibold text-emerald-600">0</span>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                                    <span class="text-slate-400">Completed</span>
+                                    <span id="completed-count" class="text-emerald-600">0</span>
                                 </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-slate-500">In Progress</span>
-                                    <span id="inprogress-count" class="font-semibold text-indigo-600">0</span>
-                                </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-slate-500">Not Started</span>
-                                    <span id="notstarted-count" class="font-semibold text-slate-400">0</span>
+                                <div class="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                                    <span class="text-slate-400">In Progress</span>
+                                    <span id="inprogress-count" class="text-indigo-600">0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-
-            <section id="section-teachers" class="hidden-section">
-                <div class="flex justify-between items-end mb-8">
-                    <div>
-                        <h2 class="text-3xl font-bold">Teacher Registry</h2>
-                        <p class="text-slate-500 mt-1">Manage faculty and instructor assignments</p>
-                    </div>
-                    <button onclick="toggleModal('teacher', true)" class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-4 rounded-2xl font-bold flex items-center gap-x-2 shadow-lg shadow-violet-200 transition-all">
-                        <i data-lucide="plus" class="w-5 h-5"></i>
-                        <span>Add Teacher</span>
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                    <div class="p-6 border-b border-slate-50">
-                        <div class="relative max-w-md">
-                            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3.5 text-slate-400"></i>
-                            <input type="text" id="teacher-search" onkeyup="searchTeachers()" placeholder="Filter by name or email..." class="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-violet-500 transition-all outline-none">
-                        </div>
-                    </div>
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50/50 text-[11px] uppercase tracking-widest font-bold text-slate-400">
-                            <tr>
-                                <th class="px-8 py-5">TID</th>
-                                <th class="px-8 py-5">Instructor</th>
-                                <th class="px-8 py-5">Specialization</th>
-                                <th class="px-8 py-5">Assigned Learners</th>
-                                <th class="px-8 py-5 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teacher-table-body" class="divide-y divide-slate-50"></tbody>
-                    </table>
                 </div>
             </section>
 
             <section id="section-learners" class="hidden-section">
-                <div class="flex justify-between items-end mb-8">
-                    <div>
-                        <h2 class="text-3xl font-bold">Learner Registry</h2>
-                        <p class="text-slate-500 mt-1">Direct Firebase Realtime Sync with Progress Tracking</p>
-                    </div>
-                    <button onclick="openLearnerForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-2xl font-bold flex items-center gap-x-2 shadow-lg shadow-indigo-200 transition-all">
-                        <i data-lucide="plus" class="w-5 h-5"></i>
-                        <span>Register Learner</span>
-                    </button>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Learner Registry</h2>
+                    <button onclick="openLearnerForm()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-100">Register Learner</button>
                 </div>
-
-                <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                    <div class="p-6 border-b border-slate-50">
-                        <div class="relative max-w-md">
-                            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3.5 text-slate-400"></i>
-                            <input type="text" id="learner-search" onkeyup="searchLearners()" placeholder="Filter by name, email or teacher..." class="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-indigo-500 transition-all outline-none">
-                        </div>
-                    </div>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden table-container">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50/50 text-[11px] uppercase tracking-widest font-bold text-slate-400">
+                        <thead class="bg-slate-50 text-[10px] uppercase tracking-widest font-bold text-slate-400">
                             <tr>
-                                <th class="px-8 py-5">UID</th>
-                                <th class="px-8 py-5">Student</th>
-                                <th class="px-8 py-5">Teacher</th>
-                                <th class="px-8 py-5">Enrollment</th>
-                                <th class="px-8 py-5">Progress</th>
-                                <th class="px-8 py-5">Status</th>
-                                <th class="px-8 py-5 text-right">Action</th>
+                                <th class="px-6 py-4">UID</th>
+                                <th class="px-6 py-4">Student</th>
+                                <th class="px-6 py-4">Course</th>
+                                <th class="px-6 py-4">Progress</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="learner-table-body" class="divide-y divide-slate-50"></tbody>
+                        <tbody id="learner-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="section-teachers" class="hidden-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Teacher Registry</h2>
+                    <button onclick="toggleModal('teacher', true)" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-violet-100">Add Teacher</button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden table-container">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] uppercase tracking-widest font-bold text-slate-400">
+                            <tr>
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Instructor</th>
+                                <th class="px-6 py-4">Specialization</th>
+                                <th class="px-6 py-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
                     </table>
                 </div>
             </section>
 
             <section id="section-courses" class="hidden-section">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold">Course Catalog</h2>
-                    <button onclick="toggleModal('course', true)" class="bg-slate-900 text-white px-6 py-4 rounded-2xl font-bold flex items-center gap-x-2 transition-all">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                        <span>New Program</span>
-                    </button>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Course Catalog</h2>
+                    <button onclick="toggleModal('course', true)" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold">New Program</button>
                 </div>
-                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6"></div>
             </section>
         </div>
     </main>
 
-    <div id="modal-container" class="fixed inset-0 bg-slate-950/40 backdrop-blur-md hidden items-center justify-center z-[100] p-4">
-        <div id="modal-learner-detail" class="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl hidden overflow-hidden">
-            <div class="bg-indigo-600 p-10 text-white relative">
-                <button onclick="toggleModal('learner-detail', false)" class="absolute top-6 right-6 hover:rotate-90 transition-transform">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-                <div class="flex items-center gap-6">
-                    <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-bold" id="detail-initials"></div>
+    <div id="modal-container" class="fixed inset-0 hidden items-center justify-center bg-slate-950/40 backdrop-blur-sm z-[100] p-4">
+        <div id="modal-learner-detail" class="bg-white w-full max-w-xl rounded-2xl shadow-2xl hidden overflow-hidden">
+            <div class="bg-indigo-600 p-6 text-white flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold" id="detail-initials"></div>
                     <div>
-                        <h3 id="detail-name" class="text-3xl font-bold"></h3>
-                        <p id="detail-id" class="opacity-70 font-mono mt-1 tracking-wider"></p>
+                        <h3 id="detail-name" class="font-bold text-lg"></h3>
+                        <p id="detail-id" class="text-xs opacity-70"></p>
                     </div>
                 </div>
+                <button onclick="toggleModal('learner-detail', false)"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-10 space-y-8">
-                <div class="grid grid-cols-3 gap-8">
-                    <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Email Address</p><p id="detail-email" class="font-semibold"></p></div>
-                    <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Assigned Course</p><p id="detail-course" class="font-semibold text-indigo-600"></p></div>
-                    <div><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Assigned Teacher</p><p id="detail-teacher" class="font-semibold text-violet-600"></p></div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-2 gap-6 text-sm">
+                    <div><p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Email</p><p id="detail-email" class="font-semibold"></p></div>
+                    <div><p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Course</p><p id="detail-course" class="font-semibold text-indigo-600"></p></div>
                 </div>
-
-                <div class="bg-slate-50 rounded-3xl p-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <h4 class="font-bold text-lg">Learning Progress</h4>
-                        <span id="detail-progress-percent" class="text-2xl font-bold text-indigo-600">0%</span>
+                <div class="bg-slate-50 rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-xs">Progress</span>
+                        <span id="detail-progress-percent" class="text-indigo-600 font-bold">0%</span>
                     </div>
-                    <div class="w-full bg-slate-200 rounded-full h-3 mb-6">
-                        <div id="detail-progress-bar" class="bg-indigo-600 h-3 rounded-full progress-bar" style="width: 0%"></div>
-                    </div>
-                    <div id="detail-modules" class="grid grid-cols-2 gap-4">
-                        <!-- Modules populated dynamically -->
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div id="detail-progress-bar" class="bg-indigo-600 h-full transition-all duration-500"></div>
                     </div>
                 </div>
-
-                <div class="flex gap-4">
-                    <button onclick="openLearnerForm(true)" class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold hover:bg-slate-200 transition-colors text-slate-700">Edit Profile</button>
-                    <button id="btn-suspend" class="flex-1 py-4 border-2 border-amber-100 text-amber-600 rounded-2xl font-bold hover:bg-amber-50 transition-colors">Suspend</button>
-                    <button id="btn-delete" class="px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl hover:bg-rose-100 transition-colors"><i data-lucide="trash-2"></i></button>
+                <div class="flex gap-3">
+                    <button onclick="openLearnerForm(true)" class="flex-1 py-2.5 bg-slate-100 rounded-xl text-sm font-bold">Edit</button>
+                    <button id="btn-suspend" class="flex-1 py-2.5 border border-amber-200 text-amber-600 rounded-xl text-sm font-bold">Suspend</button>
+                    <button id="btn-delete" class="px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl"><i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i></button>
                 </div>
             </div>
         </div>
 
-        <div id="modal-learner" class="bg-white w-full max-w-lg rounded-[40px] shadow-2xl hidden p-10">
-            <h3 id="learner-form-title" class="text-2xl font-bold mb-8">Register Student</h3>
-            <form id="learner-form" class="space-y-6">
+        <div id="modal-learner" class="bg-white w-full max-w-md rounded-2xl shadow-2xl hidden p-6">
+            <h3 id="learner-form-title" class="text-lg font-bold mb-4 text-slate-900">Register Student</h3>
+            <form id="learner-form" class="space-y-4">
                 <input type="hidden" id="learner-edit-key">
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Full Name</label>
-                    <input type="text" id="learner-name" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Full Name</label>
+                    <input type="text" id="learner-name" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Email</label>
-                        <input type="email" id="learner-email" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Email</label>
+                        <input type="email" id="learner-email" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm outline-none">
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Course</label>
-                        <select id="learner-course-select" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"></select>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Course</label>
+                        <select id="learner-course-select" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm outline-none"></select>
                     </div>
                 </div>
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Assigned Teacher</label>
-                    <select id="learner-teacher-select" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                        <option value="None">None</option>
-                    </select>
-                </div>
-                <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="toggleModal('learner', false)" class="flex-1 py-4 text-slate-500 font-bold">Cancel</button>
-                    <button type="submit" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100">Save Learner</button>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="toggleModal('learner', false)" class="flex-1 text-sm font-bold text-slate-500">Cancel</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl text-sm font-bold">Save Learner</button>
                 </div>
             </form>
-        </div>
-
-        <div id="modal-teacher" class="bg-white w-full max-w-lg rounded-[40px] shadow-2xl hidden p-10">
-            <h3 id="teacher-form-title" class="text-2xl font-bold mb-8">Add Teacher</h3>
-            <form id="teacher-form" class="space-y-6">
-                <input type="hidden" id="teacher-edit-key">
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Full Name</label>
-                    <input type="text" id="teacher-name" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-violet-500 outline-none transition-all">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Email</label>
-                        <input type="email" id="teacher-email" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-violet-500 outline-none transition-all">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Specialization</label>
-                        <input type="text" id="teacher-specialization" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-violet-500 outline-none transition-all">
-                    </div>
-                </div>
-                <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="toggleModal('teacher', false)" class="flex-1 py-4 text-slate-500 font-bold">Cancel</button>
-                    <button type="submit" class="flex-1 py-4 bg-violet-600 text-white rounded-2xl font-bold shadow-lg shadow-violet-100">Save Teacher</button>
-                </div>
-            </form>
-        </div>
-
-        <div id="modal-course" class="bg-white w-full max-w-md rounded-[40px] shadow-2xl hidden p-10">
-            <h3 class="text-2xl font-bold mb-8">Create New Course</h3>
-            <form id="add-course-form" class="space-y-6">
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Course Title</label>
-                    <input type="text" id="course-title" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Price (ZAR)</label>
-                    <input type="number" id="course-price" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2">Thumbnail</label>
-                    <input type="file" id="course-file" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:bg-indigo-50 file:text-indigo-700">
-                </div>
-                <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="toggleModal('course', false)" class="flex-1 py-4 text-slate-500 font-bold">Discard</button>
-                    <button type="submit" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold">Publish</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="global-loader" class="fixed inset-0 bg-white/80 backdrop-blur-xl hidden items-center justify-center z-[200]">
-        <div class="flex flex-col items-center">
-            <div class="loader rounded-full border-4 border-t-4 border-slate-100 h-12 w-12 mb-4"></div>
-            <p id="loader-text" class="text-slate-900 font-bold tracking-tight">Syncing Data...</p>
         </div>
     </div>
 
@@ -436,39 +301,31 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // State Maps
         window.learnersMap = {};
         window.coursesMap = {};
         window.teachersMap = {};
         window.progressMap = {};
-        window.currentActionKey = null;
-        window.currentTeacherKey = null;
 
-        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
-        const UPLOAD_PRESET = "banter_box";
-
-        const loader = (show, text = "Syncing Data...") => {
+        // Overlay Spinner Control
+        const showLoader = (show, text = "Syncing...") => {
             const l = document.getElementById('global-loader');
-            document.getElementById('loader-text').innerText = text;
+            const t = document.getElementById('loader-text');
+            t.innerText = text;
             l.classList.toggle('hidden', !show);
             l.classList.toggle('flex', show);
         };
 
-        const checkDevice = () => {
-            if (window.innerWidth < 1024) {
-                document.getElementById('mobile-warning').classList.remove('hidden');
-            } else {
-                document.getElementById('mobile-warning').classList.add('hidden');
-            }
-        };
-
+        // Navigation
         window.nav = (target) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(`section-${target}`).classList.remove('hidden-section');
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active', 'text-white', 'bg-indigo-600'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`nav-${target}`).classList.add('active');
-            document.getElementById('page-title').textContent = target.charAt(0).toUpperCase() + target.slice(1);
+            document.getElementById('page-title').innerText = target.charAt(0).toUpperCase() + target.slice(1);
         };
 
+        // Modal Utility
         window.toggleModal = (type, show) => {
             const container = document.getElementById('modal-container');
             container.classList.toggle('hidden', !show);
@@ -477,379 +334,103 @@
             if (show) document.getElementById(`modal-${type}`).classList.remove('hidden');
         };
 
-        // Real-time Teachers Sync
-        onValue(ref(db, 'teachers'), (snapshot) => {
-            const data = snapshot.val() || {};
-            window.teachersMap = data;
-            const table = document.getElementById('teacher-table-body');
-            const teacherSelect = document.getElementById('learner-teacher-select');
-
-            table.innerHTML = '';
-            teacherSelect.innerHTML = '<option value="None">None</option>';
-
-            Object.entries(data).forEach(([key, t]) => {
-                const assignedCount = Object.values(window.learnersMap).filter(l => l.assignedTeacher === t.name).length;
-
-                table.innerHTML += `
-                <tr onclick="viewTeacherProfile('${key}')" class="cursor-pointer hover:bg-slate-50 transition-colors">
-                    <td class="px-8 py-6 font-mono text-[10px] text-violet-400">${t.id || 'N/A'}</td>
-                    <td class="px-8 py-6">
-                        <div class="font-bold">${t.name}</div>
-                        <div class="text-xs text-slate-400">${t.email}</div>
-                    </td>
-                    <td class="px-8 py-6 font-semibold text-slate-600">${t.specialization || '—'}</td>
-                    <td class="px-8 py-6">
-                        <span class="bg-violet-50 text-violet-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">${assignedCount} Learners</span>
-                    </td>
-                    <td class="px-8 py-6 text-right"><i data-lucide="chevron-right" class="inline w-4 h-4 text-slate-300"></i></td>
-                </tr>`;
-
-                teacherSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`;
-            });
-
-            document.getElementById('stat-teachers').textContent = Object.keys(data).length;
-            lucide.createIcons();
-        });
-
-        // Real-time Courses Sync
-        onValue(ref(db, 'courses'), (snapshot) => {
-            const data = snapshot.val() || {};
-            window.coursesMap = data;
-            const grid = document.getElementById('courses-grid');
-            const select = document.getElementById('learner-course-select');
-
-            grid.innerHTML = '';
-            select.innerHTML = '<option value="None">None</option>';
-
-            Object.values(data).forEach(c => {
-                grid.innerHTML += `
-                <div class="bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm group">
-                    <div class="relative h-48 overflow-hidden">
-                        <img src="${c.thumbnail}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    </div>
-                    <div class="p-6">
-                        <h4 class="font-bold text-lg">${c.title}</h4>
-                        <div class="flex justify-between items-center mt-4">
-                            <p class="text-2xl font-bold text-indigo-600">R ${c.price}</p>
-                            <span class="text-xs font-bold bg-slate-50 px-3 py-1 rounded-full text-slate-400">COURSE ID</span>
-                        </div>
-                    </div>
-                </div>`;
-                select.innerHTML += `<option value="${c.title}">${c.title}</option>`;
-            });
-            document.getElementById('stat-courses').textContent = Object.keys(data).length;
-            calculateRevenue();
-        });
-
-        // Real-time Progress Sync
-        onValue(ref(db, 'progress'), (snapshot) => {
-            const data = snapshot.val() || {};
-            window.progressMap = data;
-            updateProgressStats();
-            // Re-render learners if already loaded to show progress
-            if (Object.keys(window.learnersMap).length > 0) {
-                renderLearners();
-            }
-        });
-
-        // Real-time Learners Sync
+        // Real-time Data Listeners
         onValue(ref(db, 'learners'), (snapshot) => {
-            const data = snapshot.val() || {};
-            window.learnersMap = data;
+            window.learnersMap = snapshot.val() || {};
             renderLearners();
-            calculateRevenue();
+            updateStats();
         });
 
+        onValue(ref(db, 'courses'), (snapshot) => {
+            window.coursesMap = snapshot.val() || {};
+            renderCourses();
+        });
+
+        onValue(ref(db, 'teachers'), (snapshot) => {
+            window.teachersMap = snapshot.val() || {};
+            renderTeachers();
+        });
+
+        // Simplified Rendering Functions
         function renderLearners() {
             const table = document.getElementById('learner-table-body');
             const stream = document.getElementById('recent-enrollments');
-
             table.innerHTML = '';
             stream.innerHTML = '';
 
             Object.entries(window.learnersMap).reverse().forEach(([key, l], index) => {
-                const progress = window.progressMap[key];
-                const percent = progress ? (progress.percentage || 0) : 0;
-                const progressColor = percent === 100 ? 'bg-emerald-500' : percent > 50 ? 'bg-indigo-500' : 'bg-amber-500';
-                const statusColor = l.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
-
-                // Table Rendering
                 table.innerHTML += `
-                <tr onclick="viewLearnerProfile('${key}')" class="cursor-pointer hover:bg-slate-50 transition-colors">
-                    <td class="px-8 py-6 font-mono text-[10px] text-indigo-400">${l.id || 'N/A'}</td>
-                    <td class="px-8 py-6">
-                        <div class="font-bold">${l.name}</div>
-                        <div class="text-xs text-slate-400">${l.email}</div>
-                    </td>
-                    <td class="px-8 py-6 font-semibold text-slate-600">${l.assignedTeacher || '—'}</td>
-                    <td class="px-8 py-6 font-semibold text-slate-600">${l.assignedCourse || '—'}</td>
-                    <td class="px-8 py-6">
-                        <div class="flex items-center gap-3">
-                            <div class="w-24 bg-slate-100 rounded-full h-2">
-                                <div class="${progressColor} h-2 rounded-full progress-bar" style="width: ${percent}%"></div>
-                            </div>
-                            <span class="text-xs font-bold text-slate-500">${percent}%</span>
-                        </div>
-                    </td>
-                    <td class="px-8 py-6">
-                        <span class="${statusColor} text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">${l.status || 'ACTIVE'}</span>
-                    </td>
-                    <td class="px-8 py-6 text-right"><i data-lucide="chevron-right" class="inline w-4 h-4 text-slate-300"></i></td>
+                <tr onclick="viewLearnerProfile('${key}')" class="hover:bg-slate-50 cursor-pointer">
+                    <td class="px-6 py-3 font-mono text-[10px] text-indigo-400">${l.id || '...'}</td>
+                    <td class="px-6 py-3 font-bold text-slate-700">${l.name}</td>
+                    <td class="px-6 py-3 text-slate-500">${l.assignedCourse || '—'}</td>
+                    <td class="px-6 py-3"><div class="w-16 bg-slate-100 h-1 rounded-full"><div class="bg-indigo-500 h-1 rounded-full" style="width: 20%"></div></div></td>
+                    <td class="px-6 py-3"><span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${l.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">${l.status}</span></td>
+                    <td class="px-6 py-3 text-right"><i data-lucide="chevron-right" class="w-4 h-4 inline opacity-20"></i></td>
                 </tr>`;
 
-                // Stream Rendering (top 5)
                 if(index < 5) {
-                    stream.innerHTML += `
-                    <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold">
-                                ${l.name.charAt(0)}
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold">${l.name}</p>
-                                <p class="text-xs text-slate-400">${l.assignedCourse || 'No course assigned'}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest block">${l.status || 'Active'}</span>
-                            <span class="text-[10px] text-slate-400">${percent}% complete</span>
-                        </div>
-                    </div>`;
+                    stream.innerHTML += `<div class="p-3 text-xs flex justify-between"><span>${l.name}</span><span class="text-slate-400">${l.assignedCourse}</span></div>`;
                 }
             });
-
-            document.getElementById('stat-learners').textContent = Object.keys(window.learnersMap).length;
             lucide.createIcons();
         }
 
-        function updateProgressStats() {
-            const learners = Object.keys(window.learnersMap);
-            if (learners.length === 0) return;
-
-            let totalPercent = 0;
-            let completed = 0;
-            let inProgress = 0;
-            let notStarted = 0;
-
-            learners.forEach(key => {
-                const p = window.progressMap[key];
-                const percent = p ? (p.percentage || 0) : 0;
-                totalPercent += percent;
-
-                if (percent === 100) completed++;
-                else if (percent > 0) inProgress++;
-                else notStarted++;
+        function renderCourses() {
+            const grid = document.getElementById('courses-grid');
+            const select = document.getElementById('learner-course-select');
+            grid.innerHTML = '';
+            select.innerHTML = '';
+            Object.values(window.coursesMap).forEach(c => {
+                grid.innerHTML += `
+                <div class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
+                    <img src="${c.thumbnail}" class="h-24 w-full object-cover">
+                    <div class="p-4">
+                        <h4 class="font-bold text-sm truncate">${c.title}</h4>
+                        <p class="text-indigo-600 font-bold mt-1 text-sm">R ${c.price}</p>
+                    </div>
+                </div>`;
+                select.innerHTML += `<option value="${c.title}">${c.title}</option>`;
             });
-
-            const avg = Math.round(totalPercent / learners.length);
-            const circumference = 2 * Math.PI * 45; // r=45
-            const offset = circumference - (avg / 100) * circumference;
-
-            document.getElementById('avg-progress-text').textContent = avg + '%';
-            document.getElementById('avg-progress-circle').style.strokeDashoffset = offset;
-            document.getElementById('completed-count').textContent = completed;
-            document.getElementById('inprogress-count').textContent = inProgress;
-            document.getElementById('notstarted-count').textContent = notStarted;
         }
 
-        function calculateRevenue() {
-            let total = 0;
-            const learners = Object.values(window.learnersMap);
-            const courses = Object.values(window.coursesMap);
-
-            learners.forEach(l => {
-                const course = courses.find(c => c.title === l.assignedCourse);
-                if(course) total += parseInt(course.price);
-            });
-            document.getElementById('stat-revenue').textContent = `R ${total.toLocaleString()}`;
-        }
-
-        window.viewLearnerProfile = (key) => {
-            const l = window.learnersMap[key];
-            const progress = window.progressMap[key];
-            window.currentActionKey = key;
-
-            document.getElementById('detail-name').innerText = l.name;
-            document.getElementById('detail-initials').innerText = l.name.charAt(0);
-            document.getElementById('detail-id').innerText = l.id || 'N/A';
-            document.getElementById('detail-email').innerText = l.email;
-            document.getElementById('detail-course').innerText = l.assignedCourse || 'None';
-            document.getElementById('detail-teacher').innerText = l.assignedTeacher || 'None';
-
-            const percent = progress ? (progress.percentage || 0) : 0;
-            document.getElementById('detail-progress-percent').innerText = percent + '%';
-            document.getElementById('detail-progress-bar').style.width = percent + '%';
-
-            const modulesContainer = document.getElementById('detail-modules');
-            modulesContainer.innerHTML = '';
-
-            if (progress && progress.modules) {
-                Object.entries(progress.modules).forEach(([name, mod]) => {
-                    const modPercent = mod.percentage || 0;
-                    const modColor = mod.completed ? 'bg-emerald-500' : 'bg-indigo-500';
-                    modulesContainer.innerHTML += `
-                    <div class="bg-white rounded-2xl p-4 border border-slate-100">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-semibold text-sm">${name}</span>
-                            <span class="text-xs font-bold ${mod.completed ? 'text-emerald-600' : 'text-indigo-600'}">${modPercent}%</span>
-                        </div>
-                        <div class="w-full bg-slate-100 rounded-full h-2">
-                            <div class="${modColor} h-2 rounded-full progress-bar" style="width: ${modPercent}%"></div>
-                        </div>
-                        ${mod.lastAccessed ? `<p class="text-[10px] text-slate-400 mt-2">Last accessed: ${new Date(mod.lastAccessed).toLocaleDateString()}</p>` : ''}
-                    </div>`;
-                });
-            } else {
-                modulesContainer.innerHTML = '<div class="col-span-2 text-center text-slate-400 py-8">No progress data available from learner portal</div>';
-            }
-
-            document.getElementById('btn-suspend').innerText = (l.status === 'ACTIVE') ? 'Suspend Student' : 'Activate Student';
-            toggleModal('learner-detail', true);
-            lucide.createIcons();
-        };
-
-        window.viewTeacherProfile = (key) => {
-            window.currentTeacherKey = key;
-            // For now, just show teacher details in a simple alert or could expand to a detail modal
-            // Since we don't have a teacher detail modal designed, let's open edit form
-            openTeacherForm(true);
-        };
-
-        window.openLearnerForm = (edit = false) => {
-            const form = document.getElementById('learner-form');
-            form.reset();
-            document.getElementById('learner-edit-key').value = edit ? window.currentActionKey : '';
-            document.getElementById('learner-form-title').innerText = edit ? 'Edit Student' : 'Register Student';
-
-            if(edit) {
-                const l = window.learnersMap[window.currentActionKey];
-                document.getElementById('learner-name').value = l.name;
-                document.getElementById('learner-email').value = l.email;
-                document.getElementById('learner-course-select').value = l.assignedCourse;
-                document.getElementById('learner-teacher-select').value = l.assignedTeacher || 'None';
-            }
-            toggleModal('learner-detail', false);
-            toggleModal('learner', true);
-        };
-
-        window.openTeacherForm = (edit = false) => {
-            const form = document.getElementById('teacher-form');
-            form.reset();
-            document.getElementById('teacher-edit-key').value = edit ? window.currentTeacherKey : '';
-            document.getElementById('teacher-form-title').innerText = edit ? 'Edit Teacher' : 'Add Teacher';
-
-            if(edit) {
-                const t = window.teachersMap[window.currentTeacherKey];
-                document.getElementById('teacher-name').value = t.name;
-                document.getElementById('teacher-email').value = t.email;
-                document.getElementById('teacher-specialization').value = t.specialization;
-            }
-            toggleModal('teacher', true);
-        };
-
+        // Logic for Submit (Triggering Loader)
         document.getElementById('learner-form').onsubmit = async (e) => {
             e.preventDefault();
-            loader(true, "Writing to Firebase...");
-            const key = document.getElementById('learner-edit-key').value;
+            showLoader(true, "Saving Learner...");
             const data = {
                 name: document.getElementById('learner-name').value,
                 email: document.getElementById('learner-email').value,
                 assignedCourse: document.getElementById('learner-course-select').value,
-                assignedTeacher: document.getElementById('learner-teacher-select').value,
                 status: 'ACTIVE'
             };
-            if(key) {
-                await update(ref(db, `learners/${key}`), data);
-            } else {
-                data.id = `RG-${Math.floor(1000 + Math.random() * 9000)}`;
-                await set(push(ref(db, 'learners')), data);
-            }
-            toggleModal('learner', false);
-            loader(false);
-        };
-
-        document.getElementById('teacher-form').onsubmit = async (e) => {
-            e.preventDefault();
-            loader(true, "Saving Teacher...");
-            const key = document.getElementById('teacher-edit-key').value;
-            const data = {
-                name: document.getElementById('teacher-name').value,
-                email: document.getElementById('teacher-email').value,
-                specialization: document.getElementById('teacher-specialization').value
-            };
-            if(key) {
-                await update(ref(db, `teachers/${key}`), data);
-            } else {
-                data.id = `TCH-${Math.floor(1000 + Math.random() * 9000)}`;
-                await set(push(ref(db, 'teachers')), data);
-            }
-            toggleModal('teacher', false);
-            loader(false);
-        };
-
-        document.getElementById('add-course-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const file = document.getElementById('course-file').files[0];
-            loader(true, "Uploading Thumbnail...");
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', UPLOAD_PRESET);
-
             try {
-                const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-                const cloud = await res.json();
-                await set(push(ref(db, 'courses')), {
-                    title: document.getElementById('course-title').value,
-                    price: document.getElementById('course-price').value,
-                    thumbnail: cloud.secure_url
-                });
-                toggleModal('course', false);
-                e.target.reset();
-            } catch (err) { alert("Network Error"); }
-            loader(false);
+                await set(push(ref(db, 'learners')), data);
+                toggleModal('learner', false);
+            } catch(e) { alert("Error"); }
+            showLoader(false);
         };
 
-        document.getElementById('btn-suspend').onclick = async () => {
-            const current = window.learnersMap[window.currentActionKey].status;
-            await update(ref(db, `learners/${window.currentActionKey}`), { status: current === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE' });
-            toggleModal('learner-detail', false);
+        function updateStats() {
+            document.getElementById('stat-learners').innerText = Object.keys(window.learnersMap).length;
+            document.getElementById('stat-courses').innerText = Object.keys(window.coursesMap).length;
+        }
+
+        window.viewLearnerProfile = (key) => {
+            const l = window.learnersMap[key];
+            document.getElementById('detail-name').innerText = l.name;
+            document.getElementById('detail-id').innerText = l.id || 'N/A';
+            document.getElementById('detail-email').innerText = l.email;
+            document.getElementById('detail-course').innerText = l.assignedCourse;
+            toggleModal('learner-detail', true);
         };
 
-        document.getElementById('btn-delete').onclick = async () => {
-            if(confirm("Confirm deletion?")) {
-                await remove(ref(db, `learners/${window.currentActionKey}`));
-                toggleModal('learner-detail', false);
-            }
+        window.openLearnerForm = () => {
+            document.getElementById('learner-form').reset();
+            toggleModal('learner', true);
         };
 
-        window.searchLearners = () => {
-            const query = document.getElementById('learner-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#learner-table-body tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        };
-
-        window.searchTeachers = () => {
-            const query = document.getElementById('teacher-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#teacher-table-body tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        };
-
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('local-clock').innerText = now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }) + " Pretoria, ZA";
-        }, 1000);
-
-        window.onload = () => {
-            checkDevice();
-            lucide.createIcons();
-        };
-        window.onresize = checkDevice;
+        window.onload = () => { lucide.createIcons(); };
     </script>
 </body>
 </html>
