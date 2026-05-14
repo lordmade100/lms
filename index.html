@@ -36,6 +36,12 @@
         .course-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
         .course-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.11); }
 
+        /* Teacher / Campus card overlay */
+        .card-actions { opacity:0; transition: opacity 0.25s ease; }
+        .item-card:hover .card-actions { opacity:1; }
+        .item-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .item-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.11); }
+
         /* Table */
         .trow:hover { background:#f8f9ff; }
 
@@ -81,6 +87,17 @@
         .ftab { transition: all 0.2s ease; }
         .ftab.active { background:#4f46e5; color:white; }
 
+        /* Campus badge colours */
+        .campus-pill { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:99px; }
+
+        /* Teacher avatar gradient options */
+        .av-0 { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+        .av-1 { background: linear-gradient(135deg,#10b981,#059669); }
+        .av-2 { background: linear-gradient(135deg,#f59e0b,#d97706); }
+        .av-3 { background: linear-gradient(135deg,#ef4444,#dc2626); }
+        .av-4 { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+        .av-5 { background: linear-gradient(135deg,#ec4899,#db2777); }
+
         /* Mobile block */
         @media (max-width:768px) {
             #mobile-wall { display:flex !important; }
@@ -111,23 +128,33 @@
     <!-- Nav -->
     <nav class="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
         <button onclick="nav('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
             <span class="sb-text font-medium text-sm">Dashboard</span>
         </button>
         <button onclick="nav('courses')" id="nav-courses" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.5 8.5 5 6 5S2.5 5.5 2 6.5V19c.5-1 2.5-1.5 4-1.5s3.5.5 6 1.5M12 6.5C13.5 5.5 15.5 5 18 5s3.5.5 4 1.5V19c-.5-1-2.5-1.5-4-1.5s-4 .5-6 1.5M12 6.5v13"/></svg>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6.5C10.5 5.5 8.5 5 6 5S2.5 5.5 2 6.5V19c.5-1 2.5-1.5 4-1.5s3.5.5 6 1.5M12 6.5C13.5 5.5 15.5 5 18 5s3.5.5 4 1.5V19c-.5-1-2.5-1.5-4-1.5s-4 .5-6 1.5M12 6.5v13"/></svg>
             <span class="sb-text font-medium text-sm">Courses</span>
         </button>
         <button onclick="nav('learners')" id="nav-learners" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
             <span class="sb-text font-medium text-sm">Learners</span>
         </button>
+        <!-- NEW: Teachers -->
+        <button onclick="nav('teachers')" id="nav-teachers" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg>
+            <span class="sb-text font-medium text-sm">Teachers</span>
+        </button>
+        <!-- NEW: Campuses -->
+        <button onclick="nav('campuses')" id="nav-campuses" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7l9-4 9 4M4 7v14M20 7v14M9 21V11h6v10"/><path d="M9 7h.01M15 7h.01"/></svg>
+            <span class="sb-text font-medium text-sm">Campuses</span>
+        </button>
         <button onclick="nav('analytics')" id="nav-analytics" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="5" height="10" rx="1"/><rect x="9.5" y="6" width="5" height="16" rx="1"/><rect x="17" y="2" width="5" height="20" rx="1"/></svg>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="12" width="5" height="10" rx="1"/><rect x="9.5" y="6" width="5" height="16" rx="1"/><rect x="17" y="2" width="5" height="20" rx="1"/></svg>
             <span class="sb-text font-medium text-sm">Analytics</span>
         </button>
         <button onclick="nav('announcements')" id="nav-announcements" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a4 4 0 010 8M6 8l10-4v16L6 16H3a1 1 0 01-1-1v-6a1 1 0 011-1h3z"/><path d="M6 19v2"/></svg>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8a4 4 0 010 8M6 8l10-4v16L6 16H3a1 1 0 01-1-1v-6a1 1 0 011-1h3z"/><path d="M6 19v2"/></svg>
             <span class="sb-text font-medium text-sm">Announcements</span>
         </button>
     </nav>
@@ -167,8 +194,7 @@
 
         <!-- ── DASHBOARD ── -->
         <section id="sec-dashboard" class="section-in">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-                <!-- Stat cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-5 mb-8">
                 <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
                     <div class="flex justify-between items-start">
                         <div>
@@ -181,7 +207,6 @@
                     </div>
                     <p class="text-xs text-gray-400 mt-3"><span id="stat-active-count" class="text-emerald-600 font-semibold">0</span> active</p>
                 </div>
-
                 <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
                     <div class="flex justify-between items-start">
                         <div>
@@ -194,12 +219,37 @@
                     </div>
                     <p class="text-xs text-gray-400 mt-3">Across all programs</p>
                 </div>
-
+                <!-- Teachers stat -->
+                <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Teachers</p>
+                            <h3 id="stat-teachers" class="mono text-5xl font-bold text-sky-600 mt-3">0</h3>
+                        </div>
+                        <div class="w-11 h-11 bg-sky-100 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3">Registered staff</p>
+                </div>
+                <!-- Campuses stat -->
+                <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Campuses</p>
+                            <h3 id="stat-campuses" class="mono text-5xl font-bold text-rose-600 mt-3">0</h3>
+                        </div>
+                        <div class="w-11 h-11 bg-rose-100 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7l9-4 9 4M4 7v14M20 7v14M9 21V11h6v10"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3">Locations</p>
+                </div>
                 <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Total Revenue</p>
-                            <h3 id="stat-revenue" class="mono text-5xl font-bold text-gray-900 mt-3">R 0</h3>
+                            <h3 id="stat-revenue" class="mono text-4xl font-bold text-gray-900 mt-3">R 0</h3>
                         </div>
                         <div class="w-11 h-11 bg-amber-100 rounded-2xl flex items-center justify-center">
                             <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8.5 10a3.5 3.5 0 017 0c0 2-3.5 3-3.5 3s-3.5 1-3.5 3a3.5 3.5 0 007 0"/></svg>
@@ -207,7 +257,6 @@
                     </div>
                     <p class="text-xs text-gray-400 mt-3">From enrolled learners</p>
                 </div>
-
                 <div class="bg-white rounded-3xl p-7 hov-card border border-gray-100">
                     <div class="flex justify-between items-start">
                         <div>
@@ -223,7 +272,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Recent enrollments -->
                 <div class="lg:col-span-2 bg-white rounded-3xl p-7 border border-gray-100">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="font-semibold text-gray-900">Recent Enrollments</h3>
@@ -231,14 +279,16 @@
                     </div>
                     <div id="recent-list" class="space-y-4"></div>
                 </div>
-
-                <!-- Quick actions -->
                 <div class="bg-white rounded-3xl p-7 border border-gray-100">
                     <h3 class="font-semibold text-gray-900 mb-6">Quick Actions</h3>
                     <div class="space-y-3">
                         <button onclick="openLearnerForm()" class="w-full flex items-center gap-3 p-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium text-sm transition">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 11c1.656 0 3-.896 3-2s-1.344-2-3-2-3 .896-3 2 1.344 2 3 2zm-8 0c1.656 0 3-.896 3-2s-1.344-2-3-2-3 .896-3 2 1.344 2 3 2zm8 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm-8 0C5.67 13 1 14.17 1 16.5V19h7v-2.5c0-.85.33-1.63.88-2.23A12.57 12.57 0 008 13z"/></svg>
                             Add New Learner
+                        </button>
+                        <button onclick="nav('teachers');setTimeout(openTeacherForm,100)" class="w-full flex items-center gap-3 p-4 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-700 font-medium text-sm transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/></svg>
+                            Add New Teacher
                         </button>
                         <button onclick="openNewCourseForm()" class="w-full flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium text-sm transition">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
@@ -293,7 +343,6 @@
                     </button>
                 </div>
             </div>
-
             <div class="flex flex-wrap gap-3 mb-5">
                 <input id="learner-search" oninput="filterLearnerTable()" placeholder="Search name, email, ID…" class="field flex-1 min-w-[200px] max-w-xs bg-white border border-gray-200 px-4 py-3 rounded-2xl text-sm">
                 <div class="flex gap-2">
@@ -302,7 +351,6 @@
                     <button onclick="setStatusFilter('suspended')" id="ftab-suspended" class="ftab px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-white">Suspended</button>
                 </div>
             </div>
-
             <div class="bg-white rounded-3xl border border-gray-100 overflow-x-auto shadow-sm">
                 <table class="w-full text-sm">
                     <thead class="bg-slate-50 text-xs uppercase font-semibold text-gray-400 tracking-wider">
@@ -311,6 +359,8 @@
                             <th class="px-7 py-5 text-left">Full Name</th>
                             <th class="px-7 py-5 text-left">Email</th>
                             <th class="px-7 py-5 text-left">Course</th>
+                            <th class="px-7 py-5 text-left">Teacher</th>
+                            <th class="px-7 py-5 text-left">Campus</th>
                             <th class="px-7 py-5 text-left">Duration</th>
                             <th class="px-7 py-5 text-left">Status</th>
                         </tr>
@@ -320,6 +370,43 @@
             </div>
         </section>
 
+        <!-- ══════════════════════════════════ -->
+        <!-- ── TEACHERS ── -->
+        <!-- ══════════════════════════════════ -->
+        <section id="sec-teachers" class="hidden">
+            <div class="flex items-center justify-between mb-7">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Teachers</h2>
+                    <p class="text-sm text-gray-400 mt-1">Manage teaching staff and their course assignments</p>
+                </div>
+                <button onclick="openTeacherForm()" class="bg-sky-600 hover:bg-sky-700 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 shadow-lg transition text-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 4v16m8-8H4"/></svg>
+                    Add Teacher
+                </button>
+            </div>
+            <div class="mb-6">
+                <input id="teacher-search" oninput="renderTeachers()" placeholder="Search teachers…" class="field w-full max-w-xs bg-white border border-gray-200 px-4 py-3 rounded-2xl text-sm">
+            </div>
+            <div id="teachers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- ══════════════════════════════════ -->
+        <!-- ── CAMPUSES ── -->
+        <!-- ══════════════════════════════════ -->
+        <section id="sec-campuses" class="hidden">
+            <div class="flex items-center justify-between mb-7">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Campuses & Schools</h2>
+                    <p class="text-sm text-gray-400 mt-1">Manage physical locations and branches</p>
+                </div>
+                <button onclick="openCampusForm()" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 shadow-lg transition text-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 4v16m8-8H4"/></svg>
+                    Add Campus
+                </button>
+            </div>
+            <div id="campuses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
         <!-- ── ANALYTICS ── -->
         <section id="sec-analytics" class="hidden">
             <div class="mb-7">
@@ -327,7 +414,6 @@
                 <p class="text-sm text-gray-400 mt-1">Computed from live Firebase data</p>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Revenue by Course -->
                 <div class="bg-white rounded-3xl p-7 border border-gray-100">
                     <h4 class="font-semibold text-gray-900 mb-5 flex items-center gap-2">
                         <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8.5 10a3.5 3.5 0 017 0c0 2-3.5 3-3.5 3s-3.5 1-3.5 3a3.5 3.5 0 007 0"/></svg>
@@ -335,7 +421,6 @@
                     </h4>
                     <div id="chart-revenue" class="space-y-3"></div>
                 </div>
-                <!-- Enrollment by Course -->
                 <div class="bg-white rounded-3xl p-7 border border-gray-100">
                     <h4 class="font-semibold text-gray-900 mb-5 flex items-center gap-2">
                         <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
@@ -344,18 +429,20 @@
                     <div id="chart-enrollment" class="space-y-3"></div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Status breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-white rounded-3xl p-7 border border-gray-100">
                     <h4 class="font-semibold text-gray-900 mb-5">Learner Status</h4>
                     <div id="chart-status"></div>
                 </div>
-                <!-- Gender breakdown -->
                 <div class="bg-white rounded-3xl p-7 border border-gray-100">
                     <h4 class="font-semibold text-gray-900 mb-5">Gender Split</h4>
                     <div id="chart-gender"></div>
                 </div>
-                <!-- Summary numbers -->
+                <!-- NEW: Learners per campus -->
+                <div class="bg-white rounded-3xl p-7 border border-gray-100">
+                    <h4 class="font-semibold text-gray-900 mb-5">By Campus</h4>
+                    <div id="chart-campus"></div>
+                </div>
                 <div class="bg-white rounded-3xl p-7 border border-gray-100">
                     <h4 class="font-semibold text-gray-900 mb-5">Key Metrics</h4>
                     <div id="chart-metrics" class="space-y-4"></div>
@@ -378,7 +465,7 @@
             <div id="ann-list" class="space-y-4"></div>
         </section>
 
-    </div><!-- /p-8 -->
+    </div>
 </main>
 
 <!-- ═══════════ MODAL OVERLAY ═══════════ -->
@@ -403,6 +490,8 @@
                 <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Gender</p><p id="det-gender" class="font-medium"></p></div>
                 <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Duration</p><p id="det-duration" class="font-medium"></p></div>
                 <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Enrolled</p><p id="det-enrolled" class="font-medium"></p></div>
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Teacher</p><p id="det-teacher" class="font-medium"></p></div>
+                <div><p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Campus</p><p id="det-campus" class="font-medium"></p></div>
             </div>
             <div>
                 <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Status</p>
@@ -449,7 +538,21 @@
                     <select id="f-course" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white" onchange="onCourseSelectChange()"></select>
                 </div>
             </div>
-            <!-- Dynamic duration info -->
+            <!-- Teacher + Campus row -->
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Assign Teacher</label>
+                    <select id="f-teacher" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                        <option value="">No Teacher</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Campus</label>
+                    <select id="f-campus" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                        <option value="">No Campus</option>
+                    </select>
+                </div>
+            </div>
             <div id="course-dur-info" class="hidden flex items-center gap-2 bg-indigo-50 text-indigo-700 text-sm px-4 py-3 rounded-xl">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <span id="course-dur-text">Duration: —</span>
@@ -488,6 +591,108 @@
             <div class="pt-2 flex gap-4">
                 <button type="button" onclick="toggleModal('course',false)" class="flex-1 py-4 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
                 <button type="submit" id="cf-submit-btn" class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold text-sm transition">Upload & Publish</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── TEACHER FORM MODAL ── -->
+    <div id="modal-teacher" class="mpanel bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-gray-100">
+            <h3 id="teacher-form-title" class="font-bold text-xl">Add New Teacher</h3>
+        </div>
+        <form id="teacher-form" class="p-8 space-y-5 max-h-[80vh] overflow-y-auto">
+            <input type="hidden" id="teacher-edit-key">
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
+                    <input type="text" id="tf-name" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Employee ID</label>
+                    <input type="text" id="tf-empid" placeholder="Auto-generated" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-slate-50" readonly>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email</label>
+                    <input type="email" id="tf-email" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Phone</label>
+                    <input type="tel" id="tf-phone" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Subject / Specialisation</label>
+                    <input type="text" id="tf-subject" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm" placeholder="e.g. Mathematics">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Campus</label>
+                    <select id="tf-campus" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                        <option value="">No Campus</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Assigned Course(s)</label>
+                <select id="tf-courses" multiple class="field w-full border border-gray-200 rounded-2xl px-5 py-3 text-sm bg-white h-28">
+                </select>
+                <p class="text-xs text-gray-400 mt-1.5">Hold Ctrl / Cmd to select multiple</p>
+            </div>
+            <div class="pt-2 flex gap-4">
+                <button type="button" onclick="toggleModal('teacher',false)" class="flex-1 py-4 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="flex-1 py-4 bg-sky-600 hover:bg-sky-700 text-white rounded-2xl font-semibold text-sm transition">Save Teacher</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── CAMPUS FORM MODAL ── -->
+    <div id="modal-campus" class="mpanel bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-gray-100">
+            <h3 id="campus-form-title" class="font-bold text-xl">Add Campus</h3>
+        </div>
+        <form id="campus-form" class="p-8 space-y-5">
+            <input type="hidden" id="campus-edit-key">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Campus / School Name</label>
+                <input type="text" id="campf-name" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">City</label>
+                    <input type="text" id="campf-city" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Province</label>
+                    <select id="campf-province" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                        <option value="">— Select —</option>
+                        <option>Gauteng</option><option>Western Cape</option><option>KwaZulu-Natal</option>
+                        <option>Eastern Cape</option><option>Limpopo</option><option>Mpumalanga</option>
+                        <option>North West</option><option>Free State</option><option>Northern Cape</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Street Address</label>
+                <input type="text" id="campf-address" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Contact Email</label>
+                <input type="email" id="campf-email" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Type</label>
+                <select id="campf-type" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                    <option value="main">Main Campus</option>
+                    <option value="satellite">Satellite Campus</option>
+                    <option value="online">Online / Virtual</option>
+                    <option value="school">Partner School</option>
+                </select>
+            </div>
+            <div class="pt-2 flex gap-4">
+                <button type="button" onclick="toggleModal('campus',false)" class="flex-1 py-4 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="flex-1 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-semibold text-sm transition">Save Campus</button>
             </div>
         </form>
     </div>
@@ -538,13 +743,11 @@
 
 </div><!-- /modal-overlay -->
 
-<!-- Toast Root -->
 <div id="toast-root"></div>
 
-<!-- Loader -->
 <div id="loader" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[200] hidden items-center justify-center">
     <div class="bg-white rounded-3xl px-10 py-8 flex flex-col items-center shadow-2xl">
-        <svg class="spin w-12 h-12 text-indigo-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="spin w-12 h-12 text-indigo-500" viewBox="0 0 24 24" fill="none">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
         </svg>
@@ -568,22 +771,26 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db  = getDatabase(app);
 
-const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
+const CLOUDINARY_URL  = "https://api.cloudinary.com/v1_1/dqkujefxj/upload";
 const UPLOAD_PRESET   = "banter_box";
 
-// ─── State ───────────────────────────────────────────────
+// ─── State ────────────────────────────────────────────────
 window.learnersMap      = {};
 window.coursesMap       = {};
 window.coursesByTitle   = {};
 window.announcementsMap = {};
+window.teachersMap      = {};
+window.campusesMap      = {};
 window.currentLearnerKey = null;
 window.courseEditKey     = null;
+window.teacherEditKey    = null;
+window.campusEditKey     = null;
 window.confirmCallback   = null;
 let statusFilter = 'all';
 
-// ─── Utilities ───────────────────────────────────────────
+// ─── Utilities ────────────────────────────────────────────
 function showToast(msg, type = 'success') {
     const root = document.getElementById('toast-root');
     const el = document.createElement('div');
@@ -606,8 +813,10 @@ function showLoader(show, text = 'Processing…') {
 window.toggleModal = (type, show) => {
     const overlay = document.getElementById('modal-overlay');
     overlay.classList.toggle('open', show);
-    document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('open', ...Array.from(p.classList).filter(c=>c!=='mpanel'&&c!=='hidden'&&c!=='bg-white'&&c!=='w-full')));
-    document.querySelectorAll('.mpanel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.mpanel').forEach(p => {
+        p.classList.remove('open');
+        p.classList.add('hidden');
+    });
     if (show) {
         const panel = document.getElementById(`modal-${type}`);
         if (panel) { panel.classList.remove('hidden'); requestAnimationFrame(() => panel.classList.add('open')); }
@@ -617,12 +826,14 @@ window.toggleModal = (type, show) => {
 window.nav = (target) => {
     document.querySelectorAll('[id^="sec-"]').forEach(s => s.classList.add('hidden'));
     const sec = document.getElementById(`sec-${target}`);
-    if (sec) { sec.classList.remove('hidden'); sec.classList.add('section-in'); setTimeout(()=>sec.classList.remove('section-in'),400); }
+    if (sec) { sec.classList.remove('hidden'); sec.classList.add('section-in'); setTimeout(() => sec.classList.remove('section-in'), 400); }
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     document.getElementById(`nav-${target}`)?.classList.add('active');
-    const titles = { dashboard:'Dashboard', courses:'Course Catalog', learners:'Learner Registry', analytics:'Analytics & Reports', announcements:'Announcements' };
+    const titles = { dashboard:'Dashboard', courses:'Course Catalog', learners:'Learner Registry', teachers:'Teachers', campuses:'Campuses & Schools', analytics:'Analytics & Reports', announcements:'Announcements' };
     document.getElementById('page-title').textContent = titles[target] || target;
     if (target === 'analytics') setTimeout(renderAnalytics, 150);
+    if (target === 'teachers')  setTimeout(() => renderTeachers(), 50);
+    if (target === 'campuses')  setTimeout(() => renderCampuses(), 50);
 };
 
 window.showConfirm = (title, msg, cb) => {
@@ -637,12 +848,11 @@ document.getElementById('btn-confirm-action').onclick = async () => {
     toggleModal('confirm', false);
 };
 
-// Close overlay on backdrop click
 document.getElementById('modal-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('modal-overlay')) toggleModal('', false);
 });
 
-// ─── Firebase Listeners ──────────────────────────────────
+// ─── Firebase Listeners ───────────────────────────────────
 onValue(ref(db, 'learners'), snap => {
     window.learnersMap = snap.val() || {};
     renderLearnerTable();
@@ -656,6 +866,22 @@ onValue(ref(db, 'courses'), snap => {
     Object.values(window.coursesMap).forEach(c => { window.coursesByTitle[c.title] = c; });
     renderCourses();
     populateCourseSelect();
+    populateTeacherCourseSelect();
+    updateStats();
+});
+
+onValue(ref(db, 'teachers'), snap => {
+    window.teachersMap = snap.val() || {};
+    renderTeachers();
+    populateTeacherSelect();
+    updateStats();
+});
+
+onValue(ref(db, 'campuses'), snap => {
+    window.campusesMap = snap.val() || {};
+    renderCampuses();
+    populateCampusSelect();
+    populateTeacherCampusSelect();
     updateStats();
 });
 
@@ -664,65 +890,47 @@ onValue(ref(db, 'announcements'), snap => {
     renderAnnouncements();
     document.getElementById('stat-anns').textContent = Object.keys(window.announcementsMap).length;
     const notifDot = document.getElementById('notif-dot');
-    const highPrio = Object.values(window.announcementsMap).some(a => a.priority === 'high');
-    notifDot.classList.toggle('hidden', !highPrio);
+    notifDot.classList.toggle('hidden', !Object.values(window.announcementsMap).some(a => a.priority === 'high'));
 });
 
-// ─── Stats ───────────────────────────────────────────────
+// ─── Stats ────────────────────────────────────────────────
 function updateStats() {
     const learners = Object.values(window.learnersMap);
-    const total    = learners.length;
     const active   = learners.filter(l => l.status !== 'SUSPENDED').length;
-
     let revenue = 0;
     learners.forEach(l => {
         const c = window.coursesByTitle[l.assignedCourse];
-        if (c && c.price) revenue += parseFloat(c.price);
+        if (c?.price) revenue += parseFloat(c.price);
     });
-
-    document.getElementById('stat-learners').textContent    = total;
+    document.getElementById('stat-learners').textContent    = learners.length;
     document.getElementById('stat-active-count').textContent = active;
     document.getElementById('stat-courses').textContent     = Object.keys(window.coursesMap).length;
+    document.getElementById('stat-teachers').textContent    = Object.keys(window.teachersMap).length;
+    document.getElementById('stat-campuses').textContent    = Object.keys(window.campusesMap).length;
     document.getElementById('stat-revenue').textContent     = `R ${revenue.toLocaleString('en-ZA')}`;
 }
 
-// ─── Render: Courses ─────────────────────────────────────
+// ─── Courses ──────────────────────────────────────────────
 function renderCourses(filter = '') {
     const grid = document.getElementById('courses-grid');
     const entries = Object.entries(window.coursesMap).filter(([,c]) =>
         !filter || c.title.toLowerCase().includes(filter.toLowerCase())
     );
-
     if (!entries.length) {
-        grid.innerHTML = `<div class="col-span-3 py-20 text-center text-gray-400">
-            <div class="text-6xl mb-4">📚</div>
-            <p class="font-medium">No courses yet. Create your first one!</p>
-        </div>`;
+        grid.innerHTML = `<div class="col-span-3 py-20 text-center text-gray-400"><div class="text-6xl mb-4">📚</div><p class="font-medium">No courses yet. Create your first one!</p></div>`;
         return;
     }
-
-    // Count enrollments per course title
     const enrollment = {};
-    Object.values(window.learnersMap).forEach(l => {
-        enrollment[l.assignedCourse] = (enrollment[l.assignedCourse] || 0) + 1;
-    });
-
+    Object.values(window.learnersMap).forEach(l => { enrollment[l.assignedCourse] = (enrollment[l.assignedCourse] || 0) + 1; });
     grid.innerHTML = entries.map(([key, c]) => {
-        const count   = enrollment[c.title] || 0;
-        const thumb   = c.thumbnail || `https://picsum.photos/seed/${encodeURIComponent(c.title)}/600/340`;
-        return `
-        <div class="course-card bg-white rounded-3xl overflow-hidden border border-gray-100">
+        const count = enrollment[c.title] || 0;
+        const thumb = c.thumbnail || `https://picsum.photos/seed/${encodeURIComponent(c.title)}/600/340`;
+        return `<div class="course-card bg-white rounded-3xl overflow-hidden border border-gray-100">
             <div class="relative h-48 overflow-hidden">
                 <img src="${thumb}" class="w-full h-full object-cover">
                 <div class="crs-overlay absolute inset-0 bg-black/55 flex items-center justify-center gap-3">
-                    <button onclick="editCourse('${key}')" class="bg-white text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        Edit
-                    </button>
-                    <button onclick="confirmDeleteCourse('${key}')" class="bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-                        Delete
-                    </button>
+                    <button onclick="editCourse('${key}')" class="bg-white text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-xl text-xs font-semibold transition">✏ Edit</button>
+                    <button onclick="confirmDeleteCourse('${key}')" class="bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-xl text-xs font-semibold transition">🗑 Delete</button>
                 </div>
             </div>
             <div class="p-6">
@@ -732,10 +940,7 @@ function renderCourses(filter = '') {
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-2xl font-bold text-gray-900">R ${Number(c.price).toLocaleString('en-ZA')}</span>
-                    ${c.duration ? `<span class="flex items-center gap-1 text-sm text-gray-500">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        ${c.duration}
-                    </span>` : ''}
+                    ${c.duration ? `<span class="text-sm text-gray-500">⏱ ${c.duration}</span>` : ''}
                 </div>
             </div>
         </div>`;
@@ -751,7 +956,7 @@ window.editCourse = (key) => {
     document.getElementById('cf-title').value    = c.title;
     document.getElementById('cf-price').value    = c.price;
     document.getElementById('cf-duration').value = c.duration || '';
-    document.getElementById('cf-img-label').textContent = 'Change Thumbnail (optional)';
+    document.getElementById('cf-img-label').textContent  = 'Change Thumbnail (optional)';
     document.getElementById('cf-submit-btn').textContent = 'Save Changes';
     document.getElementById('cf-file').removeAttribute('required');
     toggleModal('course', true);
@@ -760,106 +965,351 @@ window.editCourse = (key) => {
 window.openNewCourseForm = () => {
     window.courseEditKey = null;
     document.getElementById('course-form').reset();
-    document.getElementById('course-form-title').textContent = 'Create New Course';
-    document.getElementById('cf-img-label').textContent = 'Thumbnail Image';
-    document.getElementById('cf-submit-btn').textContent = 'Upload & Publish';
-    document.getElementById('cf-file').setAttribute('required', 'required');
+    document.getElementById('course-form-title').textContent  = 'Create New Course';
+    document.getElementById('cf-img-label').textContent       = 'Thumbnail Image';
+    document.getElementById('cf-submit-btn').textContent      = 'Upload & Publish';
+    document.getElementById('cf-file').setAttribute('required','required');
     toggleModal('course', true);
 };
 
 window.confirmDeleteCourse = (key) => {
     const c = window.coursesMap[key];
-    showConfirm(
-        'Delete Course?',
-        `Are you sure you want to delete "${c?.title}"? This cannot be undone.`,
-        async () => {
-            showLoader(true, 'Deleting course…');
-            await remove(ref(db, `courses/${key}`));
-            showLoader(false);
-            showToast('Course deleted successfully');
-        }
-    );
+    showConfirm('Delete Course?', `Delete "${c?.title}"? This cannot be undone.`, async () => {
+        showLoader(true, 'Deleting course…');
+        await remove(ref(db, `courses/${key}`));
+        showLoader(false); showToast('Course deleted');
+    });
 };
 
 document.getElementById('course-form').onsubmit = async (e) => {
     e.preventDefault();
-    const file  = document.getElementById('cf-file').files[0];
+    const file   = document.getElementById('cf-file').files[0];
     const isEdit = !!window.courseEditKey;
     if (!isEdit && !file) { showToast('Please select a thumbnail image', 'error'); return; }
     showLoader(true, isEdit ? 'Saving course…' : 'Uploading & publishing…');
-
     let thumbnailUrl = isEdit ? (window.coursesMap[window.courseEditKey]?.thumbnail || '') : '';
     if (file) {
         try {
-            const fd = new FormData();
-            fd.append('file', file);
-            fd.append('upload_preset', UPLOAD_PRESET);
-            const res  = await fetch(CLOUDINARY_URL, { method:'POST', body:fd });
-            const cloud = await res.json();
-            thumbnailUrl = cloud.secure_url;
-        } catch { showToast('Image upload failed', 'error'); showLoader(false); return; }
+            const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', UPLOAD_PRESET);
+            const res = await fetch(CLOUDINARY_URL, { method:'POST', body:fd });
+            thumbnailUrl = (await res.json()).secure_url;
+        } catch { showToast('Image upload failed','error'); showLoader(false); return; }
     }
-
-    const data = {
-        title:    document.getElementById('cf-title').value.trim(),
-        price:    parseFloat(document.getElementById('cf-price').value),
-        duration: document.getElementById('cf-duration').value.trim(),
-        thumbnail: thumbnailUrl,
-    };
-
-    if (isEdit) {
-        await update(ref(db, `courses/${window.courseEditKey}`), data);
-        showToast('Course updated!');
-    } else {
-        data.createdAt = Date.now();
-        await set(push(ref(db, 'courses')), data);
-        showToast('Course published!');
-    }
-
-    toggleModal('course', false);
-    document.getElementById('course-form').reset();
-    window.courseEditKey = null;
-    showLoader(false);
+    const data = { title: document.getElementById('cf-title').value.trim(), price: parseFloat(document.getElementById('cf-price').value), duration: document.getElementById('cf-duration').value.trim(), thumbnail: thumbnailUrl };
+    if (isEdit) { await update(ref(db,`courses/${window.courseEditKey}`), data); showToast('Course updated!'); }
+    else { data.createdAt = Date.now(); await set(push(ref(db,'courses')), data); showToast('Course published!'); }
+    toggleModal('course', false); document.getElementById('course-form').reset();
+    window.courseEditKey = null; showLoader(false);
 };
 
-// ─── Render: Learners ────────────────────────────────────
+// ─── Teachers ─────────────────────────────────────────────
+function renderTeachers() {
+    const grid    = document.getElementById('teachers-grid');
+    const q       = (document.getElementById('teacher-search')?.value || '').toLowerCase();
+    const entries = Object.entries(window.teachersMap).filter(([,t]) =>
+        !q || (t.name||'').toLowerCase().includes(q) || (t.subject||'').toLowerCase().includes(q)
+    );
+
+    if (!entries.length) {
+        grid.innerHTML = `<div class="col-span-4 py-20 text-center text-gray-400"><div class="text-6xl mb-4">🎓</div><p class="font-medium">No teachers yet. Add your first one!</p></div>`;
+        return;
+    }
+
+    // Count learners per teacher key
+    const learnerCount = {};
+    Object.values(window.learnersMap).forEach(l => {
+        if (l.assignedTeacher) learnerCount[l.assignedTeacher] = (learnerCount[l.assignedTeacher]||0)+1;
+    });
+
+    grid.innerHTML = entries.map(([key, t], i) => {
+        const initials = (t.name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+        const avCls    = `av-${i % 6}`;
+        const campus   = window.campusesMap[t.campus]?.name || t.campus || '—';
+        const lCount   = learnerCount[key] || 0;
+        const courses  = Array.isArray(t.courses) ? t.courses.join(', ') : (t.courses||'—');
+        return `<div class="item-card bg-white rounded-3xl border border-gray-100 overflow-hidden relative">
+            <div class="card-actions absolute top-3 right-3 flex gap-2 z-10">
+                <button onclick="editTeacher('${key}')" class="bg-white shadow-md text-gray-700 hover:bg-gray-50 px-3 py-1.5 rounded-xl text-xs font-semibold transition">Edit</button>
+                <button onclick="confirmDeleteTeacher('${key}')" class="bg-red-500 shadow-md text-white hover:bg-red-600 px-3 py-1.5 rounded-xl text-xs font-semibold transition">Delete</button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 rounded-2xl ${avCls} flex items-center justify-center text-white font-bold text-lg flex-shrink-0">${initials}</div>
+                    <div class="min-w-0">
+                        <h4 class="font-bold text-gray-900 truncate">${t.name}</h4>
+                        <p class="text-xs text-gray-400 mono mt-0.5">${t.empId || '—'}</p>
+                    </div>
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-center gap-2 text-gray-500"><svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="truncate">${t.email||'—'}</span></div>
+                    ${t.subject ? `<div class="flex items-center gap-2 text-gray-500"><svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/></svg><span>${t.subject}</span></div>` : ''}
+                    <div class="flex items-center gap-2 text-gray-500"><svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7l9-4 9 4M4 7v14M20 7v14M9 21V11h6v10"/></svg><span class="truncate">${campus}</span></div>
+                </div>
+            </div>
+            <div class="border-t border-gray-100 px-6 py-3.5 flex items-center justify-between bg-slate-50 rounded-b-3xl">
+                <span class="text-xs text-gray-400">${lCount} learner${lCount!==1?'s':''}</span>
+                <span class="text-xs text-indigo-600 font-medium truncate max-w-[130px]" title="${courses}">${courses}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+window.openTeacherForm = () => {
+    window.teacherEditKey = null;
+    document.getElementById('teacher-form').reset();
+    document.getElementById('teacher-form-title').textContent = 'Add New Teacher';
+    document.getElementById('tf-empid').value = `RGT-${new Date().getFullYear()}-${Math.floor(1000+Math.random()*9000)}`;
+    toggleModal('teacher', true);
+};
+
+window.editTeacher = (key) => {
+    window.teacherEditKey = key;
+    const t = window.teachersMap[key];
+    document.getElementById('teacher-form-title').textContent = 'Edit Teacher';
+    document.getElementById('tf-name').value    = t.name || '';
+    document.getElementById('tf-empid').value   = t.empId || '';
+    document.getElementById('tf-email').value   = t.email || '';
+    document.getElementById('tf-phone').value   = t.phone || '';
+    document.getElementById('tf-subject').value = t.subject || '';
+    setTimeout(() => {
+        document.getElementById('tf-campus').value = t.campus || '';
+        // Set multi-select
+        const sel = document.getElementById('tf-courses');
+        const selected = Array.isArray(t.courses) ? t.courses : (t.courses ? [t.courses] : []);
+        Array.from(sel.options).forEach(o => { o.selected = selected.includes(o.value); });
+    }, 50);
+    toggleModal('teacher', true);
+};
+
+window.confirmDeleteTeacher = (key) => {
+    const t = window.teachersMap[key];
+    showConfirm('Delete Teacher?', `Remove "${t?.name}" from the system?`, async () => {
+        showLoader(true,'Removing teacher…');
+        await remove(ref(db,`teachers/${key}`));
+        showLoader(false); showToast('Teacher removed');
+    });
+};
+
+document.getElementById('teacher-form').onsubmit = async (e) => {
+    e.preventDefault();
+    showLoader(true,'Saving teacher…');
+    const sel     = document.getElementById('tf-courses');
+    const courses = Array.from(sel.selectedOptions).map(o => o.value);
+    const data = {
+        name:    document.getElementById('tf-name').value.trim(),
+        empId:   document.getElementById('tf-empid').value.trim(),
+        email:   document.getElementById('tf-email').value.trim(),
+        phone:   document.getElementById('tf-phone').value.trim(),
+        subject: document.getElementById('tf-subject').value.trim(),
+        campus:  document.getElementById('tf-campus').value,
+        courses,
+    };
+    if (window.teacherEditKey) {
+        await update(ref(db,`teachers/${window.teacherEditKey}`), data);
+        showToast('Teacher updated!');
+    } else {
+        data.createdAt = Date.now();
+        await set(push(ref(db,'teachers')), data);
+        showToast('Teacher added!');
+    }
+    toggleModal('teacher', false); showLoader(false);
+};
+
+// ─── Campuses ─────────────────────────────────────────────
+const campusTypeColors = { main:'bg-indigo-100 text-indigo-700', satellite:'bg-emerald-100 text-emerald-700', online:'bg-sky-100 text-sky-700', school:'bg-amber-100 text-amber-700' };
+const campusTypeIcons  = { main:'🏫', satellite:'🏢', online:'💻', school:'🏫' };
+
+function renderCampuses() {
+    const grid = document.getElementById('campuses-grid');
+    const entries = Object.entries(window.campusesMap);
+    if (!entries.length) {
+        grid.innerHTML = `<div class="col-span-3 py-20 text-center text-gray-400"><div class="text-6xl mb-4">🏫</div><p class="font-medium">No campuses yet. Add your first one!</p></div>`;
+        return;
+    }
+    // Learner + teacher counts per campus key
+    const learnerCount  = {}, teacherCount = {};
+    Object.values(window.learnersMap).forEach(l => { if(l.campus) learnerCount[l.campus]  = (learnerCount[l.campus]||0)+1; });
+    Object.values(window.teachersMap).forEach(t => { if(t.campus) teacherCount[t.campus] = (teacherCount[t.campus]||0)+1; });
+
+    grid.innerHTML = entries.map(([key, c]) => {
+        const typeColor = campusTypeColors[c.type] || 'bg-slate-100 text-slate-600';
+        const icon      = campusTypeIcons[c.type] || '🏢';
+        const lCount    = learnerCount[key]  || 0;
+        const tCount    = teacherCount[key] || 0;
+        return `<div class="item-card bg-white rounded-3xl border border-gray-100 overflow-hidden relative">
+            <div class="card-actions absolute top-3 right-3 flex gap-2 z-10">
+                <button onclick="editCampus('${key}')" class="bg-white shadow-md text-gray-700 hover:bg-gray-50 px-3 py-1.5 rounded-xl text-xs font-semibold transition">Edit</button>
+                <button onclick="confirmDeleteCampus('${key}')" class="bg-red-500 shadow-md text-white hover:bg-red-600 px-3 py-1.5 rounded-xl text-xs font-semibold transition">Delete</button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="text-4xl">${icon}</div>
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-gray-900 leading-snug">${c.name}</h4>
+                        <span class="campus-pill ${typeColor} mt-1">${c.type || 'campus'}</span>
+                    </div>
+                </div>
+                <div class="space-y-2 text-sm text-gray-500">
+                    ${c.city || c.province ? `<div class="flex items-center gap-2"><svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg><span>${[c.city, c.province].filter(Boolean).join(', ')}</span></div>` : ''}
+                    ${c.address ? `<div class="flex items-center gap-2"><svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg><span class="truncate">${c.address}</span></div>` : ''}
+                    ${c.email ? `<div class="flex items-center gap-2"><svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="truncate">${c.email}</span></div>` : ''}
+                </div>
+            </div>
+            <div class="border-t border-gray-100 px-6 py-3.5 flex items-center justify-between bg-slate-50 rounded-b-3xl">
+                <span class="text-xs text-gray-500 font-medium">${lCount} learner${lCount!==1?'s':''}</span>
+                <span class="text-xs text-gray-500 font-medium">${tCount} teacher${tCount!==1?'s':''}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+window.openCampusForm = () => {
+    window.campusEditKey = null;
+    document.getElementById('campus-form').reset();
+    document.getElementById('campus-form-title').textContent = 'Add Campus';
+    toggleModal('campus', true);
+};
+
+window.editCampus = (key) => {
+    window.campusEditKey = key;
+    const c = window.campusesMap[key];
+    document.getElementById('campus-form-title').textContent = 'Edit Campus';
+    document.getElementById('campf-name').value     = c.name     || '';
+    document.getElementById('campf-city').value     = c.city     || '';
+    document.getElementById('campf-province').value = c.province || '';
+    document.getElementById('campf-address').value  = c.address  || '';
+    document.getElementById('campf-email').value    = c.email    || '';
+    document.getElementById('campf-type').value     = c.type     || 'main';
+    toggleModal('campus', true);
+};
+
+window.confirmDeleteCampus = (key) => {
+    const c = window.campusesMap[key];
+    showConfirm('Delete Campus?', `Remove "${c?.name}"? This cannot be undone.`, async () => {
+        showLoader(true,'Removing campus…');
+        await remove(ref(db,`campuses/${key}`));
+        showLoader(false); showToast('Campus removed');
+    });
+};
+
+document.getElementById('campus-form').onsubmit = async (e) => {
+    e.preventDefault();
+    showLoader(true,'Saving campus…');
+    const data = {
+        name:     document.getElementById('campf-name').value.trim(),
+        city:     document.getElementById('campf-city').value.trim(),
+        province: document.getElementById('campf-province').value,
+        address:  document.getElementById('campf-address').value.trim(),
+        email:    document.getElementById('campf-email').value.trim(),
+        type:     document.getElementById('campf-type').value,
+    };
+    if (window.campusEditKey) {
+        await update(ref(db,`campuses/${window.campusEditKey}`), data);
+        showToast('Campus updated!');
+    } else {
+        data.createdAt = Date.now();
+        await set(push(ref(db,'campuses')), data);
+        showToast('Campus added!');
+    }
+    toggleModal('campus', false); showLoader(false);
+};
+
+// ─── Populate Selects ─────────────────────────────────────
+function populateCourseSelect() {
+    const sel = document.getElementById('f-course');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="None">No Course Assigned</option>';
+    Object.values(window.coursesMap).forEach(c => {
+        sel.innerHTML += `<option value="${c.title}">${c.title}${c.duration?' · '+c.duration:''}</option>`;
+    });
+    if (cur) sel.value = cur;
+}
+
+function populateTeacherCourseSelect() {
+    const sel = document.getElementById('tf-courses');
+    const vals = Array.from(sel.selectedOptions).map(o => o.value);
+    sel.innerHTML = '';
+    Object.values(window.coursesMap).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.title; opt.textContent = c.title;
+        if (vals.includes(c.title)) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+function populateTeacherSelect() {
+    ['f-teacher'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">No Teacher</option>';
+        Object.entries(window.teachersMap).forEach(([key, t]) => {
+            sel.innerHTML += `<option value="${key}">${t.name}${t.subject?' ('+t.subject+')':''}</option>`;
+        });
+        if (cur) sel.value = cur;
+    });
+}
+
+function populateCampusSelect() {
+    ['f-campus','campf-campus'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">No Campus</option>';
+        Object.entries(window.campusesMap).forEach(([key, c]) => {
+            sel.innerHTML += `<option value="${key}">${c.name}${c.city?' — '+c.city:''}</option>`;
+        });
+        if (cur) sel.value = cur;
+    });
+}
+
+function populateTeacherCampusSelect() {
+    const sel = document.getElementById('tf-campus');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">No Campus</option>';
+    Object.entries(window.campusesMap).forEach(([key,c]) => {
+        sel.innerHTML += `<option value="${key}">${c.name}</option>`;
+    });
+    if (cur) sel.value = cur;
+}
+
+// ─── Learner Table ────────────────────────────────────────
 function renderLearnerTable() {
-    const query  = (document.getElementById('learner-search')?.value || '').toLowerCase();
-    const tbody  = document.getElementById('learner-tbody');
+    const query   = (document.getElementById('learner-search')?.value || '').toLowerCase();
+    const tbody   = document.getElementById('learner-tbody');
     const entries = Object.entries(window.learnersMap);
 
-    const filtered = entries.filter(([, l]) => {
+    const filtered = entries.filter(([,l]) => {
         const matchStatus = statusFilter === 'all'
             || (statusFilter === 'active'    && l.status !== 'SUSPENDED')
             || (statusFilter === 'suspended' && l.status === 'SUSPENDED');
         const matchQuery  = !query
-            || (l.name  || '').toLowerCase().includes(query)
-            || (l.email || '').toLowerCase().includes(query)
-            || (l.id    || '').toLowerCase().includes(query);
+            || (l.name  ||'').toLowerCase().includes(query)
+            || (l.email ||'').toLowerCase().includes(query)
+            || (l.id    ||'').toLowerCase().includes(query);
         return matchStatus && matchQuery;
     });
 
     if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="px-7 py-14 text-center text-gray-400">
-            <div class="text-4xl mb-3">🔍</div>No learners found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="px-7 py-14 text-center text-gray-400"><div class="text-4xl mb-3">🔍</div>No learners found.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = filtered.map(([key, l]) => {
-        const sc = l.status === 'SUSPENDED' ? 'badge-suspended' : 'badge-active';
-        const dur = window.coursesByTitle[l.assignedCourse]?.duration || '—';
+    tbody.innerHTML = filtered.map(([key,l]) => {
+        const sc       = l.status === 'SUSPENDED' ? 'badge-suspended' : 'badge-active';
+        const dur      = window.coursesByTitle[l.assignedCourse]?.duration || '—';
+        const teacher  = l.assignedTeacher ? (window.teachersMap[l.assignedTeacher]?.name || '—') : '—';
+        const campus   = l.campus ? (window.campusesMap[l.campus]?.name || '—') : '—';
         return `<tr class="trow cursor-pointer text-sm" onclick="viewLearnerProfile('${key}')">
-            <td class="px-7 py-5 mono text-indigo-600 text-xs">${l.id || '—'}</td>
+            <td class="px-7 py-5 mono text-indigo-600 text-xs">${l.id||'—'}</td>
             <td class="px-7 py-5 font-medium text-gray-900">${l.name}</td>
             <td class="px-7 py-5 text-gray-500">${l.email}</td>
-            <td class="px-7 py-5 text-gray-700">${l.assignedCourse || '—'}</td>
-            <td class="px-7 py-5 text-gray-500 flex items-center gap-1">
-                ${dur !== '—' ? `<svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>` : ''}
-                ${dur}
-            </td>
-            <td class="px-7 py-5">
-                <span class="${sc} text-xs font-bold px-3.5 py-1.5 rounded-full">${l.status || 'ACTIVE'}</span>
-            </td>
+            <td class="px-7 py-5 text-gray-700">${l.assignedCourse||'—'}</td>
+            <td class="px-7 py-5 text-gray-500">${teacher}</td>
+            <td class="px-7 py-5 text-gray-500">${campus}</td>
+            <td class="px-7 py-5 text-gray-500">${dur}</td>
+            <td class="px-7 py-5"><span class="${sc} text-xs font-bold px-3.5 py-1.5 rounded-full">${l.status||'ACTIVE'}</span></td>
         </tr>`;
     }).join('');
 }
@@ -873,12 +1323,14 @@ window.setStatusFilter = (s) => {
     renderLearnerTable();
 };
 
-// ─── Learner Profile ─────────────────────────────────────
+// ─── Learner Profile ──────────────────────────────────────
 window.viewLearnerProfile = (key) => {
     const l = window.learnersMap[key];
     if (!l) return;
     window.currentLearnerKey = key;
-    const course = window.coursesByTitle[l.assignedCourse];
+    const course  = window.coursesByTitle[l.assignedCourse];
+    const teacher = l.assignedTeacher ? window.teachersMap[l.assignedTeacher] : null;
+    const campus  = l.campus ? window.campusesMap[l.campus] : null;
 
     document.getElementById('det-name').textContent     = l.name;
     document.getElementById('det-id').textContent       = l.id || '—';
@@ -888,11 +1340,12 @@ window.viewLearnerProfile = (key) => {
     document.getElementById('det-gender').textContent   = l.gender || '—';
     document.getElementById('det-duration').textContent = course?.duration || '—';
     document.getElementById('det-enrolled').textContent = l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA') : '—';
+    document.getElementById('det-teacher').textContent  = teacher ? `${teacher.name}${teacher.subject?' ('+teacher.subject+')':''}` : '—';
+    document.getElementById('det-campus').textContent   = campus ? `${campus.name}${campus.city?' — '+campus.city:''}` : '—';
 
     const badge = document.getElementById('det-status-badge');
-    badge.textContent  = l.status || 'ACTIVE';
-    badge.className    = `inline-block px-5 py-1.5 rounded-full text-sm font-semibold ${l.status === 'SUSPENDED' ? 'badge-suspended' : 'badge-active'}`;
-
+    badge.textContent = l.status || 'ACTIVE';
+    badge.className   = `inline-block px-5 py-1.5 rounded-full text-sm font-semibold ${l.status==='SUSPENDED'?'badge-suspended':'badge-active'}`;
     document.getElementById('btn-suspend-learner').textContent = l.status === 'SUSPENDED' ? 'Unsuspend' : 'Suspend';
     toggleModal('learner-detail', true);
 };
@@ -901,6 +1354,9 @@ window.openLearnerForm = (editMode = false) => {
     document.getElementById('learner-form').reset();
     document.getElementById('learner-edit-key').value = '';
     document.getElementById('course-dur-info').classList.add('hidden');
+    populateCourseSelect();
+    populateTeacherSelect();
+    populateCampusSelect();
 
     if (editMode && window.currentLearnerKey) {
         const l = window.learnersMap[window.currentLearnerKey];
@@ -911,7 +1367,9 @@ window.openLearnerForm = (editMode = false) => {
         document.getElementById('f-dob').value    = l.dob || '';
         document.getElementById('f-gender').value = l.gender || 'Male';
         setTimeout(() => {
-            document.getElementById('f-course').value = l.assignedCourse || 'None';
+            document.getElementById('f-course').value   = l.assignedCourse || 'None';
+            document.getElementById('f-teacher').value  = l.assignedTeacher || '';
+            document.getElementById('f-campus').value   = l.campus || '';
             onCourseSelectChange();
         }, 50);
     } else {
@@ -922,115 +1380,84 @@ window.openLearnerForm = (editMode = false) => {
 };
 
 window.onCourseSelectChange = () => {
-    const sel   = document.getElementById('f-course').value;
+    const sel    = document.getElementById('f-course').value;
     const course = window.coursesByTitle[sel];
-    const info  = document.getElementById('course-dur-info');
-    const text  = document.getElementById('course-dur-text');
-    if (course && course.duration) {
-        text.textContent = `Course duration: ${course.duration}`;
-        info.classList.remove('hidden');
-    } else {
-        info.classList.add('hidden');
-    }
+    const info   = document.getElementById('course-dur-info');
+    document.getElementById('course-dur-text').textContent = course?.duration ? `Course duration: ${course.duration}` : '';
+    info.classList.toggle('hidden', !course?.duration);
 };
 
-function populateCourseSelect() {
-    const sel = document.getElementById('f-course');
-    const cur = sel.value;
-    sel.innerHTML = '<option value="None">No Course Assigned</option>';
-    Object.values(window.coursesMap).forEach(c => {
-        sel.innerHTML += `<option value="${c.title}">${c.title}${c.duration ? ' · ' + c.duration : ''}</option>`;
-    });
-    if (cur) sel.value = cur;
-}
-
 document.getElementById('btn-suspend-learner').onclick = async () => {
-    showLoader(true, 'Updating status…');
-    const l = window.learnersMap[window.currentLearnerKey];
+    showLoader(true,'Updating status…');
+    const l  = window.learnersMap[window.currentLearnerKey];
     const ns = l.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
-    await update(ref(db, `learners/${window.currentLearnerKey}`), { status: ns });
-    showLoader(false);
-    showToast(`Learner ${ns === 'ACTIVE' ? 'unsuspended' : 'suspended'}`);
+    await update(ref(db,`learners/${window.currentLearnerKey}`),{status:ns});
+    showLoader(false); showToast(`Learner ${ns==='ACTIVE'?'unsuspended':'suspended'}`);
     viewLearnerProfile(window.currentLearnerKey);
 };
 
 document.getElementById('btn-delete-learner').onclick = () => {
     toggleModal('learner-detail', false);
-    showConfirm('Delete Learner?', 'This will permanently remove the learner from the system.', async () => {
-        showLoader(true, 'Removing learner…');
-        await remove(ref(db, `learners/${window.currentLearnerKey}`));
-        showLoader(false);
-        showToast('Learner removed');
+    showConfirm('Delete Learner?','This will permanently remove the learner.', async () => {
+        showLoader(true,'Removing learner…');
+        await remove(ref(db,`learners/${window.currentLearnerKey}`));
+        showLoader(false); showToast('Learner removed');
     });
 };
 
 document.getElementById('learner-form').onsubmit = async (e) => {
     e.preventDefault();
-    showLoader(true, 'Saving learner…');
+    showLoader(true,'Saving learner…');
     const key = document.getElementById('learner-edit-key').value;
     const data = {
-        name:          document.getElementById('f-name').value.trim(),
-        email:         document.getElementById('f-email').value.trim(),
-        dob:           document.getElementById('f-dob').value,
-        gender:        document.getElementById('f-gender').value,
-        assignedCourse: document.getElementById('f-course').value,
-        status:        'ACTIVE',
+        name:            document.getElementById('f-name').value.trim(),
+        email:           document.getElementById('f-email').value.trim(),
+        dob:             document.getElementById('f-dob').value,
+        gender:          document.getElementById('f-gender').value,
+        assignedCourse:  document.getElementById('f-course').value,
+        assignedTeacher: document.getElementById('f-teacher').value,
+        campus:          document.getElementById('f-campus').value,
+        status:          'ACTIVE',
     };
-    if (key) {
-        await update(ref(db, `learners/${key}`), data);
-        showToast('Learner updated!');
-    } else {
-        data.id        = `RG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    if (key) { await update(ref(db,`learners/${key}`), data); showToast('Learner updated!'); }
+    else {
+        data.id        = `RG-${new Date().getFullYear()}-${Math.floor(1000+Math.random()*9000)}`;
         data.createdAt = Date.now();
-        await set(push(ref(db, 'learners')), data);
+        await set(push(ref(db,'learners')), data);
         showToast('Learner added!');
     }
-    toggleModal('learner', false);
-    showLoader(false);
+    toggleModal('learner', false); showLoader(false);
 };
 
-// ─── Recent Enrollments ──────────────────────────────────
+// ─── Recent Enrollments ───────────────────────────────────
 function renderRecentEnrollments() {
-    const el  = document.getElementById('recent-list');
-    const sorted = Object.entries(window.learnersMap)
-        .sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0))
-        .slice(0, 6);
-
-    if (!sorted.length) {
-        el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No enrollments yet.</p>`;
-        return;
-    }
-
-    const avatarColors = ['bg-indigo-100 text-indigo-600','bg-emerald-100 text-emerald-600','bg-amber-100 text-amber-700','bg-violet-100 text-violet-600','bg-rose-100 text-rose-600'];
-    el.innerHTML = sorted.map(([,l], i) => {
+    const el     = document.getElementById('recent-list');
+    const sorted = Object.entries(window.learnersMap).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).slice(0,6);
+    if (!sorted.length) { el.innerHTML=`<p class="text-gray-400 text-sm text-center py-8">No enrollments yet.</p>`; return; }
+    const avColors = ['bg-indigo-100 text-indigo-600','bg-emerald-100 text-emerald-600','bg-amber-100 text-amber-700','bg-violet-100 text-violet-600','bg-rose-100 text-rose-600'];
+    el.innerHTML = sorted.map(([,l],i) => {
         const initials = l.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-        const color    = avatarColors[i % avatarColors.length];
-        const date     = l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) : 'Just now';
-        return `<div class="flex items-center gap-4 group">
+        const color    = avColors[i%avColors.length];
+        const date     = l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) : 'Now';
+        return `<div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-2xl ${color} flex items-center justify-center text-xs font-bold flex-shrink-0">${initials}</div>
             <div class="flex-1 min-w-0">
                 <p class="font-medium text-gray-900 text-sm truncate">${l.name}</p>
-                <p class="text-xs text-gray-400 truncate">${l.assignedCourse || 'General'}</p>
+                <p class="text-xs text-gray-400 truncate">${l.assignedCourse||'General'}</p>
             </div>
             <span class="text-xs text-gray-400 flex-shrink-0">${date}</span>
         </div>`;
     }).join('');
 }
 
-// ─── Announcements ───────────────────────────────────────
+// ─── Announcements ────────────────────────────────────────
 function renderAnnouncements() {
-    const el = document.getElementById('ann-list');
-    const entries = Object.entries(window.announcementsMap).sort((a,b) => (b[1].createdAt||0)-(a[1].createdAt||0));
-
-    if (!entries.length) {
-        el.innerHTML = `<div class="text-center py-20 text-gray-400">
-            <div class="text-6xl mb-4">📣</div><p class="font-medium">No announcements yet.</p></div>`;
-        return;
-    }
-
+    const el      = document.getElementById('ann-list');
+    const entries = Object.entries(window.announcementsMap).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+    if (!entries.length) { el.innerHTML=`<div class="text-center py-20 text-gray-400"><div class="text-6xl mb-4">📣</div><p>No announcements yet.</p></div>`; return; }
     const pColors = { high:'bg-red-100 text-red-700', normal:'bg-indigo-100 text-indigo-700', low:'bg-slate-100 text-slate-600' };
-    el.innerHTML = entries.map(([key, a]) => `
-        <div class="bg-white rounded-2xl p-6 border border-gray-100 ann-${a.priority || 'normal'}">
+    el.innerHTML = entries.map(([key,a]) => `
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 ann-${a.priority||'normal'}">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
                     <div class="flex items-center gap-3 mb-2">
@@ -1038,153 +1465,140 @@ function renderAnnouncements() {
                         <span class="text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${pColors[a.priority]||pColors.normal}">${a.priority||'normal'}</span>
                     </div>
                     <p class="text-gray-600 text-sm leading-relaxed">${a.body}</p>
-                    <p class="text-xs text-gray-400 mt-3">${a.createdAt ? new Date(a.createdAt).toLocaleString('en-ZA') : ''}</p>
+                    <p class="text-xs text-gray-400 mt-3">${a.createdAt?new Date(a.createdAt).toLocaleString('en-ZA'):''}</p>
                 </div>
                 <button onclick="deleteAnnouncement('${key}')" class="flex-shrink-0 w-8 h-8 rounded-xl hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                 </button>
             </div>
-        </div>
-    `).join('');
+        </div>`).join('');
 }
 
 window.deleteAnnouncement = (key) => {
-    showConfirm('Delete Announcement?', 'This notice will be removed permanently.', async () => {
-        await remove(ref(db, `announcements/${key}`));
-        showToast('Announcement removed');
+    showConfirm('Delete Announcement?','This notice will be removed permanently.', async () => {
+        await remove(ref(db,`announcements/${key}`)); showToast('Announcement removed');
     });
 };
 
 document.getElementById('announcement-form').onsubmit = async (e) => {
     e.preventDefault();
-    showLoader(true, 'Posting announcement…');
-    await set(push(ref(db, 'announcements')), {
-        title:     document.getElementById('af-title').value.trim(),
-        body:      document.getElementById('af-body').value.trim(),
-        priority:  document.getElementById('af-priority').value,
-        createdAt: Date.now(),
+    showLoader(true,'Posting…');
+    await set(push(ref(db,'announcements')),{
+        title:    document.getElementById('af-title').value.trim(),
+        body:     document.getElementById('af-body').value.trim(),
+        priority: document.getElementById('af-priority').value,
+        createdAt:Date.now(),
     });
-    toggleModal('announcement', false);
+    toggleModal('announcement',false);
     document.getElementById('announcement-form').reset();
-    showLoader(false);
-    showToast('Announcement posted!');
+    showLoader(false); showToast('Announcement posted!');
 };
 
-// ─── Analytics ───────────────────────────────────────────
+// ─── Analytics ────────────────────────────────────────────
 function renderAnalytics() {
     const learners = Object.values(window.learnersMap);
     const total    = learners.length || 1;
-    const active   = learners.filter(l => l.status !== 'SUSPENDED').length;
-    const suspended = total - active - 1 < 0 ? 0 : total - active;
-
-    let male=0, female=0, other=0;
-    const courseEnrollment = {}, courseRevenue = {};
+    const active   = learners.filter(l=>l.status!=='SUSPENDED').length;
+    let male=0,female=0,other=0;
+    const courseEnrollment={}, courseRevenue={}, campusCount={};
 
     learners.forEach(l => {
-        if (l.gender === 'Male') male++;
-        else if (l.gender === 'Female') female++;
+        if (l.gender==='Male') male++;
+        else if (l.gender==='Female') female++;
         else other++;
-
-        const title = l.assignedCourse || 'Unassigned';
-        courseEnrollment[title] = (courseEnrollment[title] || 0) + 1;
+        const title = l.assignedCourse||'Unassigned';
+        courseEnrollment[title]=(courseEnrollment[title]||0)+1;
         const c = window.coursesByTitle[title];
-        if (c?.price) courseRevenue[title] = (courseRevenue[title] || 0) + parseFloat(c.price);
+        if (c?.price) courseRevenue[title]=(courseRevenue[title]||0)+parseFloat(c.price);
+        if (l.campus) {
+            const campName = window.campusesMap[l.campus]?.name || l.campus;
+            campusCount[campName]=(campusCount[campName]||0)+1;
+        }
     });
 
-    function barHtml(label, count, tot, color) {
-        const pct = tot > 0 ? Math.round(count / tot * 100) : 0;
-        return `<div class="mb-4">
-            <div class="flex justify-between text-xs mb-1.5"><span class="text-gray-600 font-medium">${label}</span><span class="text-gray-900 font-semibold">${count} <span class="text-gray-400 font-normal">(${pct}%)</span></span></div>
-            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${color} rounded-full cbar" style="width:${pct}%"></div></div>
-        </div>`;
+    function barHtml(label,count,tot,color) {
+        const pct = tot>0?Math.round(count/tot*100):0;
+        return `<div class="mb-4"><div class="flex justify-between text-xs mb-1.5"><span class="text-gray-600 font-medium">${label}</span><span class="text-gray-900 font-semibold">${count} <span class="text-gray-400">(${pct}%)</span></span></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${color} rounded-full cbar" style="width:${pct}%"></div></div></div>`;
     }
 
-    // Status
     document.getElementById('chart-status').innerHTML =
-        barHtml('Active', active, learners.length||1, 'bg-emerald-500') +
-        barHtml('Suspended', learners.length - active, learners.length||1, 'bg-red-400');
+        barHtml('Active',  active,           learners.length||1,'bg-emerald-500') +
+        barHtml('Suspended', learners.length-active, learners.length||1,'bg-red-400');
 
-    // Gender
     document.getElementById('chart-gender').innerHTML =
-        barHtml('Male',   male,   learners.length||1, 'bg-blue-500') +
-        barHtml('Female', female, learners.length||1, 'bg-pink-400') +
-        barHtml('Other',  other,  learners.length||1, 'bg-violet-400');
+        barHtml('Male',   male,   learners.length||1,'bg-blue-500') +
+        barHtml('Female', female, learners.length||1,'bg-pink-400') +
+        barHtml('Other',  other,  learners.length||1,'bg-violet-400');
 
-    // Revenue by course (horizontal bars)
-    const maxRev = Math.max(...Object.values(courseRevenue), 1);
+    // Campus breakdown
+    const maxCamp = Math.max(...Object.values(campusCount),1);
+    document.getElementById('chart-campus').innerHTML = Object.keys(campusCount).length
+        ? Object.entries(campusCount).sort((a,b)=>b[1]-a[1]).map(([n,cnt]) => barHtml(n,cnt,learners.length||1,'bg-rose-400')).join('')
+        : `<p class="text-gray-400 text-sm py-4">No campus data yet.</p>`;
+
+    const maxRev = Math.max(...Object.values(courseRevenue),1);
     document.getElementById('chart-revenue').innerHTML = Object.entries(courseRevenue).length
-        ? Object.entries(courseRevenue).sort((a,b)=>b[1]-a[1]).map(([title, rev]) => `
+        ? Object.entries(courseRevenue).sort((a,b)=>b[1]-a[1]).map(([title,rev])=>`
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-28 text-xs text-gray-500 truncate text-right flex-shrink-0" title="${title}">${title}</div>
-                <div class="flex-1 h-8 bg-slate-100 rounded-xl overflow-hidden">
-                    <div class="h-full bg-amber-400 rounded-xl cbar flex items-center justify-end pr-3" style="width:${Math.max(20,Math.round(rev/maxRev*100))}%">
-                        <span class="text-white text-xs font-semibold">R ${rev.toLocaleString('en-ZA')}</span>
-                    </div>
-                </div>
+                <div class="w-28 text-xs text-gray-500 truncate text-right flex-shrink-0">${title}</div>
+                <div class="flex-1 h-8 bg-slate-100 rounded-xl overflow-hidden"><div class="h-full bg-amber-400 rounded-xl cbar flex items-center justify-end pr-3" style="width:${Math.max(20,Math.round(rev/maxRev*100))}%"><span class="text-white text-xs font-semibold">R ${rev.toLocaleString('en-ZA')}</span></div></div>
             </div>`).join('')
         : `<p class="text-gray-400 text-sm py-4">No revenue data yet.</p>`;
 
-    // Enrollment by course
-    const maxEnr = Math.max(...Object.values(courseEnrollment), 1);
+    const maxEnr = Math.max(...Object.values(courseEnrollment),1);
     document.getElementById('chart-enrollment').innerHTML = Object.entries(courseEnrollment).length
-        ? Object.entries(courseEnrollment).sort((a,b)=>b[1]-a[1]).map(([title, count]) => `
+        ? Object.entries(courseEnrollment).sort((a,b)=>b[1]-a[1]).map(([title,count])=>`
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-28 text-xs text-gray-500 truncate text-right flex-shrink-0" title="${title}">${title}</div>
-                <div class="flex-1 h-8 bg-slate-100 rounded-xl overflow-hidden">
-                    <div class="h-full bg-indigo-500 rounded-xl cbar flex items-center justify-end pr-3" style="width:${Math.max(20,Math.round(count/maxEnr*100))}%">
-                        <span class="text-white text-xs font-semibold">${count}</span>
-                    </div>
-                </div>
+                <div class="w-28 text-xs text-gray-500 truncate text-right flex-shrink-0">${title}</div>
+                <div class="flex-1 h-8 bg-slate-100 rounded-xl overflow-hidden"><div class="h-full bg-indigo-500 rounded-xl cbar flex items-center justify-end pr-3" style="width:${Math.max(20,Math.round(count/maxEnr*100))}%"><span class="text-white text-xs font-semibold">${count}</span></div></div>
             </div>`).join('')
         : `<p class="text-gray-400 text-sm py-4">No enrollment data yet.</p>`;
 
-    // Key metrics
-    const totalRevenue = Object.values(courseRevenue).reduce((a,b) => a+b, 0);
-    const avgPrice = Object.values(window.coursesMap).reduce((a,c) => a + parseFloat(c.price||0), 0) / (Object.keys(window.coursesMap).length || 1);
+    const totalRevenue = Object.values(courseRevenue).reduce((a,b)=>a+b,0);
+    const avgPrice = Object.values(window.coursesMap).reduce((a,c)=>a+parseFloat(c.price||0),0)/(Object.keys(window.coursesMap).length||1);
     document.getElementById('chart-metrics').innerHTML = [
-        { label:'Total Learners', val: learners.length, color:'text-emerald-600' },
-        { label:'Active Learners', val: active, color:'text-indigo-600' },
-        { label:'Total Revenue', val:`R ${totalRevenue.toLocaleString('en-ZA')}`, color:'text-amber-600' },
-        { label:'Avg Course Price', val:`R ${Math.round(avgPrice).toLocaleString('en-ZA')}`, color:'text-violet-600' },
-        { label:'Total Courses', val: Object.keys(window.coursesMap).length, color:'text-blue-600' },
-    ].map(m => `<div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
-        <span class="text-sm text-gray-500">${m.label}</span>
-        <span class="font-bold ${m.color}">${m.val}</span>
-    </div>`).join('');
+        {label:'Total Learners',  val:learners.length,                           color:'text-emerald-600'},
+        {label:'Active Learners', val:active,                                    color:'text-indigo-600'},
+        {label:'Teachers',        val:Object.keys(window.teachersMap).length,    color:'text-sky-600'},
+        {label:'Campuses',        val:Object.keys(window.campusesMap).length,    color:'text-rose-600'},
+        {label:'Total Revenue',   val:`R ${totalRevenue.toLocaleString('en-ZA')}`,color:'text-amber-600'},
+        {label:'Avg Course Price',val:`R ${Math.round(avgPrice).toLocaleString('en-ZA')}`,color:'text-violet-600'},
+    ].map(m=>`<div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0"><span class="text-sm text-gray-500">${m.label}</span><span class="font-bold ${m.color}">${m.val}</span></div>`).join('');
 }
 
-// ─── CSV Export ──────────────────────────────────────────
+// ─── CSV Export ───────────────────────────────────────────
 window.exportCSV = () => {
-    const headers = ['Student ID','Full Name','Email','Date of Birth','Gender','Assigned Course','Course Duration','Status','Enrolled Date'];
+    const headers = ['Student ID','Full Name','Email','Date of Birth','Gender','Assigned Course','Course Duration','Teacher','Campus','Status','Enrolled Date'];
     const rows = Object.values(window.learnersMap).map(l => {
-        const dur = window.coursesByTitle[l.assignedCourse]?.duration || '';
+        const dur     = window.coursesByTitle[l.assignedCourse]?.duration || '';
+        const teacher = l.assignedTeacher ? (window.teachersMap[l.assignedTeacher]?.name||'') : '';
+        const campus  = l.campus ? (window.campusesMap[l.campus]?.name||'') : '';
         return [
-            l.id || '', l.name, l.email, l.dob || '', l.gender || '',
-            l.assignedCourse || '', dur, l.status || 'ACTIVE',
+            l.id||'', l.name, l.email, l.dob||'', l.gender||'',
+            l.assignedCourse||'', dur, teacher, campus,
+            l.status||'ACTIVE',
             l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA') : ''
-        ].map(v => `"${String(v).replace(/"/g,'""')}"`);
+        ].map(v=>`"${String(v).replace(/"/g,'""')}"`);
     });
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+    const csv  = [headers,...rows].map(r=>r.join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = `rare-grade-learners-${Date.now()}.csv`;
+    const a    = Object.assign(document.createElement('a'),{href:url, download:`rare-grade-learners-${Date.now()}.csv`});
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast('Exported successfully!');
 };
 
-// ─── Global Search ───────────────────────────────────────
+// ─── Global Search ────────────────────────────────────────
 window.globalSearch = () => {
     const q = document.getElementById('global-search').value.toLowerCase().trim();
     if (!q) return;
-    // Navigate to learners and apply search
     nav('learners');
     document.getElementById('learner-search').value = q;
     renderLearnerTable();
 };
 
-// ─── Init ────────────────────────────────────────────────
+// ─── Init ─────────────────────────────────────────────────
 nav('dashboard');
 </script>
 </body>
