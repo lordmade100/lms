@@ -98,6 +98,31 @@
         .av-4 { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
         .av-5 { background: linear-gradient(135deg,#ec4899,#db2777); }
 
+        /* Grade colours */
+        .grade-a { background:#dcfce7; color:#14532d; }
+        .grade-b { background:#dbeafe; color:#1e3a8a; }
+        .grade-c { background:#fef9c3; color:#713f12; }
+        .grade-d { background:#ffedd5; color:#7c2d12; }
+        .grade-f { background:#fee2e2; color:#7f1d1d; }
+
+        /* Pass / Fail */
+        .pill-pass { background:#dcfce7; color:#15803d; font-weight:700; }
+        .pill-fail { background:#fee2e2; color:#b91c1c; font-weight:700; }
+        .pill-pending { background:#f1f5f9; color:#64748b; font-weight:600; }
+
+        /* Marks table row */
+        .mrow:hover { background:#f8f9ff; }
+
+        /* Certificate canvas area */
+        #cert-canvas-wrap { background: linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%); }
+
+        /* Score ring */
+        .score-ring { --pct: 0; }
+
+        /* Test config tab */
+        .ttab { transition: all 0.2s; }
+        .ttab.active { background:#4f46e5; color:white; border-color:#4f46e5; }
+
         /* Mobile block */
         @media (max-width:768px) {
             #mobile-wall { display:flex !important; }
@@ -148,6 +173,15 @@
         <button onclick="nav('campuses')" id="nav-campuses" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7l9-4 9 4M4 7v14M20 7v14M9 21V11h6v10"/><path d="M9 7h.01M15 7h.01"/></svg>
             <span class="sb-text font-medium text-sm">Campuses</span>
+        </button>
+        <!-- Marks & Results -->
+        <button onclick="nav('marks')" id="nav-marks" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            <span class="sb-text font-medium text-sm">Marks & Results</span>
+        </button>
+        <button onclick="nav('teacher-reports')" id="nav-teacher-reports" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6M3 21h18M3 10l9-7 9 7"/></svg>
+            <span class="sb-text font-medium text-sm">Teacher Reports</span>
         </button>
         <button onclick="nav('analytics')" id="nav-analytics" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="12" width="5" height="10" rx="1"/><rect x="9.5" y="6" width="5" height="16" rx="1"/><rect x="17" y="2" width="5" height="20" rx="1"/></svg>
@@ -405,6 +439,182 @@
                 </button>
             </div>
             <div id="campuses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- ══════════════════════════════════ -->
+        <!-- ── MARKS & RESULTS ── -->
+        <!-- ══════════════════════════════════ -->
+        <section id="sec-marks" class="hidden">
+            <!-- Sub-nav tabs -->
+            <div class="flex items-center justify-between mb-7">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Marks &amp; Results</h2>
+                    <p class="text-sm text-gray-400 mt-1">Test configuration, learner scores, and certificate generation</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="marksTab('overview')" id="mtab-overview" class="ttab active px-5 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 bg-white">Overview</button>
+                    <button onclick="marksTab('tests')" id="mtab-tests" class="ttab px-5 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 bg-white">Tests Config</button>
+                    <button onclick="marksTab('enter')" id="mtab-enter" class="ttab px-5 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 bg-white">Enter Marks</button>
+                    <button onclick="marksTab('certificates')" id="mtab-certs" class="ttab px-5 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 bg-white">Certificates</button>
+                </div>
+            </div>
+
+            <!-- OVERVIEW sub-section -->
+            <div id="marks-overview">
+                <!-- Summary stat strip -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
+                    <div class="bg-white rounded-2xl p-5 border border-gray-100">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Tests Configured</p>
+                        <h3 id="mstat-tests" class="mono text-4xl font-bold text-indigo-600 mt-2">0</h3>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 border border-gray-100">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Marks Captured</p>
+                        <h3 id="mstat-marks" class="mono text-4xl font-bold text-emerald-600 mt-2">0</h3>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 border border-gray-100">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Certificates Issued</p>
+                        <h3 id="mstat-certs" class="mono text-4xl font-bold text-amber-600 mt-2">0</h3>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 border border-gray-100">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Class Average</p>
+                        <h3 id="mstat-avg" class="mono text-4xl font-bold text-violet-600 mt-2">—</h3>
+                    </div>
+                </div>
+
+                <!-- Filter controls -->
+                <div class="flex flex-wrap gap-3 mb-5">
+                    <select id="ov-filter-teacher" onchange="renderMarksOverview()" class="field bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-sm">
+                        <option value="">All Teachers</option>
+                    </select>
+                    <select id="ov-filter-course" onchange="renderMarksOverview()" class="field bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-sm">
+                        <option value="">All Courses</option>
+                    </select>
+                    <select id="ov-filter-test" onchange="renderMarksOverview()" class="field bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-sm">
+                        <option value="">All Tests</option>
+                    </select>
+                    <input id="ov-search" oninput="renderMarksOverview()" placeholder="Search learner…" class="field bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-sm min-w-[200px]">
+                </div>
+
+                <!-- Marks master table -->
+                <div class="bg-white rounded-3xl border border-gray-100 overflow-x-auto shadow-sm">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-xs uppercase font-semibold text-gray-400 tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4 text-left">Learner</th>
+                                <th class="px-6 py-4 text-left">Course</th>
+                                <th class="px-6 py-4 text-left">Teacher</th>
+                                <th class="px-6 py-4 text-left">Test</th>
+                                <th class="px-6 py-4 text-left">Score</th>
+                                <th class="px-6 py-4 text-left">Pass Mark</th>
+                                <th class="px-6 py-4 text-left">Grade</th>
+                                <th class="px-6 py-4 text-left">Result</th>
+                                <th class="px-6 py-4 text-left">Certificate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="marks-tbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TESTS CONFIG sub-section -->
+            <div id="marks-tests" class="hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-semibold text-gray-900">Test Configuration</h3>
+                    <button onclick="openTestForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm flex items-center gap-2 transition">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 4v16m8-8H4"/></svg>
+                        New Test
+                    </button>
+                </div>
+                <div id="tests-list" class="space-y-4"></div>
+            </div>
+
+            <!-- ENTER MARKS sub-section -->
+            <div id="marks-enter" class="hidden">
+                <div class="bg-white rounded-3xl border border-gray-100 p-7 mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-5">Select Test to Enter Marks</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Teacher</label>
+                            <select id="em-teacher" onchange="loadTestsForTeacher()" class="field w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm bg-white">
+                                <option value="">— Select Teacher —</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Test</label>
+                            <select id="em-test" onchange="loadLearnersForTest()" class="field w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm bg-white">
+                                <option value="">— Select Test —</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <div id="em-test-info" class="hidden w-full bg-indigo-50 text-indigo-700 text-sm px-4 py-3 rounded-xl">
+                                <p id="em-test-info-text"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="em-learners-wrap" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-900" id="em-heading">Enter Marks</h3>
+                        <button onclick="saveAllMarks()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm flex items-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            Save All Marks
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-3xl border border-gray-100 overflow-x-auto shadow-sm">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 text-xs uppercase font-semibold text-gray-400 tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4 text-left">Student ID</th>
+                                    <th class="px-6 py-4 text-left">Learner Name</th>
+                                    <th class="px-6 py-4 text-left">Course</th>
+                                    <th class="px-6 py-4 text-left w-40">Score (%)</th>
+                                    <th class="px-6 py-4 text-left">Pass Mark</th>
+                                    <th class="px-6 py-4 text-left">Auto Result</th>
+                                </tr>
+                            </thead>
+                            <tbody id="em-tbody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CERTIFICATES sub-section -->
+            <div id="marks-certificates" class="hidden">
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <select id="cert-filter-course" onchange="renderCertificates()" class="field bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-sm">
+                        <option value="">All Courses</option>
+                    </select>
+                    <select id="cert-filter-test" onchange="renderCertificates()" class="field bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-sm">
+                        <option value="">All Tests</option>
+                    </select>
+                    <div class="flex gap-2">
+                        <button onclick="certView('passed')" id="cvtab-passed" class="ttab active px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-white">Passed ✓</button>
+                        <button onclick="certView('all')" id="cvtab-all" class="ttab px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-white">All</button>
+                    </div>
+                </div>
+                <div id="certs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════ -->
+        <!-- ── TEACHER REPORTS ── -->
+        <!-- ══════════════════════════════════ -->
+        <section id="sec-teacher-reports" class="hidden">
+            <div class="flex items-center justify-between mb-7">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Teacher Reports</h2>
+                    <p class="text-sm text-gray-400 mt-1">Overall learner marks per teacher, and per-learner test breakdown</p>
+                </div>
+                <select id="tr-teacher-filter" onchange="renderTeacherReport()" class="field bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-sm min-w-[220px]">
+                    <option value="">All Teachers</option>
+                </select>
+            </div>
+
+            <!-- Teacher summary cards -->
+            <div id="tr-summary-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8"></div>
+
+            <!-- Per-teacher learner breakdown -->
+            <div id="tr-detail-wrap" class="space-y-8"></div>
         </section>
 
         <!-- ── ANALYTICS ── -->
@@ -741,6 +951,76 @@
         </form>
     </div>
 
+    <!-- ── CERTIFICATE PREVIEW MODAL ── -->
+    <div id="modal-certificate" class="mpanel bg-white w-full max-w-3xl rounded-3xl shadow-2xl hidden overflow-hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="font-bold text-xl">Certificate of Achievement</h3>
+            <div class="flex gap-3">
+                <button onclick="printCertificate()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+                    Print / Save PDF
+                </button>
+                <button onclick="toggleModal('certificate',false)" class="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+            </div>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[80vh]">
+            <div id="certificate-render" class="w-full"></div>
+        </div>
+    </div>
+
+    <!-- ── TEST FORM MODAL ── -->
+    <div id="modal-test" class="mpanel bg-white w-full max-w-md rounded-3xl shadow-2xl hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-gray-100">
+            <h3 id="test-form-title" class="font-bold text-xl">Create New Test</h3>
+        </div>
+        <form id="test-form" class="p-8 space-y-5">
+            <input type="hidden" id="test-edit-key">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Test Name</label>
+                <input type="text" id="testf-name" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm" placeholder="e.g. Mid-Term Assessment">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Assign to Teacher</label>
+                <select id="testf-teacher" required class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                    <option value="">— Select Teacher —</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Course</label>
+                <select id="testf-course" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm bg-white">
+                    <option value="">All Courses</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Marks</label>
+                    <input type="number" id="testf-total" required min="1" max="1000" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm" placeholder="100">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Pass Mark %</label>
+                    <div class="relative">
+                        <input type="number" id="testf-passmark" required min="1" max="100" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm pr-10" placeholder="50">
+                        <span class="absolute right-4 top-3.5 text-gray-400 text-sm font-semibold">%</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1.5">Minimum % to pass</p>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Test Date</label>
+                <input type="date" id="testf-date" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Description (optional)</label>
+                <textarea id="testf-desc" rows="2" class="field w-full border border-gray-200 rounded-2xl px-5 py-3.5 text-sm resize-none" placeholder="Additional notes about this test…"></textarea>
+            </div>
+            <div id="testf-passmark-preview" class="hidden bg-indigo-50 rounded-2xl px-5 py-3 text-sm text-indigo-700 font-medium"></div>
+            <div class="pt-2 flex gap-4">
+                <button type="button" onclick="toggleModal('test',false)" class="flex-1 py-4 border border-gray-200 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold text-sm transition">Save Test</button>
+            </div>
+        </form>
+    </div>
+
 </div><!-- /modal-overlay -->
 
 <div id="toast-root"></div>
@@ -783,10 +1063,13 @@ window.coursesByTitle   = {};
 window.announcementsMap = {};
 window.teachersMap      = {};
 window.campusesMap      = {};
+window.testsMap         = {};
+window.marksMap         = {};
 window.currentLearnerKey = null;
 window.courseEditKey     = null;
 window.teacherEditKey    = null;
 window.campusEditKey     = null;
+window.testEditKey       = null;
 window.confirmCallback   = null;
 let statusFilter = 'all';
 
@@ -829,11 +1112,13 @@ window.nav = (target) => {
     if (sec) { sec.classList.remove('hidden'); sec.classList.add('section-in'); setTimeout(() => sec.classList.remove('section-in'), 400); }
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     document.getElementById(`nav-${target}`)?.classList.add('active');
-    const titles = { dashboard:'Dashboard', courses:'Course Catalog', learners:'Learner Registry', teachers:'Teachers', campuses:'Campuses & Schools', analytics:'Analytics & Reports', announcements:'Announcements' };
+    const titles = { dashboard:'Dashboard', courses:'Course Catalog', learners:'Learner Registry', teachers:'Teachers', campuses:'Campuses & Schools', marks:'Marks & Results', 'teacher-reports':'Teacher Reports', analytics:'Analytics & Reports', announcements:'Announcements' };
     document.getElementById('page-title').textContent = titles[target] || target;
-    if (target === 'analytics') setTimeout(renderAnalytics, 150);
-    if (target === 'teachers')  setTimeout(() => renderTeachers(), 50);
-    if (target === 'campuses')  setTimeout(() => renderCampuses(), 50);
+    if (target === 'analytics')        setTimeout(renderAnalytics, 150);
+    if (target === 'teachers')         setTimeout(() => renderTeachers(), 50);
+    if (target === 'campuses')         setTimeout(() => renderCampuses(), 50);
+    if (target === 'marks')            setTimeout(() => { initMarksSection(); renderMarksOverview(); }, 50);
+    if (target === 'teacher-reports')  setTimeout(() => initTeacherReports(), 100);
 };
 
 window.showConfirm = (title, msg, cb) => {
@@ -891,6 +1176,20 @@ onValue(ref(db, 'announcements'), snap => {
     document.getElementById('stat-anns').textContent = Object.keys(window.announcementsMap).length;
     const notifDot = document.getElementById('notif-dot');
     notifDot.classList.toggle('hidden', !Object.values(window.announcementsMap).some(a => a.priority === 'high'));
+});
+
+onValue(ref(db, 'tests'), snap => {
+    window.testsMap = snap.val() || {};
+    renderTestsList();
+    populateTestSelects();
+    updateMarksStats();
+});
+
+onValue(ref(db, 'marks'), snap => {
+    window.marksMap = snap.val() || {};
+    renderMarksOverview();
+    renderCertificates();
+    updateMarksStats();
 });
 
 // ─── Stats ────────────────────────────────────────────────
@@ -1596,6 +1895,737 @@ window.globalSearch = () => {
     nav('learners');
     document.getElementById('learner-search').value = q;
     renderLearnerTable();
+};
+
+// ─── Marks Helpers ────────────────────────────────────────
+function gradeFromPct(pct) {
+    if (pct >= 80) return { letter:'A', cls:'grade-a' };
+    if (pct >= 70) return { letter:'B', cls:'grade-b' };
+    if (pct >= 60) return { letter:'C', cls:'grade-c' };
+    if (pct >= 50) return { letter:'D', cls:'grade-d' };
+    return { letter:'F', cls:'grade-f' };
+}
+
+function passResult(score, passMark, total) {
+    // score is raw marks, passMark is %, total is total marks
+    const pct = total > 0 ? Math.round(score / total * 100) : 0;
+    const passed = pct >= passMark;
+    return { pct, passed };
+}
+
+function updateMarksStats() {
+    const testCount = Object.keys(window.testsMap).length;
+    const markCount = Object.keys(window.marksMap).length;
+    const passCount = Object.values(window.marksMap).filter(m => {
+        const t = window.testsMap[m.testKey];
+        if (!t) return false;
+        const { passed } = passResult(m.score, t.passMark || 50, t.total || 100);
+        return passed;
+    }).length;
+    const allPcts = Object.values(window.marksMap).map(m => {
+        const t = window.testsMap[m.testKey];
+        if (!t) return null;
+        return Math.round(m.score / (t.total || 100) * 100);
+    }).filter(v => v !== null);
+    const avg = allPcts.length ? Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length) : null;
+
+    document.getElementById('mstat-tests').textContent = testCount;
+    document.getElementById('mstat-marks').textContent = markCount;
+    document.getElementById('mstat-certs').textContent = passCount;
+    document.getElementById('mstat-avg').textContent   = avg !== null ? avg + '%' : '—';
+}
+
+// ─── Tests Config ─────────────────────────────────────────
+function renderTestsList() {
+    const el = document.getElementById('tests-list');
+    if (!el) return;
+    const entries = Object.entries(window.testsMap).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+    if (!entries.length) {
+        el.innerHTML = `<div class="bg-white rounded-3xl border border-gray-100 py-16 text-center text-gray-400"><div class="text-5xl mb-4">📋</div><p class="font-medium">No tests configured yet. Create your first test!</p></div>`;
+        return;
+    }
+    el.innerHTML = entries.map(([key, t]) => {
+        const teacher = t.teacherKey ? (window.teachersMap[t.teacherKey]?.name || '—') : '—';
+        const markCount = Object.values(window.marksMap).filter(m => m.testKey === key).length;
+        const passCount = Object.values(window.marksMap).filter(m => {
+            if (m.testKey !== key) return false;
+            const { passed } = passResult(m.score, t.passMark || 50, t.total || 100);
+            return passed;
+        }).length;
+        const passPct = t.passMark || 50;
+        const passMarkRaw = Math.round((passPct / 100) * (t.total || 100));
+        return `<div class="bg-white rounded-2xl border border-gray-100 p-6 flex items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1">
+                    <h4 class="font-bold text-gray-900">${t.name}</h4>
+                    ${t.course ? `<span class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-2.5 py-0.5 rounded-lg">${t.course}</span>` : ''}
+                </div>
+                <p class="text-sm text-gray-500">Teacher: <span class="font-medium text-gray-700">${teacher}</span> · Total: <span class="font-semibold">${t.total || 100}</span> · Pass: <span class="font-semibold text-emerald-600">${passPct}% (≥${passMarkRaw} marks)</span>${t.date ? ` · ${t.date}` : ''}</p>
+                ${t.desc ? `<p class="text-xs text-gray-400 mt-1 truncate">${t.desc}</p>` : ''}
+            </div>
+            <div class="flex items-center gap-6 flex-shrink-0">
+                <div class="text-center">
+                    <p class="text-xs text-gray-400 mb-0.5">Marked</p>
+                    <p class="font-bold text-gray-900 mono">${markCount}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-400 mb-0.5">Passed</p>
+                    <p class="font-bold text-emerald-600 mono">${passCount}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="editTest('${key}')" class="bg-slate-100 hover:bg-slate-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-semibold transition">Edit</button>
+                    <button onclick="confirmDeleteTest('${key}')" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl text-xs font-semibold transition">Delete</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function populateTestSelects() {
+    // Overview filter
+    const ovFilter = document.getElementById('ov-filter-test');
+    if (ovFilter) {
+        const cur = ovFilter.value;
+        ovFilter.innerHTML = '<option value="">All Tests</option>';
+        Object.entries(window.testsMap).forEach(([k,t]) => {
+            ovFilter.innerHTML += `<option value="${k}">${t.name}</option>`;
+        });
+        if (cur) ovFilter.value = cur;
+    }
+    // Enter marks test select (populated by loadTestsForTeacher)
+    // Cert filter
+    const certFilter = document.getElementById('cert-filter-test');
+    if (certFilter) {
+        const cur = certFilter.value;
+        certFilter.innerHTML = '<option value="">All Tests</option>';
+        Object.entries(window.testsMap).forEach(([k,t]) => {
+            certFilter.innerHTML += `<option value="${k}">${t.name}</option>`;
+        });
+        if (cur) certFilter.value = cur;
+    }
+    // Test form teacher select
+    const testfTeacher = document.getElementById('testf-teacher');
+    if (testfTeacher) {
+        const cur = testfTeacher.value;
+        testfTeacher.innerHTML = '<option value="">— Select Teacher —</option>';
+        Object.entries(window.teachersMap).forEach(([k,t]) => {
+            testfTeacher.innerHTML += `<option value="${k}">${t.name}${t.subject?' ('+t.subject+')':''}</option>`;
+        });
+        if (cur) testfTeacher.value = cur;
+    }
+    const testfCourse = document.getElementById('testf-course');
+    if (testfCourse) {
+        const cur = testfCourse.value;
+        testfCourse.innerHTML = '<option value="">All Courses</option>';
+        Object.values(window.coursesMap).forEach(c => {
+            testfCourse.innerHTML += `<option value="${c.title}">${c.title}</option>`;
+        });
+        if (cur) testfCourse.value = cur;
+    }
+    // Overview teacher filter
+    const ovTeacher = document.getElementById('ov-filter-teacher');
+    if (ovTeacher) {
+        const cur = ovTeacher.value;
+        ovTeacher.innerHTML = '<option value="">All Teachers</option>';
+        Object.entries(window.teachersMap).forEach(([k,t]) => {
+            ovTeacher.innerHTML += `<option value="${k}">${t.name}</option>`;
+        });
+        if (cur) ovTeacher.value = cur;
+    }
+    const ovCourse = document.getElementById('ov-filter-course');
+    if (ovCourse) {
+        const cur = ovCourse.value;
+        ovCourse.innerHTML = '<option value="">All Courses</option>';
+        Object.values(window.coursesMap).forEach(c => {
+            ovCourse.innerHTML += `<option value="${c.title}">${c.title}</option>`;
+        });
+        if (cur) ovCourse.value = cur;
+    }
+    // Cert filter course
+    const certCourse = document.getElementById('cert-filter-course');
+    if (certCourse) {
+        const cur = certCourse.value;
+        certCourse.innerHTML = '<option value="">All Courses</option>';
+        Object.values(window.coursesMap).forEach(c => {
+            certCourse.innerHTML += `<option value="${c.title}">${c.title}</option>`;
+        });
+        if (cur) certCourse.value = cur;
+    }
+    // EM teacher select
+    const emTeacher = document.getElementById('em-teacher');
+    if (emTeacher) {
+        const cur = emTeacher.value;
+        emTeacher.innerHTML = '<option value="">— Select Teacher —</option>';
+        Object.entries(window.teachersMap).forEach(([k,t]) => {
+            emTeacher.innerHTML += `<option value="${k}">${t.name}${t.subject?' ('+t.subject+')':''}</option>`;
+        });
+        if (cur) emTeacher.value = cur;
+    }
+}
+
+function initMarksSection() {
+    populateTestSelects();
+    renderTestsList();
+    renderMarksOverview();
+    renderCertificates();
+    updateMarksStats();
+}
+
+window.openTestForm = () => {
+    window.testEditKey = null;
+    document.getElementById('test-form').reset();
+    document.getElementById('test-form-title').textContent = 'Create New Test';
+    document.getElementById('testf-passmark-preview').classList.add('hidden');
+    populateTestSelects();
+    toggleModal('test', true);
+};
+
+window.editTest = (key) => {
+    window.testEditKey = key;
+    const t = window.testsMap[key];
+    document.getElementById('test-form-title').textContent = 'Edit Test';
+    document.getElementById('test-edit-key').value  = key;
+    document.getElementById('testf-name').value     = t.name || '';
+    document.getElementById('testf-total').value    = t.total || 100;
+    document.getElementById('testf-passmark').value = t.passMark || 50;
+    document.getElementById('testf-date').value     = t.date || '';
+    document.getElementById('testf-desc').value     = t.desc || '';
+    populateTestSelects();
+    setTimeout(() => {
+        document.getElementById('testf-teacher').value = t.teacherKey || '';
+        document.getElementById('testf-course').value  = t.course || '';
+        updatePassmarkPreview();
+    }, 50);
+    toggleModal('test', true);
+};
+
+window.confirmDeleteTest = (key) => {
+    const t = window.testsMap[key];
+    showConfirm('Delete Test?', `Delete "${t?.name}"? All associated marks will remain.`, async () => {
+        showLoader(true, 'Deleting test…');
+        await remove(ref(db, `tests/${key}`));
+        showLoader(false); showToast('Test deleted');
+    });
+};
+
+window.updatePassmarkPreview = () => {
+    const total = parseFloat(document.getElementById('testf-total').value) || 0;
+    const pct   = parseFloat(document.getElementById('testf-passmark').value) || 0;
+    const el    = document.getElementById('testf-passmark-preview');
+    if (total > 0 && pct > 0) {
+        const rawPass = Math.round(pct / 100 * total);
+        el.textContent = `Pass mark = ${rawPass} out of ${total} marks (${pct}%)`;
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+};
+
+document.getElementById('testf-total').addEventListener('input', window.updatePassmarkPreview);
+document.getElementById('testf-passmark').addEventListener('input', window.updatePassmarkPreview);
+
+document.getElementById('test-form').onsubmit = async (e) => {
+    e.preventDefault();
+    showLoader(true, 'Saving test…');
+    const data = {
+        name:       document.getElementById('testf-name').value.trim(),
+        teacherKey: document.getElementById('testf-teacher').value,
+        course:     document.getElementById('testf-course').value,
+        total:      parseFloat(document.getElementById('testf-total').value) || 100,
+        passMark:   parseFloat(document.getElementById('testf-passmark').value) || 50,
+        date:       document.getElementById('testf-date').value,
+        desc:       document.getElementById('testf-desc').value.trim(),
+    };
+    const key = document.getElementById('test-edit-key').value;
+    if (key) {
+        await update(ref(db, `tests/${key}`), data);
+        showToast('Test updated!');
+    } else {
+        data.createdAt = Date.now();
+        await set(push(ref(db, 'tests')), data);
+        showToast('Test created!');
+    }
+    toggleModal('test', false); showLoader(false);
+};
+
+// ─── Enter Marks ──────────────────────────────────────────
+window.loadTestsForTeacher = () => {
+    const teacherKey = document.getElementById('em-teacher').value;
+    const testSel = document.getElementById('em-test');
+    testSel.innerHTML = '<option value="">— Select Test —</option>';
+    document.getElementById('em-learners-wrap').classList.add('hidden');
+    document.getElementById('em-test-info').classList.add('hidden');
+    if (!teacherKey) return;
+    Object.entries(window.testsMap)
+        .filter(([,t]) => t.teacherKey === teacherKey)
+        .forEach(([k, t]) => {
+            testSel.innerHTML += `<option value="${k}">${t.name}${t.course?' — '+t.course:''}</option>`;
+        });
+};
+
+window.loadLearnersForTest = () => {
+    const testKey    = document.getElementById('em-test').value;
+    const teacherKey = document.getElementById('em-teacher').value;
+    const wrap       = document.getElementById('em-learners-wrap');
+    const infoBox    = document.getElementById('em-test-info');
+    const infoText   = document.getElementById('em-test-info-text');
+    wrap.classList.add('hidden');
+    infoBox.classList.add('hidden');
+    if (!testKey) return;
+    const t = window.testsMap[testKey];
+    if (!t) return;
+    const passMarkRaw = Math.round((t.passMark || 50) / 100 * (t.total || 100));
+    infoText.textContent = `Total: ${t.total || 100} marks · Pass: ${t.passMark || 50}% (≥${passMarkRaw} marks)`;
+    infoBox.classList.remove('hidden');
+
+    // Learners for this teacher's course
+    const learners = Object.entries(window.learnersMap).filter(([,l]) => {
+        if (teacherKey && l.assignedTeacher !== teacherKey) return false;
+        if (t.course && l.assignedCourse !== t.course) return false;
+        return true;
+    });
+
+    document.getElementById('em-heading').textContent = `Enter Marks for "${t.name}"`;
+    const tbody = document.getElementById('em-tbody');
+    if (!learners.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center text-gray-400">No learners assigned to this teacher/course.</td></tr>`;
+        wrap.classList.remove('hidden');
+        return;
+    }
+    tbody.innerHTML = learners.map(([lKey, l]) => {
+        // Look up existing mark
+        const existingMark = Object.entries(window.marksMap).find(([,m]) => m.testKey === testKey && m.learnerKey === lKey);
+        const savedScore = existingMark ? existingMark[1].score : '';
+        const passPct = t.passMark || 50;
+        let autoResult = '—';
+        if (savedScore !== '') {
+            const { pct, passed } = passResult(savedScore, passPct, t.total || 100);
+            autoResult = `<span class="${passed?'pill-pass':'pill-fail'} px-3 py-1 rounded-full text-xs">${passed?'PASS':'FAIL'} (${pct}%)</span>`;
+        }
+        return `<tr class="mrow">
+            <td class="px-6 py-4 mono text-indigo-600 text-xs">${l.id || '—'}</td>
+            <td class="px-6 py-4 font-medium text-gray-900">${l.name}</td>
+            <td class="px-6 py-4 text-gray-500">${l.assignedCourse || '—'}</td>
+            <td class="px-6 py-4 w-44">
+                <input type="number" data-learner="${lKey}" class="mark-input field border border-gray-200 rounded-xl px-3 py-2 text-sm w-full" min="0" max="${t.total||100}" placeholder="0–${t.total||100}" value="${savedScore}" oninput="previewResult(this,'${testKey}')">
+            </td>
+            <td class="px-6 py-4 text-sm font-semibold text-emerald-600">≥${Math.round(passPct/100*(t.total||100))} (${passPct}%)</td>
+            <td class="px-6 py-4" id="auto-result-${lKey}">${autoResult}</td>
+        </tr>`;
+    }).join('');
+    wrap.classList.remove('hidden');
+};
+
+window.previewResult = (input, testKey) => {
+    const lKey  = input.dataset.learner;
+    const score = parseFloat(input.value);
+    const t     = window.testsMap[testKey];
+    const cell  = document.getElementById(`auto-result-${lKey}`);
+    if (!cell || !t || isNaN(score)) { if(cell) cell.innerHTML = '—'; return; }
+    const { pct, passed } = passResult(score, t.passMark || 50, t.total || 100);
+    cell.innerHTML = `<span class="${passed?'pill-pass':'pill-fail'} px-3 py-1 rounded-full text-xs">${passed?'PASS':'FAIL'} (${pct}%)</span>`;
+};
+
+window.saveAllMarks = async () => {
+    const testKey = document.getElementById('em-test').value;
+    if (!testKey) return;
+    const t = window.testsMap[testKey];
+    if (!t) return;
+    showLoader(true, 'Saving marks…');
+    const inputs = document.querySelectorAll('.mark-input');
+    const saves  = [];
+    inputs.forEach(inp => {
+        const lKey  = inp.dataset.learner;
+        const score = parseFloat(inp.value);
+        if (isNaN(score) || score < 0) return;
+        // Find existing mark key
+        const existing = Object.entries(window.marksMap).find(([,m]) => m.testKey === testKey && m.learnerKey === lKey);
+        const markData = { testKey, learnerKey: lKey, score, savedAt: Date.now() };
+        if (existing) {
+            saves.push(update(ref(db, `marks/${existing[0]}`), markData));
+        } else {
+            saves.push(set(push(ref(db, 'marks')), markData));
+        }
+    });
+    await Promise.all(saves);
+    showLoader(false); showToast(`${saves.length} mark${saves.length!==1?'s':''} saved!`);
+};
+
+// ─── Marks Overview Table ─────────────────────────────────
+window.renderMarksOverview = () => {
+    const tbody       = document.getElementById('marks-tbody');
+    if (!tbody) return;
+    const teacherF   = document.getElementById('ov-filter-teacher')?.value || '';
+    const courseF    = document.getElementById('ov-filter-course')?.value  || '';
+    const testF      = document.getElementById('ov-filter-test')?.value    || '';
+    const searchQ    = (document.getElementById('ov-search')?.value || '').toLowerCase();
+
+    const rows = Object.entries(window.marksMap).filter(([, m]) => {
+        const l = window.learnersMap[m.learnerKey];
+        const t = window.testsMap[m.testKey];
+        if (!l || !t) return false;
+        if (teacherF && t.teacherKey !== teacherF) return false;
+        if (courseF  && l.assignedCourse !== courseF) return false;
+        if (testF    && m.testKey !== testF) return false;
+        if (searchQ  && !(l.name||'').toLowerCase().includes(searchQ)) return false;
+        return true;
+    });
+
+    if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="9" class="px-6 py-12 text-center text-gray-400"><div class="text-4xl mb-3">📊</div>No marks found.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = rows.map(([mKey, m]) => {
+        const l       = window.learnersMap[m.learnerKey];
+        const t       = window.testsMap[m.testKey];
+        const teacher = t.teacherKey ? (window.teachersMap[t.teacherKey]?.name || '—') : '—';
+        const { pct, passed } = passResult(m.score, t.passMark || 50, t.total || 100);
+        const grade   = gradeFromPct(pct);
+        const certBtn = passed
+            ? `<button onclick="previewCertificate('${m.learnerKey}','${m.testKey}')" class="text-amber-600 hover:text-amber-800 text-xs font-semibold hover:underline">🎓 View</button>`
+            : `<span class="text-gray-300 text-xs">—</span>`;
+        return `<tr class="mrow">
+            <td class="px-6 py-4 font-medium text-gray-900">${l.name}</td>
+            <td class="px-6 py-4 text-gray-500">${l.assignedCourse||'—'}</td>
+            <td class="px-6 py-4 text-gray-500">${teacher}</td>
+            <td class="px-6 py-4 font-medium text-gray-800">${t.name}</td>
+            <td class="px-6 py-4"><span class="mono font-bold text-gray-900">${m.score}</span><span class="text-gray-400 text-xs">/${t.total||100}</span></td>
+            <td class="px-6 py-4 text-emerald-600 font-semibold text-sm">${t.passMark||50}%</td>
+            <td class="px-6 py-4"><span class="${grade.cls} px-2.5 py-1 rounded-lg text-xs font-bold">${grade.letter} (${pct}%)</span></td>
+            <td class="px-6 py-4"><span class="${passed?'pill-pass':'pill-fail'} px-3 py-1 rounded-full text-xs">${passed?'PASS':'FAIL'}</span></td>
+            <td class="px-6 py-4">${certBtn}</td>
+        </tr>`;
+    }).join('');
+};
+
+// ─── Marks Sub-tabs ───────────────────────────────────────
+window.marksTab = (tab) => {
+    ['overview','tests','enter','certificates'].forEach(t => {
+        document.getElementById(`marks-${t}`).classList.toggle('hidden', t !== tab);
+        const btnId = t === 'overview' ? 'mtab-overview' : t === 'tests' ? 'mtab-tests' : t === 'enter' ? 'mtab-enter' : 'mtab-certs';
+        document.getElementById(btnId)?.classList.toggle('active', t === tab);
+    });
+    if (tab === 'tests') renderTestsList();
+    if (tab === 'overview') renderMarksOverview();
+    if (tab === 'certificates') renderCertificates();
+};
+
+// ─── Certificates ─────────────────────────────────────────
+let certViewMode = 'passed';
+window.certView = (mode) => {
+    certViewMode = mode;
+    document.getElementById('cvtab-passed').classList.toggle('active', mode === 'passed');
+    document.getElementById('cvtab-all').classList.toggle('active', mode === 'all');
+    renderCertificates();
+};
+
+window.renderCertificates = () => {
+    const grid    = document.getElementById('certs-grid');
+    if (!grid) return;
+    const courseF = document.getElementById('cert-filter-course')?.value || '';
+    const testF   = document.getElementById('cert-filter-test')?.value   || '';
+
+    const items = Object.entries(window.marksMap).map(([mKey, m]) => {
+        const l = window.learnersMap[m.learnerKey];
+        const t = window.testsMap[m.testKey];
+        if (!l || !t) return null;
+        const { pct, passed } = passResult(m.score, t.passMark || 50, t.total || 100);
+        return { mKey, m, l, t, pct, passed };
+    }).filter(Boolean)
+      .filter(x => certViewMode === 'all' || x.passed)
+      .filter(x => !courseF || x.l.assignedCourse === courseF)
+      .filter(x => !testF   || x.m.testKey === testF);
+
+    if (!items.length) {
+        grid.innerHTML = `<div class="col-span-3 py-20 text-center text-gray-400"><div class="text-5xl mb-4">🎓</div><p class="font-medium">${certViewMode==='passed'?'No passed results yet.':'No results found.'}</p></div>`;
+        return;
+    }
+
+    const avGrad = ['from-indigo-500 to-violet-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-rose-500 to-pink-600','from-sky-500 to-blue-600'];
+    grid.innerHTML = items.map((x, i) => {
+        const teacher = x.t.teacherKey ? (window.teachersMap[x.t.teacherKey]?.name || '—') : '—';
+        const grade   = gradeFromPct(x.pct);
+        const avCls   = avGrad[i % avGrad.length];
+        const initials = x.l.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+        return `<div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hov-card">
+            <div class="bg-gradient-to-br ${avCls} p-5 flex items-center gap-4">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white font-bold text-lg">${initials}</div>
+                <div class="min-w-0">
+                    <h4 class="font-bold text-white truncate">${x.l.name}</h4>
+                    <p class="text-white/70 text-xs">${x.l.assignedCourse || '—'}</p>
+                </div>
+                <div class="ml-auto text-right">
+                    <p class="text-3xl font-black text-white">${x.pct}%</p>
+                    <p class="text-white/70 text-xs">${x.passed?'PASSED':'FAILED'}</p>
+                </div>
+            </div>
+            <div class="p-5">
+                <p class="text-sm text-gray-600 mb-1"><span class="font-semibold text-gray-800">Test:</span> ${x.t.name}</p>
+                <p class="text-sm text-gray-600 mb-3"><span class="font-semibold text-gray-800">Teacher:</span> ${teacher}</p>
+                <div class="flex items-center justify-between">
+                    <span class="${grade.cls} px-2.5 py-1 rounded-lg text-xs font-bold">Grade ${grade.letter}</span>
+                    ${x.passed ? `<button onclick="previewCertificate('${x.m.learnerKey}','${x.m.testKey}')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">🎓 Certificate</button>` : `<span class="text-xs text-gray-400 font-medium">Below pass mark</span>`}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+};
+
+// ─── Certificate Generator ────────────────────────────────
+window.previewCertificate = (learnerKey, testKey) => {
+    const l = window.learnersMap[learnerKey];
+    const t = window.testsMap[testKey];
+    const markEntry = Object.values(window.marksMap).find(m => m.learnerKey === learnerKey && m.testKey === testKey);
+    if (!l || !t || !markEntry) return;
+    const { pct } = passResult(markEntry.score, t.passMark || 50, t.total || 100);
+    const grade    = gradeFromPct(pct);
+    const teacher  = t.teacherKey ? (window.teachersMap[t.teacherKey]?.name || 'Rare Grade') : 'Rare Grade';
+    const issueDate = new Date().toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' });
+
+    document.getElementById('certificate-render').innerHTML = buildCertificateHTML(l, t, markEntry, pct, grade, teacher, issueDate);
+    window._certPrintData = { l, t, markEntry, pct, grade, teacher, issueDate };
+    toggleModal('certificate', true);
+};
+
+function buildCertificateHTML(l, t, markEntry, pct, grade, teacher, issueDate) {
+    return `<div id="cert-print-area" style="font-family:'Georgia',serif; background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0f172a 100%); color:white; border-radius:16px; padding:0; overflow:hidden; position:relative;">
+        <!-- Gold border frame -->
+        <div style="border:3px solid #f59e0b; border-radius:14px; margin:12px; padding:48px 56px; position:relative; text-align:center;">
+            <!-- Corner ornaments -->
+            <div style="position:absolute;top:12px;left:12px;width:32px;height:32px;border-top:3px solid #f59e0b;border-left:3px solid #f59e0b;border-radius:4px 0 0 0;"></div>
+            <div style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-top:3px solid #f59e0b;border-right:3px solid #f59e0b;border-radius:0 4px 0 0;"></div>
+            <div style="position:absolute;bottom:12px;left:12px;width:32px;height:32px;border-bottom:3px solid #f59e0b;border-left:3px solid #f59e0b;border-radius:0 0 0 4px;"></div>
+            <div style="position:absolute;bottom:12px;right:12px;width:32px;height:32px;border-bottom:3px solid #f59e0b;border-right:3px solid #f59e0b;border-radius:0 0 4px 0;"></div>
+
+            <!-- Logo + Brand -->
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;">
+                <div style="width:48px;height:48px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-weight:900;font-size:18px;">RG</div>
+                <div style="text-align:left;">
+                    <p style="font-family:sans-serif;font-weight:800;font-size:18px;margin:0;color:white;">Rare Grade</p>
+                    <p style="font-family:sans-serif;font-size:11px;color:#94a3b8;margin:2px 0 0;">Learning Management System</p>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <p style="font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:#f59e0b;margin:0 0 8px;font-family:sans-serif;font-weight:600;">This is to certify that</p>
+            <h1 style="font-size:38px;font-weight:700;margin:0 0 4px;color:white;letter-spacing:-0.5px;">${l.name}</h1>
+            <p style="color:#94a3b8;font-size:13px;margin:0 0 24px;font-family:sans-serif;">${l.id || ''}</p>
+
+            <p style="font-size:13px;color:#cbd5e1;margin:0 0 8px;font-family:sans-serif;">has successfully completed</p>
+            <h2 style="font-size:22px;font-weight:700;color:#f59e0b;margin:0 0 4px;">${t.course || 'Course'}</h2>
+            <p style="font-size:15px;color:#e2e8f0;margin:0 0 28px;font-family:sans-serif;">Assessment: <strong>${t.name}</strong></p>
+
+            <!-- Score Ring / Badge -->
+            <div style="display:flex;justify-content:center;gap:32px;margin:0 0 32px;">
+                <div style="text-align:center;">
+                    <div style="width:80px;height:80px;border:4px solid #10b981;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+                        <span style="font-size:22px;font-weight:900;color:#10b981;">${pct}%</span>
+                    </div>
+                    <p style="font-size:11px;color:#94a3b8;font-family:sans-serif;margin:0;">Score</p>
+                </div>
+                <div style="text-align:center;">
+                    <div style="width:80px;height:80px;border:4px solid #f59e0b;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+                        <span style="font-size:24px;font-weight:900;color:#f59e0b;">${grade.letter}</span>
+                    </div>
+                    <p style="font-size:11px;color:#94a3b8;font-family:sans-serif;margin:0;">Grade</p>
+                </div>
+                <div style="text-align:center;">
+                    <div style="width:80px;height:80px;border:4px solid #6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+                        <span style="font-size:13px;font-weight:900;color:#6366f1;">PASS</span>
+                    </div>
+                    <p style="font-size:11px;color:#94a3b8;font-family:sans-serif;margin:0;">Result</p>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="border-top:1px solid rgba(245,158,11,0.3);margin:0 40px 24px;"></div>
+
+            <!-- Signatures row -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:0 20px;">
+                <div style="text-align:center;">
+                    <div style="border-bottom:1px solid #64748b;padding-bottom:4px;margin-bottom:6px;min-width:140px;font-size:15px;color:#e2e8f0;font-style:italic;">${teacher}</div>
+                    <p style="font-size:10px;color:#94a3b8;font-family:sans-serif;margin:0;">Instructor</p>
+                </div>
+                <div style="text-align:center;">
+                    <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-family:sans-serif;font-weight:900;font-size:14px;">RG</div>
+                    <p style="font-size:10px;color:#94a3b8;font-family:sans-serif;margin:0;">Official Seal</p>
+                </div>
+                <div style="text-align:center;">
+                    <div style="border-bottom:1px solid #64748b;padding-bottom:4px;margin-bottom:6px;min-width:140px;font-size:15px;color:#e2e8f0;font-style:italic;">Rare Grade LMS</div>
+                    <p style="font-size:10px;color:#94a3b8;font-family:sans-serif;margin:0;">Authorised by</p>
+                </div>
+            </div>
+
+            <p style="font-size:10px;color:#475569;margin:20px 0 0;font-family:sans-serif;">Issued on ${issueDate} · Pass threshold: ${t.passMark||50}% · Score: ${markEntry.score}/${t.total||100}</p>
+        </div>
+    </div>`;
+}
+
+window.printCertificate = () => {
+    const certHTML = document.getElementById('cert-print-area')?.outerHTML;
+    if (!certHTML) return;
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html><html><head><title>Certificate — Rare Grade</title><style>@media print{body{margin:0;}}</style></head><body style="background:#0f172a;padding:32px;">${certHTML}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 400);
+};
+
+// ─── Teacher Reports ──────────────────────────────────────
+function initTeacherReports() {
+    const sel = document.getElementById('tr-teacher-filter');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All Teachers</option>';
+    Object.entries(window.teachersMap).forEach(([k,t]) => {
+        sel.innerHTML += `<option value="${k}">${t.name}${t.subject?' ('+t.subject+')':''}</option>`;
+    });
+    if (cur) sel.value = cur;
+    renderTeacherReport();
+}
+
+window.renderTeacherReport = () => {
+    const filterKey = document.getElementById('tr-teacher-filter')?.value || '';
+    const summaryEl = document.getElementById('tr-summary-cards');
+    const detailEl  = document.getElementById('tr-detail-wrap');
+    if (!summaryEl || !detailEl) return;
+
+    // Build teacher → {learners, marks, pass, avg} map
+    const teacherEntries = Object.entries(window.teachersMap)
+        .filter(([k]) => !filterKey || k === filterKey);
+
+    if (!teacherEntries.length) {
+        summaryEl.innerHTML = `<div class="col-span-3 py-16 text-center text-gray-400"><p>No teachers found.</p></div>`;
+        detailEl.innerHTML  = '';
+        return;
+    }
+
+    const avGrad = ['from-indigo-500 to-violet-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-sky-500 to-blue-600','from-rose-500 to-pink-600'];
+    let summaryHTML = '';
+    let detailHTML  = '';
+
+    teacherEntries.forEach(([tKey, teacher], ti) => {
+        // Learners under this teacher
+        const myLearners = Object.entries(window.learnersMap)
+            .filter(([, l]) => l.assignedTeacher === tKey);
+        // Tests by this teacher
+        const myTests = Object.entries(window.testsMap)
+            .filter(([, t]) => t.teacherKey === tKey);
+        // Marks for learners under this teacher
+        const myMarks = Object.entries(window.marksMap).filter(([, m]) => {
+            const l = window.learnersMap[m.learnerKey];
+            return l && l.assignedTeacher === tKey;
+        });
+        const passedMarks = myMarks.filter(([, m]) => {
+            const t = window.testsMap[m.testKey];
+            if (!t) return false;
+            const { passed } = passResult(m.score, t.passMark||50, t.total||100);
+            return passed;
+        });
+        const allPcts = myMarks.map(([, m]) => {
+            const t = window.testsMap[m.testKey];
+            if (!t) return null;
+            return Math.round(m.score / (t.total||100) * 100);
+        }).filter(v => v !== null);
+        const avg = allPcts.length ? Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length) : null;
+        const avCls = avGrad[ti % avGrad.length];
+        const initials = (teacher.name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+        const passRate = myMarks.length ? Math.round(passedMarks.length/myMarks.length*100) : null;
+
+        summaryHTML += `<div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hov-card">
+            <div class="bg-gradient-to-br ${avCls} p-5 flex items-center gap-4">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white font-bold text-lg">${initials}</div>
+                <div class="min-w-0 flex-1">
+                    <h4 class="font-bold text-white truncate">${teacher.name}</h4>
+                    <p class="text-white/70 text-xs">${teacher.subject || teacher.email || '—'}</p>
+                </div>
+            </div>
+            <div class="p-5 grid grid-cols-2 gap-4">
+                <div><p class="text-xs text-gray-400 mb-1">Learners</p><p class="font-bold text-gray-900 mono text-xl">${myLearners.length}</p></div>
+                <div><p class="text-xs text-gray-400 mb-1">Tests Set</p><p class="font-bold text-indigo-600 mono text-xl">${myTests.length}</p></div>
+                <div><p class="text-xs text-gray-400 mb-1">Class Average</p><p class="font-bold text-violet-600 mono text-xl">${avg !== null ? avg+'%' : '—'}</p></div>
+                <div><p class="text-xs text-gray-400 mb-1">Pass Rate</p><p class="font-bold text-emerald-600 mono text-xl">${passRate !== null ? passRate+'%' : '—'}</p></div>
+            </div>
+        </div>`;
+
+        // Detail: per learner, all tests
+        if (!myLearners.length) {
+            detailHTML += `<div class="bg-white rounded-3xl border border-gray-100 p-7">
+                <h3 class="font-bold text-gray-900 text-lg mb-1">${teacher.name}</h3>
+                <p class="text-sm text-gray-400">No learners assigned.</p>
+            </div>`;
+            return;
+        }
+
+        // Build columns from tests
+        const testCols = myTests.length
+            ? myTests
+            : Object.entries(window.testsMap); // fallback: show all tests
+
+        let tableHead = `<th class="px-5 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Learner</th>
+            <th class="px-5 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Course</th>`;
+        testCols.forEach(([, tc]) => {
+            tableHead += `<th class="px-5 py-4 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">${tc.name}<br><span class="text-indigo-400 font-normal normal-case">Pass: ${tc.passMark||50}%</span></th>`;
+        });
+        tableHead += `<th class="px-5 py-4 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">Overall Avg</th>`;
+
+        let tableRows = myLearners.map(([lKey, l]) => {
+            let cells = '';
+            const lPcts = [];
+            testCols.forEach(([tkKey, tc]) => {
+                const mark = Object.values(window.marksMap).find(m => m.learnerKey === lKey && m.testKey === tkKey);
+                if (mark) {
+                    const { pct, passed } = passResult(mark.score, tc.passMark||50, tc.total||100);
+                    lPcts.push(pct);
+                    const grade = gradeFromPct(pct);
+                    cells += `<td class="px-5 py-4 text-center">
+                        <div><span class="${grade.cls} px-2 py-0.5 rounded-lg text-xs font-bold">${grade.letter}</span></div>
+                        <div class="text-xs mt-1"><span class="${passed?'text-emerald-600':'text-red-500'} font-semibold">${pct}%</span></div>
+                        <div class="text-xs text-gray-400">${mark.score}/${tc.total||100}</div>
+                    </td>`;
+                } else {
+                    cells += `<td class="px-5 py-4 text-center text-gray-300 text-xs">—</td>`;
+                }
+            });
+            const lAvg = lPcts.length ? Math.round(lPcts.reduce((a,b)=>a+b,0)/lPcts.length) : null;
+            const lGrade = lAvg !== null ? gradeFromPct(lAvg) : null;
+            const certBtn = lAvg !== null && lAvg >= (testCols[0]?.[1]?.passMark || 50)
+                ? '' : '';
+            return `<tr class="mrow border-t border-gray-100">
+                <td class="px-5 py-4">
+                    <p class="font-medium text-gray-900 text-sm">${l.name}</p>
+                    <p class="text-xs text-gray-400 mono">${l.id||'—'}</p>
+                </td>
+                <td class="px-5 py-4 text-sm text-gray-500">${l.assignedCourse||'—'}</td>
+                ${cells}
+                <td class="px-5 py-4 text-center">
+                    ${lAvg !== null ? `<span class="${lGrade.cls} px-2.5 py-1 rounded-lg text-xs font-bold">${lAvg}%</span>` : '<span class="text-gray-300 text-xs">—</span>'}
+                </td>
+            </tr>`;
+        }).join('');
+
+        detailHTML += `<div class="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+            <div class="px-7 py-5 border-b border-gray-100 flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br ${avCls} rounded-2xl flex items-center justify-center text-white font-bold text-sm">${initials}</div>
+                <div>
+                    <h3 class="font-bold text-gray-900">${teacher.name}</h3>
+                    <p class="text-xs text-gray-400">${teacher.subject ? teacher.subject+' · ' : ''}${myLearners.length} learner${myLearners.length!==1?'s':''} · ${myTests.length} test${myTests.length!==1?'s':''}</p>
+                </div>
+                ${avg !== null ? `<div class="ml-auto text-right"><p class="text-xs text-gray-400">Class Average</p><p class="font-bold text-violet-600 text-xl mono">${avg}%</p></div>` : ''}
+            </div>
+            ${myTests.length === 0 ? `<p class="px-7 py-5 text-sm text-gray-400">No tests assigned to this teacher yet.</p>` : `
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50"><tr>${tableHead}</tr></thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>`}
+        </div>`;
+    });
+
+    summaryEl.innerHTML = summaryHTML;
+    detailEl.innerHTML  = detailHTML;
 };
 
 // ─── Init ─────────────────────────────────────────────────
